@@ -2,9 +2,12 @@ using UnityEngine;
 
 public class Tiles : MonoBehaviour
 {
+    public Color color;
+    public Vector3 position;
+    public float radius;
 
     void Update()
     {
-        Shapes.Sphere(Vector3.zero, 1, Color.yellow);
+        Shapes.Sphere(position, radius, color);
     }
 }

@@ -44,7 +44,14 @@ Shader "Unlit/PointShader"
 
             fixed4 frag (v2f i) : SV_Target
             {
-                return float4(_Color.rgb, i.uv.x);
+                float2 centerOffset = (i.uv.xy - 0.5) * 2;
+                float sqDist = dot(centerOffset, centerOffset);
+                float dist = sqrt(sqDist);
+
+                float delta = fwidth(dist);
+                float alpha = 1 - smoothstep(1 - delta, 1 + delta, sqDist);
+
+                return float4(_Color.rgb, _Color.a * alpha);
             }
             ENDCG
         }

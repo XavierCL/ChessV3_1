@@ -8,7 +8,7 @@ public class Shapes
 
     public static void Sphere(Vector3 position, float radius, Color color)
     {
-        if (radius <= 0) return;
+        if (radius <= 0 || color.a == 0) return;
 
         var scale = new Vector3(radius * 2, radius * 2, 1);
         var meshPosition = Matrix4x4.TRS(position, Quaternion.identity, scale);
