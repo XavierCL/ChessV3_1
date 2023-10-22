@@ -5,7 +5,7 @@ using UnityEngine;
 public class Shapes
 {
 
-    public static void Sphere(Vector3 position, float radius, Material material, Mesh mesh)
+    public static void Sphere(Vector3 position, float radius, Material material)
     {
         if (radius <= 0) return;
 
@@ -13,6 +13,6 @@ public class Shapes
         var meshPosition = Matrix4x4.TRS(position, Quaternion.identity, scale);
 
         var renderParams = new RenderParams(material);
-        Graphics.RenderMesh(renderParams, mesh, 0, meshPosition);
+        Graphics.RenderMesh(renderParams, DefaultMeshes.Quad, 0, meshPosition);
     }
 }
