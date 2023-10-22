@@ -13,7 +13,7 @@ public class Shapes
         var scale = new Vector3(radius * 2, radius * 2, 1);
         var meshPosition = Matrix4x4.TRS(position, Quaternion.identity, scale);
 
-        material.SetColor(1, color);
+        material.SetColor("_Color", color);
         var renderParams = new RenderParams(material);
         Graphics.RenderMesh(renderParams, DefaultMeshes.Quad, 0, meshPosition);
     }
