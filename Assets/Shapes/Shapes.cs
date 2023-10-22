@@ -4,13 +4,15 @@ using UnityEngine;
 
 public class Shapes
 {
-    public static void Sphere(Vector3 position, double radius, Color color)
+
+    public static void Sphere(Vector3 position, float radius, Material material, Mesh mesh)
     {
-        if (radius <= 0 || color.a == 0) return;
+        if (radius <= 0) return;
 
-        Mesh mesh = new Mesh();
-        mesh.SetColors()
+        var scale = new Vector3(radius * 2, radius * 2, 1);
+        var meshPosition = Matrix4x4.TRS(position, Quaternion.identity, scale);
 
-        Graphics.DrawMesh(mesh
+        var renderParams = new RenderParams(material);
+        Graphics.RenderMesh(renderParams, mesh, 0, meshPosition);
     }
 }
