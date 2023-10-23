@@ -1,4 +1,4 @@
-Shader "Unlit/PointShader"
+Shader "Unlit/CircleShader"
 {
     Properties
     {
