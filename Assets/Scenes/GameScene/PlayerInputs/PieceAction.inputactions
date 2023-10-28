@@ -1,0 +1,34 @@
+{
+    "name": "PieceAction",
+    "maps": [
+        {
+            "name": "Move piece",
+            "id": "0251a31c-8291-4955-9237-d942f1fcf2bf",
+            "actions": [
+                {
+                    "name": "press/release",
+                    "type": "Button",
+                    "id": "3557285f-c081-4482-8337-680df6aa546f",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "90522b0b-c282-4dde-994d-d9576f2c1ea2",
+                    "path": "<Pointer>/press",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "press/release",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}
