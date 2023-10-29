@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,14 +7,24 @@ public class BoardController : MonoBehaviour
     public GameType gameType;
     private GameState gameState = new GameState();
 
-    // Start is called before the first frame update
-    void Start()
+    public void StartNewGame(GameType gameType)
     {
-    }
+        this.gameType = gameType;
+        gameState = new GameState();
 
-    // Update is called once per frame
-    void Update()
-    {
+        // Handle board rotation
+        switch (this.gameType)
+        {
+            case GameType.HumanHuman:
+            case GameType.HumanWhiteAiBlack:
+            case GameType.Ai1WhiteAi2Black:
+                if (BoardRotated) RotateBoard();
+                break;
+            case GameType.HumanBlackAiWhite:
+            case GameType.Ai1BlackAi2White:
+                if (!BoardRotated) RotateBoard();
+                break;
+        }
     }
 
     private BoardPosition WorldPositionToBoardPosition(Vector2 worldPosition)
@@ -40,8 +49,6 @@ public class BoardController : MonoBehaviour
             if (gameType == GameType.HumanWhiteAiBlack && !gameState.whiteTurn) return;
             if (gameType == GameType.HumanBlackAiWhite && gameState.whiteTurn) return;
         }
-
-
     }
 
     public static void PlayerReleases()
