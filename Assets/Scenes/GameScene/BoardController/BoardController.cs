@@ -49,6 +49,8 @@ public class BoardController : MonoBehaviour
             if (gameType == GameType.HumanWhiteAiBlack && !gameState.whiteTurn) return;
             if (gameType == GameType.HumanBlackAiWhite && gameState.whiteTurn) return;
         }
+
+
     }
 
     public static void PlayerReleases()
