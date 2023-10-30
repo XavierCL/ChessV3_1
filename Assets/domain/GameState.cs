@@ -6,9 +6,16 @@ public class GameState
     public int turn { get; set; }
     public bool whiteTurn { get => turn % 2 == 0; }
 
+    public GameState()
+    {
+        turn = 0;
+    }
+
     public List<Move> getLegalMoves()
     {
-        return new List<Move> { new Move { source = new BoardPosition(0, 1), target = new BoardPosition(0, 2) } };
+        if (whiteTurn)
+            return new List<Move> { new Move { source = new BoardPosition(0, 1), target = new BoardPosition(0, 2) } };
+        else return new List<Move> { new Move { source = new BoardPosition(7, 6), target = new BoardPosition(7, 5) } };
     }
 
     public List<PiecePosition> getPiecePositions()
@@ -51,6 +58,6 @@ public class GameState
 
     public void PlayMove(Move move)
     {
-
+        ++turn;
     }
 }

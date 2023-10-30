@@ -32,6 +32,7 @@ public class GameController : MonoBehaviour
         }
 
         boardController.ResetPieces(gameState);
+        TriggerAiMoveIfNeeded();
     }
 
     public void PlayImmediateMove(Move move)
@@ -51,7 +52,10 @@ public class GameController : MonoBehaviour
 
     private async void TriggerAiMoveIfNeeded()
     {
-        if (gameType == GameType.Ai1WhiteAi2Black || gameType == GameType.Ai1BlackAi2White || (gameType == GameType.HumanWhiteAiBlack && !gameState.whiteTurn) || (gameType == GameType.HumanBlackAiWhite && gameState.whiteTurn))
+        if (gameType == GameType.Ai1WhiteAi2Black
+        || gameType == GameType.Ai1BlackAi2White
+        || (gameType == GameType.HumanWhiteAiBlack && !gameState.whiteTurn)
+        || (gameType == GameType.HumanBlackAiWhite && gameState.whiteTurn))
         {
             var aiMove = await GameObject.Find(nameof(AiController)).GetComponent<AiController>().GetMove(gameState);
             PlayAnimatedMove(aiMove);
