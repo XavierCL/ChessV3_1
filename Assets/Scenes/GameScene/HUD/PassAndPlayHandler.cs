@@ -4,6 +4,6 @@ public class PassAndPlayHandler : MonoBehaviour
 {
     public void ButtonPressed()
     {
-        GameObject.Find(nameof(BoardController)).GetComponent<BoardController>().StartNewGame(GameType.HumanHuman);
+        GameObject.Find(nameof(GameController)).GetComponent<GameController>().StartNewGame(GameType.HumanHuman);
     }
 }
