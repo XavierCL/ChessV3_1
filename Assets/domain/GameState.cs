@@ -1,26 +1,17 @@
 
 using System.Collections.Generic;
+using System.Linq;
 
 public class GameState
 {
     public int turn { get; set; }
     public bool whiteTurn { get => turn % 2 == 0; }
+    private List<PiecePosition> piecePositions;
 
     public GameState()
     {
         turn = 0;
-    }
-
-    public List<Move> getLegalMoves()
-    {
-        if (whiteTurn)
-            return new List<Move> { new Move { source = new BoardPosition(0, 1), target = new BoardPosition(0, 2) } };
-        else return new List<Move> { new Move { source = new BoardPosition(7, 6), target = new BoardPosition(7, 5) } };
-    }
-
-    public List<PiecePosition> getPiecePositions()
-    {
-        return new List<PiecePosition> {
+        piecePositions = new List<PiecePosition> {
             new PiecePosition{pieceType=PieceType.WhiteRook, position=new BoardPosition(0, 0)},
             new PiecePosition{pieceType=PieceType.WhiteKnight, position=new BoardPosition(1, 0)},
             new PiecePosition{pieceType=PieceType.WhiteBishop, position=new BoardPosition(2, 0)},
@@ -56,8 +47,37 @@ public class GameState
         };
     }
 
+    public List<Move> getLegalMoves()
+    {
+        var ownPawn = whiteTurn ? PieceType.WhitePawn : PieceType.BlackPawn;
+        var ownPawnStartingY = whiteTurn ? 1 : 6;
+        var increment = whiteTurn ? 1 : -1;
+        var stopCondition = whiteTurn ? 7 : 0;
+
+        return piecePositions
+            .Where(piecePosition => piecePosition.pieceType == ownPawn && piecePosition.position.row != stopCondition)
+            .SelectMany(pawnPosition => pawnPosition.position.row == ownPawnStartingY
+                ? new List<Move> {
+                    new Move { source = pawnPosition.position, target = new BoardPosition(pawnPosition.position.col, pawnPosition.position.row + increment) },
+                    new Move { source = pawnPosition.position, target = new BoardPosition(pawnPosition.position.col, pawnPosition.position.row + increment * 2) }
+                } : new List<Move> { new Move { source = pawnPosition.position, target = new BoardPosition(pawnPosition.position.col, pawnPosition.position.row + increment) } })
+            .ToList();
+    }
+
+    public List<PiecePosition> getPiecePositions()
+    {
+        return piecePositions;
+    }
+
     public void PlayMove(Move move)
     {
+        piecePositions = piecePositions.Where(piece => !piece.position.Equals(move.target)).ToList();
+
+        var sourcePiece = piecePositions.Find(piece => piece.position.Equals(move.source));
+        if (sourcePiece == null) return;
+
+        sourcePiece.position = move.target;
+
         ++turn;
     }
 }

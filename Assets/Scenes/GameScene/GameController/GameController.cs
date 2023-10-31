@@ -35,23 +35,18 @@ public class GameController : MonoBehaviour
         TriggerAiMoveIfNeeded();
     }
 
-    public void PlayImmediateMove(Move move)
-    {
-        gameState.PlayMove(move);
-
-        if (gameType == GameType.HumanHuman) boardController.RotateBoard();
-        TriggerAiMoveIfNeeded();
-    }
-
-    private void PlayAnimatedMove(Move move)
+    public void PlayAnimatedMove(Move move)
     {
         gameState.PlayMove(move);
         boardController.AnimateMove(move);
+        if (gameType == GameType.HumanHuman) boardController.RotateBoard();
         TriggerAiMoveIfNeeded();
     }
 
     private async void TriggerAiMoveIfNeeded()
     {
+        if (gameState.getLegalMoves().Count == 0) return;
+
         if (gameType == GameType.Ai1WhiteAi2Black
         || gameType == GameType.Ai1BlackAi2White
         || (gameType == GameType.HumanWhiteAiBlack && !gameState.whiteTurn)

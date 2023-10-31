@@ -10,6 +10,10 @@ public class BoardController : MonoBehaviour
     public PieceSprites pieceSprites;
     public List<PieceGameObject> pieceGameObjects;
     public List<PieceAnimation> pieceAnimations = new List<PieceAnimation>();
+    public Color PossibleTargetColor = Color.green;
+    public Color CurrentTargetColor = Color.green;
+    public float PossibleTargetRadius = 0.2f;
+    public float SingleFrameZ = 0.01f;
 
     public void Awake()
     {
@@ -32,7 +36,9 @@ public class BoardController : MonoBehaviour
             {
                 spriteRenderer.sprite = pieceSprites.GetSpriteFor(pieceAnimation.newType.Value);
             }
-            spriteRenderer.sortingOrder = 1;
+            spriteRenderer.sortingLayerName = "Pieces";
+
+            // Todo handle rock
         }
 
         pieceAnimations = pieceAnimations.Where(pieceAnimation => pieceAnimation.endTimeSeconds > frameTime).ToList();
@@ -45,14 +51,33 @@ public class BoardController : MonoBehaviour
             var deltaPosition = endWorldPosition - pieceAnimation.startPosition;
             var currentPosition = pieceAnimation.startPosition + deltaPosition * animationRatio;
             pieceAnimation.gameObject.transform.position = new Vector3(currentPosition.x, currentPosition.y, 0);
-            pieceAnimation.gameObject.GetComponent<SpriteRenderer>().sortingOrder = 2;
+            pieceAnimation.gameObject.GetComponent<SpriteRenderer>().sortingLayerName = "Animation";
         }
+    }
+
+    public void DrawPossibleTargets(GameState gameState, BoardPosition source)
+    {
+        var possibleTargets = gameState.getLegalMoves().Where(move => move.source.Equals(source)).Select(move => move.target);
+        foreach (var possibleTarget in possibleTargets)
+        {
+            var possibleWorldPosition = BoardPositionToWorldPosition(possibleTarget);
+            Shapes.Circle(new Vector3(possibleWorldPosition.x, possibleWorldPosition.y, SingleFrameZ), PossibleTargetRadius, PossibleTargetColor);
+        }
+    }
+
+    public void DrawCurrentTarget(GameState gameState, BoardPosition source, Vector2 targetWorldPosition)
+    {
+        var targetPosition = WorldPositionToBoardPosition(targetWorldPosition);
+        if (!gameState.getLegalMoves().Any(move => move.source.Equals(source) && move.target.Equals(targetPosition))) return;
+
+        var normalizedTargetWorldPosition = BoardPositionToWorldPosition(targetPosition);
+        Shapes.Rectangle(new Vector3(normalizedTargetWorldPosition.x, normalizedTargetWorldPosition.y, SingleFrameZ), 1, 1, CurrentTargetColor);
     }
 
     public void ResetPieces(GameState gameState)
     {
         var piecePositions = gameState.getPiecePositions().Select((piecePosition, index) => (piecePosition, index)).ToList();
-        foreach (var (piecePosition, index) in gameState.getPiecePositions().Select((piecePosition, index) => (piecePosition, index)))
+        foreach (var (piecePosition, index) in piecePositions)
         {
             var pieceGameObject = GetPieceGameObjects()[index];
             var worldPosition = BoardPositionToWorldPosition(piecePosition.position);
@@ -124,6 +149,16 @@ public class BoardController : MonoBehaviour
     {
         var pieceGameObject = GetPieceGameObjects().Find(pieceGameObject => Equals(pieceGameObject.position, move.source));
         if (pieceGameObject == null) return;
+
+        // Kill targets
+        var killedTarget = pieceGameObjects.Find(possibleTarget => Equals(possibleTarget.position, move.target));
+        if (killedTarget != null)
+        {
+            killedTarget.gameObject.SetActive(false);
+            killedTarget.position = null;
+        }
+
+        // Todo handle en-passant
 
         pieceGameObject.position = move.target;
         AnimatePiece(pieceGameObject.gameObject, move.target, move.promotion);
