@@ -9,6 +9,12 @@ public class PlayerInputHandler : MonoBehaviour
     private BoardPosition startPosition;
     private BoardController boardController;
     private GameController gameController;
+    private PromotionHandler promotionHandler;
+
+    void Awake()
+    {
+        promotionHandler = GameObject.Find(nameof(PromotionHandler)).GetComponent<PromotionHandler>();
+    }
 
     void Start()
     {
@@ -29,6 +35,13 @@ public class PlayerInputHandler : MonoBehaviour
 
     private void OnPress()
     {
+        // Check promotion in progress
+        if (promotionHandler.PromotionInProgress)
+        {
+            HandlePromotionPress();
+            return;
+        }
+
         // Check human turn
         var gameController = GetGameController();
         if (gameController.gameType == GameType.Ai1WhiteAi2Black || gameController.gameType == GameType.Ai1BlackAi2White) return;
@@ -62,19 +75,26 @@ public class PlayerInputHandler : MonoBehaviour
         var gameController = GetGameController();
         var boardController = GetBoardController();
         var endBoardPosition = boardController.WorldPositionToBoardPosition(mainCamera.ScreenToWorldPoint(Pointer.current.position.ReadValue()));
-        var moveAttempt = new Move(startPosition, endBoardPosition, null);
-        if (!gameController.gameState.getLegalMoves().Any(move => move.Equals(moveAttempt)))
+        var validMoves = gameController.gameState.getLegalMoves().Where(move => move.source.Equals(startPosition) && move.target.Equals(endBoardPosition)).ToList();
+        if (validMoves.Count == 0)
         {
             // Reset position
             var originalPosition = boardController.BoardPositionToWorldPosition(startPosition);
-            boardController.AnimatePiece(selectedPiece, startPosition, null);
+            boardController.AnimatePiece(selectedPiece, startPosition, null, true);
         }
         else
         {
-            // Play move
-            var finalPosition = boardController.BoardPositionToWorldPosition(endBoardPosition);
-            selectedPiece.transform.position = new Vector3(finalPosition.x, finalPosition.y, 0);
-            gameController.PlayAnimatedMove(moveAttempt);
+            if (validMoves.Count > 1)
+            {
+                // Pawn promotion
+                promotionHandler.PromptPromotion(startPosition, endBoardPosition);
+            }
+            else
+            {
+                // Play move
+                var finalPosition = boardController.BoardPositionToWorldPosition(endBoardPosition);
+                gameController.PlayAnimatedMove(new Move(startPosition, endBoardPosition, null), false);
+            }
         }
 
         var spriteRenderer = selectedPiece.GetComponent<SpriteRenderer>();
@@ -84,11 +104,35 @@ public class PlayerInputHandler : MonoBehaviour
 
     public void Update()
     {
+        UpdateSelectedHover();
+        UpdatePromotionHover();
+    }
+
+    private void HandlePromotionPress()
+    {
+        var rayHit = Physics2D.GetRayIntersection(mainCamera.ScreenPointToRay(Pointer.current.position.ReadValue()));
+        if (!rayHit.collider) return;
+
+        promotionHandler.FinalizePromotion(rayHit.collider.gameObject);
+    }
+
+    private void UpdateSelectedHover()
+    {
         if (!selectedPiece) return;
+
         var mousePosition = mainCamera.ScreenToWorldPoint(Pointer.current.position.ReadValue());
         selectedPiece.transform.position = new Vector3(mousePosition.x, mousePosition.y, 0);
         GetBoardController().DrawPossibleTargets(GetGameController().gameState, startPosition);
         GetBoardController().DrawCurrentTarget(GetGameController().gameState, startPosition, new Vector2(mousePosition.x, mousePosition.y));
+    }
+
+    private void UpdatePromotionHover()
+    {
+        if (!promotionHandler.PromotionInProgress) return;
+
+        var rayHit = Physics2D.GetRayIntersection(mainCamera.ScreenPointToRay(Pointer.current.position.ReadValue()));
+        if (!rayHit.collider) return;
+        promotionHandler.UpdateHoverPromotion(rayHit.collider.gameObject);
     }
 
     private BoardController GetBoardController()

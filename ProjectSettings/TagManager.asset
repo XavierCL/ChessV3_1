@@ -44,6 +44,12 @@ TagManager:
   - name: Pieces
     uniqueID: 1068315163
     locked: 0
+  - name: PromotionBackground
+    uniqueID: 453094579
+    locked: 0
+  - name: Promotion
+    uniqueID: 1057418287
+    locked: 0
   - name: Default
     uniqueID: 0
     locked: 0

@@ -125,7 +125,7 @@ public class BoardController : MonoBehaviour
         if (!BoardRotated) RotateBoard();
     }
 
-    public void AnimatePiece(GameObject gameObject, BoardPosition destination, PieceType? newType)
+    public void AnimatePiece(GameObject gameObject, BoardPosition destination, PieceType? newType, bool animated)
     {
         pieceAnimations = pieceAnimations.Where(pieceAnimation => !pieceAnimation.gameObject.Equals(gameObject)).ToList();
         var startTime = Time.time;
@@ -133,7 +133,7 @@ public class BoardController : MonoBehaviour
         var endWorldPosition = BoardPositionToWorldPosition(destination);
         var deltaNorm = (endWorldPosition - startPosition).magnitude;
         var speed = Mathf.Clamp(deltaNorm / AnimationSeconds, AnimationMinimumSpeed, deltaNorm / AnimationSeconds);
-        var finalDuration = deltaNorm / speed;
+        var finalDuration = animated ? deltaNorm / speed : 0;
         pieceAnimations.Add(new PieceAnimation
         {
             gameObject = gameObject,
@@ -145,7 +145,7 @@ public class BoardController : MonoBehaviour
         });
     }
 
-    public void AnimateMove(Move move)
+    public void AnimateMove(Move move, bool animated)
     {
         var pieceGameObject = GetPieceGameObjects().Find(pieceGameObject => Equals(pieceGameObject.position, move.source));
         if (pieceGameObject == null) return;
@@ -161,7 +161,7 @@ public class BoardController : MonoBehaviour
         // Todo handle en-passant
 
         pieceGameObject.position = move.target;
-        AnimatePiece(pieceGameObject.gameObject, move.target, move.promotion);
+        AnimatePiece(pieceGameObject.gameObject, move.target, move.promotion, animated);
     }
 
     private List<PieceGameObject> GetPieceGameObjects()

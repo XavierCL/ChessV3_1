@@ -35,10 +35,10 @@ public class GameController : MonoBehaviour
         TriggerAiMoveIfNeeded();
     }
 
-    public void PlayAnimatedMove(Move move)
+    public void PlayAnimatedMove(Move move, bool animated)
     {
         gameState.PlayMove(move);
-        boardController.AnimateMove(move);
+        boardController.AnimateMove(move, animated);
         if (gameType == GameType.HumanHuman) boardController.RotateBoard();
         TriggerAiMoveIfNeeded();
     }
@@ -53,7 +53,7 @@ public class GameController : MonoBehaviour
         || (gameType == GameType.HumanBlackAiWhite && gameState.whiteTurn))
         {
             var aiMove = await GameObject.Find(nameof(AiController)).GetComponent<AiController>().GetMove(gameState);
-            PlayAnimatedMove(aiMove);
+            PlayAnimatedMove(aiMove, true);
         }
     }
 }

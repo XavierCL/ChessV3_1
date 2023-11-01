@@ -53,14 +53,29 @@ public class GameState
         var ownPawnStartingY = whiteTurn ? 1 : 6;
         var increment = whiteTurn ? 1 : -1;
         var stopCondition = whiteTurn ? 7 : 0;
+        var promotions = whiteTurn
+            ? new List<PieceType> { PieceType.WhiteRook, PieceType.WhiteKnight, PieceType.WhiteBishop, PieceType.WhiteQueen }
+            : new List<PieceType> { PieceType.BlackRook, PieceType.BlackKnight, PieceType.BlackBishop, PieceType.BlackQueen };
 
         return piecePositions
             .Where(piecePosition => piecePosition.pieceType == ownPawn && piecePosition.position.row != stopCondition)
-            .SelectMany(pawnPosition => pawnPosition.position.row == ownPawnStartingY
-                ? new List<Move> {
-                    new Move { source = pawnPosition.position, target = new BoardPosition(pawnPosition.position.col, pawnPosition.position.row + increment) },
-                    new Move { source = pawnPosition.position, target = new BoardPosition(pawnPosition.position.col, pawnPosition.position.row + increment * 2) }
-                } : new List<Move> { new Move { source = pawnPosition.position, target = new BoardPosition(pawnPosition.position.col, pawnPosition.position.row + increment) } })
+            .SelectMany(pawnPosition =>
+            {
+                if (pawnPosition.position.row == ownPawnStartingY)
+                {
+                    return new List<Move> {
+                        new Move { source = pawnPosition.position, target = new BoardPosition(pawnPosition.position.col, pawnPosition.position.row + increment) }   ,
+                        new Move { source = pawnPosition.position, target = new BoardPosition(pawnPosition.position.col, pawnPosition.position.row + increment * 2) }
+                    };
+                }
+
+                if (pawnPosition.position.row == stopCondition - increment)
+                {
+                    return promotions.Select(promotion => new Move { source = pawnPosition.position, target = new BoardPosition(pawnPosition.position.col, pawnPosition.position.row + increment), promotion = promotion }).ToList();
+                }
+
+                return new List<Move> { new Move { source = pawnPosition.position, target = new BoardPosition(pawnPosition.position.col, pawnPosition.position.row + increment) } };
+            })
             .ToList();
     }
 
