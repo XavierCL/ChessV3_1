@@ -7,6 +7,7 @@ public class PromotionHandler : MonoBehaviour
     private GameObject promotionKnight;
     private GameObject promotionBishop;
     private GameObject promotionQueen;
+    private Shapes shapes;
     private BoardPosition? promotionStartPosition;
     private BoardPosition? promotionEndPosition;
     public bool PromotionInProgress { get => promotionStartPosition != null; }
@@ -19,6 +20,7 @@ public class PromotionHandler : MonoBehaviour
         promotionBishop = GameObject.Find("promotionBishop");
         promotionQueen = GameObject.Find("promotionQueen");
         gameObject.SetActive(false);
+        shapes = GameObject.Find(nameof(Shapes)).GetComponent<Shapes>();
     }
 
     public void PromptPromotion(BoardPosition source, BoardPosition target)
@@ -54,7 +56,7 @@ public class PromotionHandler : MonoBehaviour
         if (!PromotionInProgress) return;
         var promotionGameObjects = new List<GameObject> { promotionRook, promotionKnight, promotionBishop, promotionQueen };
         if (!promotionGameObjects.Contains(collider)) return;
-        Shapes.Rectangle(new Vector3(collider.transform.position.x, collider.transform.position.y, 0), 1.1f, 1, CurrentTargetColor);
+        shapes.Rectangle(new Vector3(collider.transform.position.x, collider.transform.position.y, 0), 1.1f, 1, CurrentTargetColor);
     }
 
     public void FinalizePromotion(GameObject collider)

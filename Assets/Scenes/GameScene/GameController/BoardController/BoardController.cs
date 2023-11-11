@@ -8,6 +8,7 @@ public class BoardController : MonoBehaviour
     public float AnimationMinimumSpeed = 10f;
     public bool BoardRotated = false;
     public PieceSprites pieceSprites;
+    public Shapes shapes;
     public List<PieceGameObject> pieceGameObjects;
     public List<PieceAnimation> pieceAnimations = new List<PieceAnimation>();
     public Color PossibleTargetColor = Color.green;
@@ -19,6 +20,7 @@ public class BoardController : MonoBehaviour
     {
         GetPieceGameObjects();
         pieceSprites = GameObject.Find(nameof(PieceSprites)).GetComponent<PieceSprites>();
+        shapes = GameObject.Find(nameof(Shapes)).GetComponent<Shapes>();
     }
 
     void Update()
@@ -61,7 +63,7 @@ public class BoardController : MonoBehaviour
         foreach (var possibleTarget in possibleTargets)
         {
             var possibleWorldPosition = BoardPositionToWorldPosition(possibleTarget);
-            Shapes.Circle(new Vector3(possibleWorldPosition.x, possibleWorldPosition.y, SingleFrameZ), PossibleTargetRadius, PossibleTargetColor);
+            shapes.Circle(new Vector3(possibleWorldPosition.x, possibleWorldPosition.y, SingleFrameZ), PossibleTargetRadius, PossibleTargetColor);
         }
     }
 
@@ -71,7 +73,7 @@ public class BoardController : MonoBehaviour
         if (!gameState.getLegalMoves().Any(move => move.source.Equals(source) && move.target.Equals(targetPosition))) return;
 
         var normalizedTargetWorldPosition = BoardPositionToWorldPosition(targetPosition);
-        Shapes.Rectangle(new Vector3(normalizedTargetWorldPosition.x, normalizedTargetWorldPosition.y, SingleFrameZ), 1, 1, CurrentTargetColor);
+        shapes.Rectangle(new Vector3(normalizedTargetWorldPosition.x, normalizedTargetWorldPosition.y, SingleFrameZ), 1, 1, CurrentTargetColor);
     }
 
     public void ResetPieces(GameState gameState)
