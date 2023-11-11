@@ -84,6 +84,13 @@ public class GameState
         return piecePositions;
     }
 
+    public PieceType getPieceAtPosition(BoardPosition position)
+    {
+        var piecePosition = piecePositions.Find(piece => piece.position.Equals(position));
+        if (piecePosition == null) return PieceType.Nothing;
+        return piecePosition.pieceType;
+    }
+
     public void PlayMove(Move move)
     {
         piecePositions = piecePositions.Where(piece => !piece.position.Equals(move.target)).ToList();

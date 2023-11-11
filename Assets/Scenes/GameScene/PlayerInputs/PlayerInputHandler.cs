@@ -55,11 +55,13 @@ public class PlayerInputHandler : MonoBehaviour
         var rayHit = Physics2D.GetRayIntersection(mainCamera.ScreenPointToRay(Pointer.current.position.ReadValue()));
         if (!rayHit.collider) return;
 
-        // Check legal moves
+        // Check own pieces
         var boardController = GetBoardController();
         var worldMousePosition = mainCamera.ScreenToWorldPoint(Pointer.current.position.ReadValue());
         var startBoardPosition = boardController.WorldPositionToBoardPosition(worldMousePosition);
-        if (!gameController.gameState.getLegalMoves().Any(move => move.source.Equals(startBoardPosition))) return;
+        var pieceAtPosition = gameController.gameState.getPieceAtPosition(startBoardPosition);
+        if (gameController.gameState.whiteTurn && pieceAtPosition != PieceType.WhitePawn && pieceAtPosition != PieceType.WhiteRook && pieceAtPosition != PieceType.WhiteKnight && pieceAtPosition != PieceType.WhiteBishop && pieceAtPosition != PieceType.WhiteQueen && pieceAtPosition != PieceType.WhiteKing) return;
+        if (!gameController.gameState.whiteTurn && pieceAtPosition != PieceType.BlackPawn && pieceAtPosition != PieceType.BlackRook && pieceAtPosition != PieceType.BlackKnight && pieceAtPosition != PieceType.BlackBishop && pieceAtPosition != PieceType.BlackQueen && pieceAtPosition != PieceType.BlackKing) return;
 
         // Set state
         selectedPiece = rayHit.collider.gameObject;

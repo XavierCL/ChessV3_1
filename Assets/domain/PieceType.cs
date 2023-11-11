@@ -1,5 +1,6 @@
 public enum PieceType
 {
+    Nothing,
     WhitePawn,
     WhiteRook,
     WhiteKnight,
