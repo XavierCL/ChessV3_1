@@ -1,6 +1,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor.Experimental.GraphView;
 
 public class GameState
 {
@@ -101,5 +102,17 @@ public class GameState
         sourcePiece.position = move.target;
 
         ++turn;
+    }
+
+    public bool MoveResultsInPromotion(Move move)
+    {
+
+        var sourcePiece = piecePositions.Find(piece => piece.position.Equals(move.source));
+        if (sourcePiece.pieceType != PieceType.BlackPawn && sourcePiece.pieceType != PieceType.WhitePawn) return false;
+
+        if (sourcePiece.pieceType == PieceType.BlackPawn && move.target.row != 0) return false;
+        if (sourcePiece.pieceType == PieceType.WhitePawn && move.target.row != 7) return false;
+
+        return true;
     }
 }

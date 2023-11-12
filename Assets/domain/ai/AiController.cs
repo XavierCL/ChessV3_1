@@ -3,9 +3,9 @@ using UnityEngine;
 
 public class AiController : MonoBehaviour
 {
-    public AiInterface Ai1 = new Ai1Random();
+    public AiInterface Ai1 = new Ai1RandomSlow();
 
-    public AiInterface Ai2 = new Ai1Random();
+    public AiInterface Ai2 = new Ai1RandomSlow();
 
     public async Task<Move> GetMove(GameState gameState)
     {

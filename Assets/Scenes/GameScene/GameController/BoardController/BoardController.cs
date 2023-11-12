@@ -13,6 +13,7 @@ public class BoardController : MonoBehaviour
     public List<PieceAnimation> pieceAnimations = new List<PieceAnimation>();
     public Color PossibleTargetColor = Color.green;
     public Color CurrentTargetColor = Color.green;
+    public Color PremoveTargetColor = Color.green;
     public float PossibleTargetRadius = 0.2f;
     public float SingleFrameZ = 0.01f;
 
@@ -25,36 +26,8 @@ public class BoardController : MonoBehaviour
 
     void Update()
     {
-        var frameTime = Time.time;
-
-        // Handle finished animations
-        foreach (var pieceAnimation in pieceAnimations.Where(pieceAnimation => pieceAnimation.endTimeSeconds <= frameTime))
-        {
-            var worldPosition = BoardPositionToWorldPosition(pieceAnimation.endPosition);
-            pieceAnimation.gameObject.transform.position = new Vector3(worldPosition.x, worldPosition.y, 0);
-            var spriteRenderer = pieceAnimation.gameObject.GetComponent<SpriteRenderer>();
-
-            if (pieceAnimation.newType.HasValue)
-            {
-                spriteRenderer.sprite = pieceSprites.GetSpriteFor(pieceAnimation.newType.Value);
-            }
-            spriteRenderer.sortingLayerName = "Pieces";
-
-            // Todo handle rock
-        }
-
-        pieceAnimations = pieceAnimations.Where(pieceAnimation => pieceAnimation.endTimeSeconds > frameTime).ToList();
-
-        // Handle ongoing animations
-        foreach (var pieceAnimation in pieceAnimations)
-        {
-            var endWorldPosition = BoardPositionToWorldPosition(pieceAnimation.endPosition);
-            var animationRatio = Mathf.InverseLerp(pieceAnimation.startTimeSeconds, pieceAnimation.endTimeSeconds, frameTime);
-            var deltaPosition = endWorldPosition - pieceAnimation.startPosition;
-            var currentPosition = pieceAnimation.startPosition + deltaPosition * animationRatio;
-            pieceAnimation.gameObject.transform.position = new Vector3(currentPosition.x, currentPosition.y, 0);
-            pieceAnimation.gameObject.GetComponent<SpriteRenderer>().sortingLayerName = "Animation";
-        }
+        UpdateAnimation();
+        UpdatePremoveSquares();
     }
 
     public void DrawPossibleTargets(GameState gameState, BoardPosition source)
@@ -127,7 +100,7 @@ public class BoardController : MonoBehaviour
         if (!BoardRotated) RotateBoard();
     }
 
-    public void AnimatePiece(GameObject gameObject, BoardPosition destination, PieceType? newType, bool animated)
+    public void AnimatePiece(GameObject gameObject, BoardPosition destination, PieceType newType, bool animated)
     {
         pieceAnimations = pieceAnimations.Where(pieceAnimation => !pieceAnimation.gameObject.Equals(gameObject)).ToList();
         var startTime = Time.time;
@@ -147,6 +120,14 @@ public class BoardController : MonoBehaviour
         });
     }
 
+    public void MakeSimpleMove(Move move)
+    {
+        var pieceGameObject = GetPieceGameObjects().Find(pieceGameObject => Equals(pieceGameObject.position, move.source));
+        if (pieceGameObject == null) return;
+
+        AnimatePiece(pieceGameObject.gameObject, move.target, move.promotion, false);
+    }
+
     public void AnimateMove(Move move, bool animated)
     {
         var pieceGameObject = GetPieceGameObjects().Find(pieceGameObject => Equals(pieceGameObject.position, move.source));
@@ -160,10 +141,53 @@ public class BoardController : MonoBehaviour
             killedTarget.position = null;
         }
 
-        // Todo handle en-passant
+        // Todo handle en-passant & rock
 
         pieceGameObject.position = move.target;
         AnimatePiece(pieceGameObject.gameObject, move.target, move.promotion, animated);
+    }
+
+    private void UpdateAnimation()
+    {
+        var frameTime = Time.time;
+
+        // Handle finished animations
+        foreach (var pieceAnimation in pieceAnimations.Where(pieceAnimation => pieceAnimation.endTimeSeconds <= frameTime))
+        {
+            var worldPosition = BoardPositionToWorldPosition(pieceAnimation.endPosition);
+            pieceAnimation.gameObject.transform.position = new Vector3(worldPosition.x, worldPosition.y, 0);
+            var spriteRenderer = pieceAnimation.gameObject.GetComponent<SpriteRenderer>();
+
+            if (pieceAnimation.newType != PieceType.Nothing)
+            {
+                spriteRenderer.sprite = pieceSprites.GetSpriteFor(pieceAnimation.newType);
+            }
+            spriteRenderer.sortingLayerName = "Pieces";
+
+            // Todo handle rock
+        }
+
+        pieceAnimations = pieceAnimations.Where(pieceAnimation => pieceAnimation.endTimeSeconds > frameTime).ToList();
+
+        // Handle ongoing animations
+        foreach (var pieceAnimation in pieceAnimations)
+        {
+            var endWorldPosition = BoardPositionToWorldPosition(pieceAnimation.endPosition);
+            var animationRatio = Mathf.InverseLerp(pieceAnimation.startTimeSeconds, pieceAnimation.endTimeSeconds, frameTime);
+            var deltaPosition = endWorldPosition - pieceAnimation.startPosition;
+            var currentPosition = pieceAnimation.startPosition + deltaPosition * animationRatio;
+            pieceAnimation.gameObject.transform.position = new Vector3(currentPosition.x, currentPosition.y, 0);
+            pieceAnimation.gameObject.GetComponent<SpriteRenderer>().sortingLayerName = "Animation";
+        }
+    }
+
+    private void UpdatePremoveSquares()
+    {
+        foreach (var premove in GameObject.Find(nameof(PremoveQueue)).GetComponent<PremoveQueue>().GetMoves())
+        {
+            var premoveTargetWorldPosition = BoardPositionToWorldPosition(premove.target);
+            shapes.Rectangle(new Vector3(premoveTargetWorldPosition.x, premoveTargetWorldPosition.y, SingleFrameZ), 1, 1, PremoveTargetColor);
+        }
     }
 
     private List<PieceGameObject> GetPieceGameObjects()

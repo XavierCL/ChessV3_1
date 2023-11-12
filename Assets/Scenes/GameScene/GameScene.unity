@@ -1844,6 +1844,50 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &404000024
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 404000025}
+  - component: {fileID: 404000026}
+  m_Layer: 0
+  m_Name: PremoveQueue
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &404000025
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 404000024}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1552680447}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &404000026
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 404000024}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf7fdd48c3e311548921d59999ee913e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &424101841
 GameObject:
   m_ObjectHideFlags: 0
@@ -7408,6 +7452,7 @@ MonoBehaviour:
   shapes: {fileID: 0}
   PossibleTargetColor: {r: 0.3962264, g: 0.27061853, b: 0.16634032, a: 0.6117647}
   CurrentTargetColor: {r: 0.8666667, g: 0.7137255, b: 0.45490196, a: 0.3882353}
+  PremoveTargetColor: {r: 0, g: 1, b: 0, a: 1}
   PossibleTargetRadius: 0.2
   SingleFrameZ: 0
 --- !u!4 &1407546355
@@ -8518,6 +8563,7 @@ Transform:
   - {fileID: 1368304048}
   - {fileID: 1736270391}
   - {fileID: 1806664004}
+  - {fileID: 404000025}
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

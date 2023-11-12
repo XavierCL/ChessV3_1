@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PieceAnimation
@@ -9,5 +7,5 @@ public class PieceAnimation
     public Vector2 startPosition { get; set; }
     public BoardPosition endPosition { get; set; }
     public GameObject gameObject { get; set; }
-    public PieceType? newType { get; set; }
+    public PieceType newType { get; set; }
 }
