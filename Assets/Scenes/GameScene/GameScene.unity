@@ -7452,7 +7452,7 @@ MonoBehaviour:
   shapes: {fileID: 0}
   PossibleTargetColor: {r: 0.3962264, g: 0.27061853, b: 0.16634032, a: 0.6117647}
   CurrentTargetColor: {r: 0.8666667, g: 0.7137255, b: 0.45490196, a: 0.3882353}
-  PremoveTargetColor: {r: 0, g: 1, b: 0, a: 1}
+  PremoveTargetColor: {r: 1, g: 0.19215687, b: 0, a: 0.25490198}
   PossibleTargetRadius: 0.2
   SingleFrameZ: 0
 --- !u!4 &1407546355
