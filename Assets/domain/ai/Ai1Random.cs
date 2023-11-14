@@ -1,10 +1,10 @@
-using System;
 using System.Threading.Tasks;
+using UnityEngine;
 
 
-public class Ai1Random : AiInterface
+public class Ai1Random : MonoBehaviour, AiInterface
 {
-    private Random random = new Random();
+    private System.Random random = new System.Random();
     public Task<Move> GetMove(GameState gameState)
     {
         var legalMoves = gameState.getLegalMoves();
