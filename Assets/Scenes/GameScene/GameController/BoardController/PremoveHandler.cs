@@ -6,16 +6,20 @@ public class PremoveHandler : MonoBehaviour
 
     public Color PremoveTargetColor = Color.green;
     private BoardController boardController;
-    public Shapes shapes;
+    private Shapes shapes;
+    private PromotionHandler promotionHandler;
 
     void Start()
     {
         boardController = GameObject.Find(nameof(BoardController)).GetComponent<BoardController>();
+        promotionHandler = GameObject.Find(nameof(PromotionHandler)).GetComponent<PromotionHandler>();
         shapes = GameObject.Find(nameof(Shapes)).GetComponent<Shapes>();
     }
 
     void Update()
     {
+        if (promotionHandler.PromotionInProgress) return;
+
         foreach (var premove in GameObject.Find(nameof(PremoveQueue)).GetComponent<PremoveQueue>().GetMoves())
         {
             var premoveTargetWorldPosition = boardController.BoardPositionToWorldPosition(premove.target);
