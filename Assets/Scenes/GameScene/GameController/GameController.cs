@@ -5,13 +5,20 @@ public class GameController : MonoBehaviour
 {
     public GameState gameState = new GameState();
     public GameType gameType;
+    private PromotionHandler promotionHandler;
     private BoardController boardController;
     private PremoveQueue premoveQueue;
 
     public void Start()
     {
-        boardController = GameObject.Find(nameof(BoardController)).GetComponent<BoardController>();
+        promotionHandler = GameObject.Find(nameof(PromotionHandler)).GetComponent<PromotionHandler>();
         premoveQueue = GameObject.Find(nameof(PremoveQueue)).GetComponent<PremoveQueue>();
+        StartNewGame(GameType.HumanHuman);
+    }
+
+    [ContextMenu("Set initial game")]
+    public void SetInitialGame()
+    {
         StartNewGame(GameType.HumanHuman);
     }
 
@@ -26,15 +33,15 @@ public class GameController : MonoBehaviour
             case GameType.HumanHuman:
             case GameType.HumanWhiteAiBlack:
             case GameType.Ai1WhiteAi2Black:
-                boardController.RotateWhiteBottom();
+                GetBoardController().RotateWhiteBottom();
                 break;
             case GameType.HumanBlackAiWhite:
             case GameType.Ai1BlackAi2White:
-                boardController.RotateBlackBottom();
+                GetBoardController().RotateBlackBottom();
                 break;
         }
 
-        boardController.ResetPieces(gameState);
+        GetBoardController().ResetPieces(gameState);
         TriggerAiMoveIfNeeded();
     }
 
@@ -47,25 +54,21 @@ public class GameController : MonoBehaviour
             if (!IsPremoveMode())
             {
                 premoveQueue.Clear();
-                boardController.ResetPieces(gameState);
+                GetBoardController().ResetPieces(gameState);
+                promotionHandler.CancelPromotion();
                 return;
             }
 
             premoveQueue.Push(move);
-            boardController.MakeSimpleMove(move);
+            GetBoardController().MakeSimpleMove(move);
             return;
         }
 
         gameState.PlayMove(move);
-        boardController.AnimateMove(move, animated);
-        if (gameType == GameType.HumanHuman) boardController.RotateBoard();
+        GetBoardController().AnimateMove(move, animated);
+        if (gameType == GameType.HumanHuman) GetBoardController().RotateBoard();
         TriggerAiMoveIfNeeded();
         PopPremoveQueueIfNeeded();
-    }
-
-    public bool MoveResultsInPromotion(Move move)
-    {
-        return gameState.MoveResultsInPromotion(move);
     }
 
     public bool IsPremoveMode()
@@ -100,14 +103,23 @@ public class GameController : MonoBehaviour
 
         if (!premoveQueue.HasMoves()) return;
 
-        boardController.ResetPieces(gameState);
+        GetBoardController().ResetPieces(gameState);
 
         var premove = premoveQueue.Pop();
 
         PlayAnimatedMove(premove, false);
         foreach (var nextPremove in premoveQueue.GetMoves())
         {
-            boardController.MakeSimpleMove(nextPremove);
+            GetBoardController().MakeSimpleMove(nextPremove);
         }
+    }
+
+    private BoardController GetBoardController()
+    {
+        if (boardController != null) return boardController;
+
+        boardController = GameObject.Find(nameof(BoardController)).GetComponent<BoardController>();
+
+        return boardController;
     }
 }

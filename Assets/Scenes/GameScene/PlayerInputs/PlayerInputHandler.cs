@@ -61,7 +61,7 @@ public class PlayerInputHandler : MonoBehaviour
         // Check own pieces
         var worldMousePosition = mainCamera.ScreenToWorldPoint(Pointer.current.position.ReadValue());
         var startBoardPosition = boardController.WorldPositionToBoardPosition(worldMousePosition);
-        var pieceAtPosition = gameController.gameState.getPieceAtPosition(startBoardPosition);
+        var pieceAtPosition = boardController.GetPieceAtPosition(startBoardPosition);
 
         if (gameController.gameType == GameType.HumanWhiteAiBlack
         && pieceAtPosition != PieceType.WhitePawn
@@ -133,8 +133,10 @@ public class PlayerInputHandler : MonoBehaviour
         }
 
         var moveAttempt = new Move(startPosition, endBoardPosition, PieceType.Nothing);
+        var sourcePieceType = boardController.GetPieceAtPosition(moveAttempt.source);
 
-        if (gameController.MoveResultsInPromotion(moveAttempt))
+        if ((sourcePieceType == PieceType.WhitePawn || sourcePieceType == PieceType.BlackPawn)
+        && (moveAttempt.target.row == 0 || moveAttempt.target.row == 7))
         {
             // Pawn promotion
             promotionHandler.PromptPromotion(startPosition, endBoardPosition);
@@ -160,9 +162,8 @@ public class PlayerInputHandler : MonoBehaviour
     private void HandlePromotionPress()
     {
         var rayHit = Physics2D.GetRayIntersection(mainCamera.ScreenPointToRay(Pointer.current.position.ReadValue()));
-        if (!rayHit.collider) return;
-
-        promotionHandler.FinalizePromotion(rayHit.collider.gameObject);
+        var collidedGameObject = rayHit.collider == null ? null : rayHit.collider.gameObject;
+        promotionHandler.FinalizePromotion(collidedGameObject);
     }
 
     private void UpdateSelectedHover()
@@ -171,7 +172,7 @@ public class PlayerInputHandler : MonoBehaviour
 
         var mousePosition = mainCamera.ScreenToWorldPoint(Pointer.current.position.ReadValue());
         selectedPiece.transform.position = new Vector3(mousePosition.x, mousePosition.y, 0);
-        GetBoardController().DrawCurrentTarget(GetGameController().gameState, startPosition, new Vector2(mousePosition.x, mousePosition.y));
+        GetBoardController().DrawCurrentTarget(GetGameController().gameState, startPosition, new Vector2(mousePosition.x, mousePosition.y), GetGameController().IsPremoveMode());
 
         // If this is a premove, don't draw legal moves
         if (GetGameController().IsPremoveMode()) return;

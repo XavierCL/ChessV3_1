@@ -13,38 +13,38 @@ public class GameState
     {
         turn = 0;
         piecePositions = new List<PiecePosition> {
-            new PiecePosition{pieceType=PieceType.WhiteRook, position=new BoardPosition(0, 0)},
-            new PiecePosition{pieceType=PieceType.WhiteKnight, position=new BoardPosition(1, 0)},
-            new PiecePosition{pieceType=PieceType.WhiteBishop, position=new BoardPosition(2, 0)},
-            new PiecePosition{pieceType=PieceType.WhiteQueen, position=new BoardPosition(3, 0)},
-            new PiecePosition{pieceType=PieceType.WhiteKing, position=new BoardPosition(4, 0)},
-            new PiecePosition{pieceType=PieceType.WhiteBishop, position=new BoardPosition(5, 0)},
-            new PiecePosition{pieceType=PieceType.WhiteKnight, position=new BoardPosition(6, 0)},
-            new PiecePosition{pieceType=PieceType.WhiteRook, position=new BoardPosition(7, 0)},
-            new PiecePosition{pieceType=PieceType.WhitePawn, position=new BoardPosition(0, 1)},
-            new PiecePosition{pieceType=PieceType.WhitePawn, position=new BoardPosition(1, 1)},
-            new PiecePosition{pieceType=PieceType.WhitePawn, position=new BoardPosition(2, 1)},
-            new PiecePosition{pieceType=PieceType.WhitePawn, position=new BoardPosition(3, 1)},
-            new PiecePosition{pieceType=PieceType.WhitePawn, position=new BoardPosition(4, 1)},
-            new PiecePosition{pieceType=PieceType.WhitePawn, position=new BoardPosition(5, 1)},
-            new PiecePosition{pieceType=PieceType.WhitePawn, position=new BoardPosition(6, 1)},
-            new PiecePosition{pieceType=PieceType.WhitePawn, position=new BoardPosition(7, 1)},
-            new PiecePosition{pieceType=PieceType.BlackRook, position=new BoardPosition(0, 7)},
-            new PiecePosition{pieceType=PieceType.BlackKnight, position=new BoardPosition(1, 7)},
-            new PiecePosition{pieceType=PieceType.BlackBishop, position=new BoardPosition(2, 7)},
-            new PiecePosition{pieceType=PieceType.BlackQueen, position=new BoardPosition(3, 7)},
-            new PiecePosition{pieceType=PieceType.BlackKing, position=new BoardPosition(4, 7)},
-            new PiecePosition{pieceType=PieceType.BlackBishop, position=new BoardPosition(5, 7)},
-            new PiecePosition{pieceType=PieceType.BlackKnight, position=new BoardPosition(6, 7)},
-            new PiecePosition{pieceType=PieceType.BlackRook, position=new BoardPosition(7, 7)},
-            new PiecePosition{pieceType=PieceType.BlackPawn, position=new BoardPosition(0, 6)},
-            new PiecePosition{pieceType=PieceType.BlackPawn, position=new BoardPosition(1, 6)},
-            new PiecePosition{pieceType=PieceType.BlackPawn, position=new BoardPosition(2, 6)},
-            new PiecePosition{pieceType=PieceType.BlackPawn, position=new BoardPosition(3, 6)},
-            new PiecePosition{pieceType=PieceType.BlackPawn, position=new BoardPosition(4, 6)},
-            new PiecePosition{pieceType=PieceType.BlackPawn, position=new BoardPosition(5, 6)},
-            new PiecePosition{pieceType=PieceType.BlackPawn, position=new BoardPosition(6, 6)},
-            new PiecePosition{pieceType=PieceType.BlackPawn, position=new BoardPosition(7, 6)},
+            new PiecePosition{id="a1", pieceType=PieceType.WhiteRook, position=new BoardPosition(0, 0)},
+            new PiecePosition{id="b1", pieceType=PieceType.WhiteKnight, position=new BoardPosition(1, 0)},
+            new PiecePosition{id="c1", pieceType=PieceType.WhiteBishop, position=new BoardPosition(2, 0)},
+            new PiecePosition{id="d1", pieceType=PieceType.WhiteQueen, position=new BoardPosition(3, 0)},
+            new PiecePosition{id="e1", pieceType=PieceType.WhiteKing, position=new BoardPosition(4, 0)},
+            new PiecePosition{id="f1", pieceType=PieceType.WhiteBishop, position=new BoardPosition(5, 0)},
+            new PiecePosition{id="g1", pieceType=PieceType.WhiteKnight, position=new BoardPosition(6, 0)},
+            new PiecePosition{id="h1", pieceType=PieceType.WhiteRook, position=new BoardPosition(7, 0)},
+            new PiecePosition{id="a2", pieceType=PieceType.WhitePawn, position=new BoardPosition(0, 1)},
+            new PiecePosition{id="b2", pieceType=PieceType.WhitePawn, position=new BoardPosition(1, 1)},
+            new PiecePosition{id="c2", pieceType=PieceType.WhitePawn, position=new BoardPosition(2, 1)},
+            new PiecePosition{id="d2", pieceType=PieceType.WhitePawn, position=new BoardPosition(3, 1)},
+            new PiecePosition{id="e2", pieceType=PieceType.WhitePawn, position=new BoardPosition(4, 1)},
+            new PiecePosition{id="f2", pieceType=PieceType.WhitePawn, position=new BoardPosition(5, 1)},
+            new PiecePosition{id="g2", pieceType=PieceType.WhitePawn, position=new BoardPosition(6, 1)},
+            new PiecePosition{id="h2", pieceType=PieceType.WhitePawn, position=new BoardPosition(7, 1)},
+            new PiecePosition{id="a7", pieceType=PieceType.BlackRook, position=new BoardPosition(0, 7)},
+            new PiecePosition{id="b7", pieceType=PieceType.BlackKnight, position=new BoardPosition(1, 7)},
+            new PiecePosition{id="c7", pieceType=PieceType.BlackBishop, position=new BoardPosition(2, 7)},
+            new PiecePosition{id="d7", pieceType=PieceType.BlackQueen, position=new BoardPosition(3, 7)},
+            new PiecePosition{id="e7", pieceType=PieceType.BlackKing, position=new BoardPosition(4, 7)},
+            new PiecePosition{id="f7", pieceType=PieceType.BlackBishop, position=new BoardPosition(5, 7)},
+            new PiecePosition{id="g7", pieceType=PieceType.BlackKnight, position=new BoardPosition(6, 7)},
+            new PiecePosition{id="h7", pieceType=PieceType.BlackRook, position=new BoardPosition(7, 7)},
+            new PiecePosition{id="a6", pieceType=PieceType.BlackPawn, position=new BoardPosition(0, 6)},
+            new PiecePosition{id="b6", pieceType=PieceType.BlackPawn, position=new BoardPosition(1, 6)},
+            new PiecePosition{id="c6", pieceType=PieceType.BlackPawn, position=new BoardPosition(2, 6)},
+            new PiecePosition{id="d6", pieceType=PieceType.BlackPawn, position=new BoardPosition(3, 6)},
+            new PiecePosition{id="e6", pieceType=PieceType.BlackPawn, position=new BoardPosition(4, 6)},
+            new PiecePosition{id="f6", pieceType=PieceType.BlackPawn, position=new BoardPosition(5, 6)},
+            new PiecePosition{id="g6", pieceType=PieceType.BlackPawn, position=new BoardPosition(6, 6)},
+            new PiecePosition{id="h6", pieceType=PieceType.BlackPawn, position=new BoardPosition(7, 6)},
         };
     }
 
@@ -85,13 +85,6 @@ public class GameState
         return piecePositions;
     }
 
-    public PieceType getPieceAtPosition(BoardPosition position)
-    {
-        var piecePosition = piecePositions.Find(piece => piece.position.Equals(position));
-        if (piecePosition == null) return PieceType.Nothing;
-        return piecePosition.pieceType;
-    }
-
     public void PlayMove(Move move)
     {
         piecePositions = piecePositions.Where(piece => !piece.position.Equals(move.target)).ToList();
@@ -101,18 +94,11 @@ public class GameState
 
         sourcePiece.position = move.target;
 
+        if (move.promotion != PieceType.Nothing)
+        {
+            sourcePiece.pieceType = move.promotion;
+        }
+
         ++turn;
-    }
-
-    public bool MoveResultsInPromotion(Move move)
-    {
-
-        var sourcePiece = piecePositions.Find(piece => piece.position.Equals(move.source));
-        if (sourcePiece.pieceType != PieceType.BlackPawn && sourcePiece.pieceType != PieceType.WhitePawn) return false;
-
-        if (sourcePiece.pieceType == PieceType.BlackPawn && move.target.row != 0) return false;
-        if (sourcePiece.pieceType == PieceType.WhitePawn && move.target.row != 7) return false;
-
-        return true;
     }
 }

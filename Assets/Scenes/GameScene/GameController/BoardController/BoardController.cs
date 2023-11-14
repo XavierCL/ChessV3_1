@@ -20,14 +20,12 @@ public class BoardController : MonoBehaviour
     public void Awake()
     {
         GetPieceGameObjects();
-        pieceSprites = GameObject.Find(nameof(PieceSprites)).GetComponent<PieceSprites>();
         shapes = GameObject.Find(nameof(Shapes)).GetComponent<Shapes>();
     }
 
     void Update()
     {
         UpdateAnimation();
-        UpdatePremoveSquares();
     }
 
     public void DrawPossibleTargets(GameState gameState, BoardPosition source)
@@ -40,10 +38,10 @@ public class BoardController : MonoBehaviour
         }
     }
 
-    public void DrawCurrentTarget(GameState gameState, BoardPosition source, Vector2 targetWorldPosition)
+    public void DrawCurrentTarget(GameState gameState, BoardPosition source, Vector2 targetWorldPosition, bool isPremoveMode)
     {
         var targetPosition = WorldPositionToBoardPosition(targetWorldPosition);
-        if (!gameState.getLegalMoves().Any(move => move.source.Equals(source) && move.target.Equals(targetPosition))) return;
+        if (!isPremoveMode && !gameState.getLegalMoves().Any(move => move.source.Equals(source) && move.target.Equals(targetPosition))) return;
 
         var normalizedTargetWorldPosition = BoardPositionToWorldPosition(targetPosition);
         shapes.Rectangle(new Vector3(normalizedTargetWorldPosition.x, normalizedTargetWorldPosition.y, SingleFrameZ), 1, 1, CurrentTargetColor);
@@ -51,21 +49,28 @@ public class BoardController : MonoBehaviour
 
     public void ResetPieces(GameState gameState)
     {
-        var piecePositions = gameState.getPiecePositions().Select((piecePosition, index) => (piecePosition, index)).ToList();
-        foreach (var (piecePosition, index) in piecePositions)
+        var pieceGameObjects = GetPieceGameObjects().ToDictionary(piece => piece.id);
+        var unseenPieceIds = new HashSet<string>(pieceGameObjects.Keys);
+        foreach (var piecePosition in gameState.getPiecePositions())
         {
-            var pieceGameObject = GetPieceGameObjects()[index];
+            unseenPieceIds.Remove(piecePosition.id);
+            var pieceGameObject = pieceGameObjects[piecePosition.id];
             var worldPosition = BoardPositionToWorldPosition(piecePosition.position);
             pieceGameObject.gameObject.transform.position = new Vector3(worldPosition.x, worldPosition.y, 0);
-            pieceGameObject.gameObject.GetComponent<SpriteRenderer>().sprite = pieceSprites.GetSpriteFor(piecePosition.pieceType);
-            pieceGameObject.gameObject.SetActive(true);
+            var spriteRenderer = pieceGameObject.gameObject.GetComponent<SpriteRenderer>();
+            spriteRenderer.sprite = GetPieceSprites().GetSpriteFor(piecePosition.pieceType);
+            spriteRenderer.enabled = true;
+            pieceGameObject.gameObject.GetComponent<BoxCollider2D>().enabled = true;
             pieceGameObject.position = piecePosition.position;
         }
 
-        foreach (var index in Enumerable.Range(piecePositions.Count, GetPieceGameObjects().Count - piecePositions.Count))
+        foreach (var unseenPieceId in unseenPieceIds)
         {
-            GetPieceGameObjects()[index].gameObject.SetActive(false);
-            GetPieceGameObjects()[index].position = null;
+            var pieceGameObject = pieceGameObjects[unseenPieceId];
+            var spriteRenderer = pieceGameObject.gameObject.GetComponent<SpriteRenderer>();
+            spriteRenderer.enabled = false;
+            pieceGameObject.gameObject.GetComponent<BoxCollider2D>().enabled = false;
+            pieceGameObject.position = null;
         }
     }
 
@@ -125,6 +130,16 @@ public class BoardController : MonoBehaviour
         var pieceGameObject = GetPieceGameObjects().Find(pieceGameObject => Equals(pieceGameObject.position, move.source));
         if (pieceGameObject == null) return;
 
+        // Kill targets
+        var killedTarget = pieceGameObjects.Find(possibleTarget => Equals(possibleTarget.position, move.target));
+        if (killedTarget != null)
+        {
+            killedTarget.gameObject.GetComponent<SpriteRenderer>().enabled = false;
+            killedTarget.gameObject.GetComponent<BoxCollider2D>().enabled = false;
+            killedTarget.position = null;
+        }
+
+        pieceGameObject.position = move.target;
         AnimatePiece(pieceGameObject.gameObject, move.target, move.promotion, false);
     }
 
@@ -137,7 +152,8 @@ public class BoardController : MonoBehaviour
         var killedTarget = pieceGameObjects.Find(possibleTarget => Equals(possibleTarget.position, move.target));
         if (killedTarget != null)
         {
-            killedTarget.gameObject.SetActive(false);
+            killedTarget.gameObject.GetComponent<SpriteRenderer>().enabled = false;
+            killedTarget.gameObject.GetComponent<BoxCollider2D>().enabled = false;
             killedTarget.position = null;
         }
 
@@ -145,6 +161,15 @@ public class BoardController : MonoBehaviour
 
         pieceGameObject.position = move.target;
         AnimatePiece(pieceGameObject.gameObject, move.target, move.promotion, animated);
+    }
+
+    public PieceType GetPieceAtPosition(BoardPosition position)
+    {
+        var foundPieceGameObject = GetPieceGameObjects().First(pieceGameObject => Equals(pieceGameObject.position, position));
+
+        if (foundPieceGameObject == null) return PieceType.Nothing;
+
+        return GetPieceSprites().GetSpritePieceType(foundPieceGameObject.gameObject.GetComponent<SpriteRenderer>().sprite);
     }
 
     private void UpdateAnimation()
@@ -181,54 +206,54 @@ public class BoardController : MonoBehaviour
         }
     }
 
-    private void UpdatePremoveSquares()
-    {
-        foreach (var premove in GameObject.Find(nameof(PremoveQueue)).GetComponent<PremoveQueue>().GetMoves())
-        {
-            var premoveTargetWorldPosition = BoardPositionToWorldPosition(premove.target);
-            shapes.Rectangle(new Vector3(premoveTargetWorldPosition.x, premoveTargetWorldPosition.y, SingleFrameZ), 1, 1, PremoveTargetColor);
-        }
-    }
-
     private List<PieceGameObject> GetPieceGameObjects()
     {
         if (pieceGameObjects != null) return pieceGameObjects;
 
         pieceGameObjects = new List<PieceGameObject> {
-            new PieceGameObject { gameObject = GameObject.Find("a1") },
-            new PieceGameObject { gameObject = GameObject.Find("a2") },
-            new PieceGameObject { gameObject = GameObject.Find("a7") },
-            new PieceGameObject { gameObject = GameObject.Find("a8") },
-            new PieceGameObject { gameObject = GameObject.Find("b2") },
-            new PieceGameObject { gameObject = GameObject.Find("b7") },
-            new PieceGameObject { gameObject = GameObject.Find("b8") },
-            new PieceGameObject { gameObject = GameObject.Find("b1") },
-            new PieceGameObject { gameObject = GameObject.Find("c1") },
-            new PieceGameObject { gameObject = GameObject.Find("c2") },
-            new PieceGameObject { gameObject = GameObject.Find("c7") },
-            new PieceGameObject { gameObject = GameObject.Find("c8") },
-            new PieceGameObject { gameObject = GameObject.Find("d1") },
-            new PieceGameObject { gameObject = GameObject.Find("d2") },
-            new PieceGameObject { gameObject = GameObject.Find("d7") },
-            new PieceGameObject { gameObject = GameObject.Find("d8") },
-            new PieceGameObject { gameObject = GameObject.Find("e1") },
-            new PieceGameObject { gameObject = GameObject.Find("e2") },
-            new PieceGameObject { gameObject = GameObject.Find("e7") },
-            new PieceGameObject { gameObject = GameObject.Find("e8") },
-            new PieceGameObject { gameObject = GameObject.Find("f1") },
-            new PieceGameObject { gameObject = GameObject.Find("f2") },
-            new PieceGameObject { gameObject = GameObject.Find("f7") },
-            new PieceGameObject { gameObject = GameObject.Find("f8") },
-            new PieceGameObject { gameObject = GameObject.Find("g1") },
-            new PieceGameObject { gameObject = GameObject.Find("g2") },
-            new PieceGameObject { gameObject = GameObject.Find("g7") },
-            new PieceGameObject { gameObject = GameObject.Find("g8") },
-            new PieceGameObject { gameObject = GameObject.Find("h1") },
-            new PieceGameObject { gameObject = GameObject.Find("h2") },
-            new PieceGameObject { gameObject = GameObject.Find("h7") },
-            new PieceGameObject { gameObject = GameObject.Find("h8") },
+            new PieceGameObject { id="a1", gameObject = GameObject.Find("a1") },
+            new PieceGameObject { id="a2", gameObject = GameObject.Find("a2") },
+            new PieceGameObject { id="a6", gameObject = GameObject.Find("a7") },
+            new PieceGameObject { id="a7", gameObject = GameObject.Find("a8") },
+            new PieceGameObject { id="b1", gameObject = GameObject.Find("b2") },
+            new PieceGameObject { id="b2", gameObject = GameObject.Find("b7") },
+            new PieceGameObject { id="b6", gameObject = GameObject.Find("b8") },
+            new PieceGameObject { id="b7", gameObject = GameObject.Find("b1") },
+            new PieceGameObject { id="c1", gameObject = GameObject.Find("c1") },
+            new PieceGameObject { id="c2", gameObject = GameObject.Find("c2") },
+            new PieceGameObject { id="c6", gameObject = GameObject.Find("c7") },
+            new PieceGameObject { id="c7", gameObject = GameObject.Find("c8") },
+            new PieceGameObject { id="d1", gameObject = GameObject.Find("d1") },
+            new PieceGameObject { id="d2", gameObject = GameObject.Find("d2") },
+            new PieceGameObject { id="d6", gameObject = GameObject.Find("d7") },
+            new PieceGameObject { id="d7", gameObject = GameObject.Find("d8") },
+            new PieceGameObject { id="e1", gameObject = GameObject.Find("e1") },
+            new PieceGameObject { id="e2", gameObject = GameObject.Find("e2") },
+            new PieceGameObject { id="e6", gameObject = GameObject.Find("e7") },
+            new PieceGameObject { id="e7", gameObject = GameObject.Find("e8") },
+            new PieceGameObject { id="f1", gameObject = GameObject.Find("f1") },
+            new PieceGameObject { id="f2", gameObject = GameObject.Find("f2") },
+            new PieceGameObject { id="f6", gameObject = GameObject.Find("f7") },
+            new PieceGameObject { id="f7", gameObject = GameObject.Find("f8") },
+            new PieceGameObject { id="g1", gameObject = GameObject.Find("g1") },
+            new PieceGameObject { id="g2", gameObject = GameObject.Find("g2") },
+            new PieceGameObject { id="g6", gameObject = GameObject.Find("g7") },
+            new PieceGameObject { id="g7", gameObject = GameObject.Find("g8") },
+            new PieceGameObject { id="h1", gameObject = GameObject.Find("h1") },
+            new PieceGameObject { id="h2", gameObject = GameObject.Find("h2") },
+            new PieceGameObject { id="h6", gameObject = GameObject.Find("h7") },
+            new PieceGameObject { id="h7", gameObject = GameObject.Find("h8") },
         };
 
         return pieceGameObjects;
+    }
+
+    private PieceSprites GetPieceSprites()
+    {
+        if (pieceSprites != null) return pieceSprites;
+
+        pieceSprites = GameObject.Find(nameof(PieceSprites)).GetComponent<PieceSprites>();
+
+        return pieceSprites;
     }
 }

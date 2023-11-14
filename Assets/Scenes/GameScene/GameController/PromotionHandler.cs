@@ -29,7 +29,8 @@ public class PromotionHandler : MonoBehaviour
         var boardController = GameObject.Find(nameof(BoardController)).GetComponent<BoardController>();
         var pieceSprites = GameObject.Find(nameof(PieceSprites)).GetComponent<PieceSprites>();
 
-        if (gameController.gameState.whiteTurn)
+        if (gameController.gameType == GameType.HumanHuman && gameController.gameState.whiteTurn
+        || gameController.gameType == GameType.HumanWhiteAiBlack)
         {
             promotionRook.GetComponent<SpriteRenderer>().sprite = pieceSprites.GetSpriteFor(PieceType.WhiteRook);
             promotionKnight.GetComponent<SpriteRenderer>().sprite = pieceSprites.GetSpriteFor(PieceType.WhiteKnight);
@@ -51,6 +52,13 @@ public class PromotionHandler : MonoBehaviour
         gameObject.SetActive(true);
     }
 
+    public void CancelPromotion()
+    {
+        promotionStartPosition = null;
+        promotionEndPosition = null;
+        gameObject.SetActive(false);
+    }
+
     public void UpdateHoverPromotion(GameObject collider)
     {
         if (!PromotionInProgress) return;
@@ -64,30 +72,39 @@ public class PromotionHandler : MonoBehaviour
         if (!PromotionInProgress) return;
 
         var gameController = GameObject.Find(nameof(GameController)).GetComponent<GameController>();
+
+        var isWhite = gameController.gameType == GameType.HumanHuman && gameController.gameState.whiteTurn
+        || gameController.gameType == GameType.HumanWhiteAiBlack;
+
         if (collider == promotionRook)
         {
-            gameController.PlayAnimatedMove(new Move(promotionStartPosition.Value, promotionEndPosition.Value, gameController.gameState.whiteTurn ? PieceType.WhiteRook : PieceType.BlackRook), false);
+            gameController.PlayAnimatedMove(new Move(promotionStartPosition.Value, promotionEndPosition.Value, isWhite ? PieceType.WhiteRook : PieceType.BlackRook), false);
         }
         else if (collider == promotionKnight)
         {
-            gameController.PlayAnimatedMove(new Move(promotionStartPosition.Value, promotionEndPosition.Value, gameController.gameState.whiteTurn ? PieceType.WhiteKnight : PieceType.BlackKnight), false);
+            gameController.PlayAnimatedMove(new Move(promotionStartPosition.Value, promotionEndPosition.Value, isWhite ? PieceType.WhiteKnight : PieceType.BlackKnight), false);
         }
         else if (collider == promotionBishop)
         {
-            gameController.PlayAnimatedMove(new Move(promotionStartPosition.Value, promotionEndPosition.Value, gameController.gameState.whiteTurn ? PieceType.WhiteBishop : PieceType.BlackBishop), false);
+            gameController.PlayAnimatedMove(new Move(promotionStartPosition.Value, promotionEndPosition.Value, isWhite ? PieceType.WhiteBishop : PieceType.BlackBishop), false);
         }
         else if (collider == promotionQueen)
         {
-            gameController.PlayAnimatedMove(new Move(promotionStartPosition.Value, promotionEndPosition.Value, gameController.gameState.whiteTurn ? PieceType.WhiteQueen : PieceType.BlackQueen), false);
+            gameController.PlayAnimatedMove(new Move(promotionStartPosition.Value, promotionEndPosition.Value, isWhite ? PieceType.WhiteQueen : PieceType.BlackQueen), false);
+        }
+        else if (gameController.IsPremoveMode())
+        {
+            // Unrelated game object was collided with in premove mode, cancel premove
+            CancelPromotion();
+            GameObject.Find(nameof(PremoveQueue)).GetComponent<PremoveQueue>().Clear();
+            GameObject.Find(nameof(BoardController)).GetComponent<BoardController>().ResetPieces(gameController.gameState);
         }
         else
         {
-            // Unrelated game object was collided with, return
+            // Unrelated game object was collided with, do nothing
             return;
         }
 
-        promotionStartPosition = null;
-        promotionEndPosition = null;
-        gameObject.SetActive(false);
+        CancelPromotion();
     }
 }
