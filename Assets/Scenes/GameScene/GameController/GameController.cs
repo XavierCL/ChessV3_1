@@ -41,7 +41,9 @@ public class GameController : MonoBehaviour
                 break;
         }
 
+        GetBoardController().ClearAnimations();
         GetBoardController().ResetPieces(gameState);
+        GameObject.Find(nameof(AiController)).GetComponent<AiController>().ResetAis();
         TriggerAiMoveIfNeeded();
     }
 
@@ -60,12 +62,12 @@ public class GameController : MonoBehaviour
             }
 
             premoveQueue.Push(move);
-            GetBoardController().MakeSimpleMove(move);
+            GetBoardController().MakePremove(move);
             return;
         }
 
+        GetBoardController().AnimateMove(move, animated, gameState);
         gameState.PlayMove(move);
-        GetBoardController().AnimateMove(move, animated);
         if (gameType == GameType.HumanHuman) GetBoardController().RotateBoard();
         TriggerAiMoveIfNeeded();
         PopPremoveQueueIfNeeded();
@@ -88,7 +90,11 @@ public class GameController : MonoBehaviour
         || (gameType == GameType.HumanBlackAiWhite && gameState.whiteTurn))
         {
             var aiMove = await GameObject.Find(nameof(AiController)).GetComponent<AiController>().GetMove(gameState);
-            PlayAnimatedMove(aiMove, true);
+
+            // Coming back on another thread. If there's no move, then unity has stopped.
+            if (aiMove == null) return;
+
+            PlayAnimatedMove(aiMove.move, true);
         }
     }
 
@@ -110,7 +116,7 @@ public class GameController : MonoBehaviour
         PlayAnimatedMove(premove, false);
         foreach (var nextPremove in premoveQueue.GetMoves())
         {
-            GetBoardController().MakeSimpleMove(nextPremove);
+            GetBoardController().MakePremove(nextPremove);
         }
     }
 

@@ -1,8 +1,11 @@
+using System;
 using System.Threading.Tasks;
 using UnityEngine;
 
 public class AiController : MonoBehaviour
 {
+    public Guid gameId = Guid.NewGuid();
+
     public GameObject Ai1;
 
     public GameObject Ai2;
@@ -16,12 +19,27 @@ public class AiController : MonoBehaviour
         Ai2Interface = Ai2.GetComponent<AiInterface>();
     }
 
-    public async Task<Move> GetMove(GameState gameState)
+    public class MoveOrEmpty
     {
-        return await Task.Run(async () =>
+        public Move move { get; set; }
+    }
+
+    public void ResetAis()
+    {
+        gameId = Guid.NewGuid();
+    }
+
+    public async Task<MoveOrEmpty> GetMove(GameState gameState)
+    {
+        var currentGuid = gameId;
+        var moveOrEmpty = await Task.Run(async () =>
         {
-            if (gameState.whiteTurn) return await Ai1Interface.GetMove(gameState);
-            return await Ai2Interface.GetMove(gameState);
+            if (Ai1Interface == null || Ai2Interface == null) return null;
+            if (gameState.whiteTurn) return new MoveOrEmpty { move = await Ai1Interface.GetMove(gameState) };
+            return new MoveOrEmpty { move = await Ai2Interface.GetMove(gameState) };
         });
+
+        if (currentGuid != gameId) return null;
+        return moveOrEmpty;
     }
 }

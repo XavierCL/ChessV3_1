@@ -170,6 +170,9 @@ public class PlayerInputHandler : MonoBehaviour
     {
         if (!selectedPiece) return;
 
+        // Sometimes the board is reset while a piece is being held, which changes its sorting layer
+        selectedPiece.GetComponent<SpriteRenderer>().sortingLayerName = "Animation";
+
         var mousePosition = mainCamera.ScreenToWorldPoint(Pointer.current.position.ReadValue());
         selectedPiece.transform.position = new Vector3(mousePosition.x, mousePosition.y, 0);
         GetBoardController().DrawCurrentTarget(GetGameController().gameState, startPosition, new Vector2(mousePosition.x, mousePosition.y), GetGameController().IsPremoveMode());

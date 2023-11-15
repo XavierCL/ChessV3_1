@@ -13,7 +13,6 @@ public class BoardController : MonoBehaviour
     public List<PieceAnimation> pieceAnimations = new List<PieceAnimation>();
     public Color PossibleTargetColor = Color.green;
     public Color CurrentTargetColor = Color.green;
-    public Color PremoveTargetColor = Color.green;
     public float PossibleTargetRadius = 0.2f;
     public float SingleFrameZ = 0.01f;
 
@@ -47,6 +46,11 @@ public class BoardController : MonoBehaviour
         shapes.Rectangle(new Vector3(normalizedTargetWorldPosition.x, normalizedTargetWorldPosition.y, SingleFrameZ), 1, 1, CurrentTargetColor);
     }
 
+    public void ClearAnimations()
+    {
+        pieceAnimations.Clear();
+    }
+
     public void ResetPieces(GameState gameState)
     {
         var pieceGameObjects = GetPieceGameObjects().ToDictionary(piece => piece.id);
@@ -60,6 +64,7 @@ public class BoardController : MonoBehaviour
             var spriteRenderer = pieceGameObject.gameObject.GetComponent<SpriteRenderer>();
             spriteRenderer.sprite = GetPieceSprites().GetSpriteFor(piecePosition.pieceType);
             spriteRenderer.enabled = true;
+            spriteRenderer.sortingLayerName = "Pieces";
             pieceGameObject.gameObject.GetComponent<BoxCollider2D>().enabled = true;
             pieceGameObject.position = piecePosition.position;
         }
@@ -125,7 +130,7 @@ public class BoardController : MonoBehaviour
         });
     }
 
-    public void MakeSimpleMove(Move move)
+    public void MakePremove(Move move)
     {
         var pieceGameObject = GetPieceGameObjects().Find(pieceGameObject => Equals(pieceGameObject.position, move.source));
         if (pieceGameObject == null) return;
@@ -143,15 +148,19 @@ public class BoardController : MonoBehaviour
         AnimatePiece(pieceGameObject.gameObject, move.target, move.promotion, false);
     }
 
-    public void AnimateMove(Move move, bool animated)
+    public void AnimateMove(Move move, bool animated, GameState gameState)
     {
-        var pieceGameObject = GetPieceGameObjects().Find(pieceGameObject => Equals(pieceGameObject.position, move.source));
+        var piecePosition = gameState.getPiecePositions().Find(piecePosition => Equals(piecePosition.position, move.source));
+        if (piecePosition == null) return;
+
+        var pieceGameObject = GetPieceGameObjects().Find(pieceGameObject => pieceGameObject.id == piecePosition.id);
         if (pieceGameObject == null) return;
 
         // Kill targets
-        var killedTarget = pieceGameObjects.Find(possibleTarget => Equals(possibleTarget.position, move.target));
-        if (killedTarget != null)
+        var killedTargetPosition = gameState.getPiecePositions().Find(piecePosition => Equals(piecePosition.position, move.target));
+        if (killedTargetPosition != null)
         {
+            var killedTarget = pieceGameObjects.Find(possibleTarget => Equals(possibleTarget.id, killedTargetPosition.id));
             killedTarget.gameObject.GetComponent<SpriteRenderer>().enabled = false;
             killedTarget.gameObject.GetComponent<BoxCollider2D>().enabled = false;
             killedTarget.position = null;
@@ -165,7 +174,7 @@ public class BoardController : MonoBehaviour
 
     public PieceType GetPieceAtPosition(BoardPosition position)
     {
-        var foundPieceGameObject = GetPieceGameObjects().First(pieceGameObject => Equals(pieceGameObject.position, position));
+        var foundPieceGameObject = GetPieceGameObjects().FirstOrDefault(pieceGameObject => Equals(pieceGameObject.position, position));
 
         if (foundPieceGameObject == null) return PieceType.Nothing;
 
