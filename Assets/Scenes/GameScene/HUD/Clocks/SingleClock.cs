@@ -1,36 +1,44 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class SingleClock : MonoBehaviour
 {
+    public Color InitialGrayColor = Color.green;
+    public Color TickingDownGreenColor = Color.green;
     public string initialTime = "";
     public string increment = "";
 
     private TimeSpan remainingTimeSinceLastTickDown = TimeSpan.Zero;
-    private DateTime lastTickDownDateTime = DateTime.MinValue;
+    private float lastTickDownDateTime = 0;
+    private Regex stringToTimeSpanRegex = new Regex(@"(?:(\d+):)?(\d{2})", RegexOptions.Compiled);
     public bool TickingDown { get; private set; }
 
-    public void Reset(string rootInitialTime)
+    public void ResetClock(string rootInitialTime)
     {
         TickingDown = false;
-        getComponent<Text>().SetColor(InitialGray);
-        remainingTimeSinceLastTickDown = format own or root
+        gameObject.GetComponent<TextMeshPro>().color = InitialGrayColor;
+
+        var initialTime = string.IsNullOrEmpty(this.initialTime) ? rootInitialTime : this.initialTime;
+        gameObject.GetComponent<TextMeshPro>().SetText(initialTime);
+        remainingTimeSinceLastTickDown = stringToTimeSpan(initialTime);
     }
 
     public void TickDown()
     {
-        getComponent<Text>().SetColor(Green);
+        gameObject.GetComponent<TextMeshPro>().color = TickingDownGreenColor;
         TickingDown = true;
-        lastTickDownDateTime = Time.now;
+        lastTickDownDateTime = Time.time;
     }
 
     public void StopTicking(string rootIncrement)
     {
         TickingDown = false;
-        remainingTimeSinceLastTickDown = remainingTimeSinceLastTickDown - (Time.now - lastTickDownDateTime) + format own or root increment
+        remainingTimeSinceLastTickDown = remainingTimeSinceLastTickDown - TimeSpan.FromSeconds(Time.time - lastTickDownDateTime) + format own or root increment
         getComponent<Text>().SetColor(InitialGray);
     }
 
@@ -58,5 +66,21 @@ public class SingleClock : MonoBehaviour
         }
 
         getComponent<Text>().SetText(timeLeft);
+    }
+
+    private TimeSpan stringToTimeSpan(string duration)
+    {
+        var matches = stringToTimeSpanRegex.Match(duration);
+        var minutes = matches.Groups[0].Value;
+        var seconds = matches.Groups[1].Value;
+
+        var minutesNumber = string.IsNullOrEmpty(minutes) ? 0 : Int32.Parse(minutes);
+        var secondsNumber = string.IsNullOrEmpty(seconds) ? 0 : Int32.Parse(seconds);
+        return new TimeSpan(0, minutesNumber, secondsNumber);
+    }
+
+    private string timeSpanToString(TimeSpan duration)
+    {
+        return $"{Math.Floor(duration.TotalMinutes)}:{duration.Seconds}";
     }
 }

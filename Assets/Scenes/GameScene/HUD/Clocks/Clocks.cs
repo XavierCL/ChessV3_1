@@ -4,6 +4,8 @@ public class Clocks : MonoBehaviour
 {
     public string initialTime = "5:00";
     public string increment = "5";
+    public Color InitialGrayColor = Color.green;
+    public Color TickingDownGreenColor = Color.green;
 
     private SingleClock topClock;
     private SingleClock bottomClock;
@@ -14,10 +16,18 @@ public class Clocks : MonoBehaviour
         bottomClock = GameObject.Find("BottomTime").GetComponent<SingleClock>();
     }
 
-    void Restart(bool topFirst)
+    void Start()
     {
-        topClock.Reset(initialTime);
-        bottomClock.Reset(initialTime);
+        topClock.InitialGrayColor = InitialGrayColor;
+        topClock.TickingDownGreenColor = TickingDownGreenColor;
+        bottomClock.InitialGrayColor = InitialGrayColor;
+        bottomClock.TickingDownGreenColor = TickingDownGreenColor;
+    }
+
+    public void Restart(bool topFirst)
+    {
+        topClock.ResetClock(initialTime);
+        bottomClock.ResetClock(initialTime);
 
         if (topFirst)
         {
@@ -29,7 +39,7 @@ public class Clocks : MonoBehaviour
         }
     }
 
-    void MovePlayed()
+    public void MovePlayed()
     {
         if (topClock.TickingDown)
         {
@@ -43,7 +53,7 @@ public class Clocks : MonoBehaviour
         }
     }
 
-    void Stop()
+    public void Stop()
     {
         topClock.ForceStop();
         bottomClock.ForceStop();
