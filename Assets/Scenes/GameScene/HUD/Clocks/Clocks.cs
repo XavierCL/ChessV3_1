@@ -6,6 +6,7 @@ public class Clocks : MonoBehaviour
     public string increment = "5";
     public Color InitialGrayColor = Color.green;
     public Color TickingDownGreenColor = Color.green;
+    public Color NoMoreTimeColor = Color.green;
 
     private SingleClock topClock;
     private SingleClock bottomClock;
@@ -20,8 +21,12 @@ public class Clocks : MonoBehaviour
     {
         topClock.InitialGrayColor = InitialGrayColor;
         topClock.TickingDownGreenColor = TickingDownGreenColor;
+        topClock.NoMoreTimeColor = NoMoreTimeColor;
+        topClock.IsTop = true;
         bottomClock.InitialGrayColor = InitialGrayColor;
         bottomClock.TickingDownGreenColor = TickingDownGreenColor;
+        bottomClock.NoMoreTimeColor = NoMoreTimeColor;
+        bottomClock.IsTop = false;
     }
 
     public void Restart(bool topFirst)

@@ -3295,10 +3295,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 609873490}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b00c61e3cd1d04a4db698d914576229c, type: 3}
+  m_Script: {fileID: 11500000, guid: c2caa781fbd9a03408cd51ac4d0b6f29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DelayMs: 1877
 --- !u!1 &628009634
 GameObject:
   m_ObjectHideFlags: 0
@@ -5531,7 +5530,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   initialTime: 5:00
-  increment: 5
+  increment: 2
+  InitialGrayColor: {r: 1, g: 1, b: 1, a: 1}
+  TickingDownGreenColor: {r: 0.003921569, g: 0.7647059, b: 0, a: 1}
+  NoMoreTimeColor: {r: 1, g: 0.27058825, b: 0.27058825, a: 1}
 --- !u!1 &1047995330
 GameObject:
   m_ObjectHideFlags: 0
@@ -6922,6 +6924,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dabeecebcad27cb42b2c57a32ec6fb13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  InitialGrayColor: {r: 0, g: 1, b: 0, a: 1}
+  TickingDownGreenColor: {r: 0, g: 1, b: 0, a: 1}
+  NoMoreTimeColor: {r: 0, g: 1, b: 0, a: 1}
+  IsTop: 0
+  initialTime: 
+  increment: 
 --- !u!1 &1250195714
 GameObject:
   m_ObjectHideFlags: 0
@@ -7112,10 +7120,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 1293550091}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b00c61e3cd1d04a4db698d914576229c, type: 3}
+  m_Script: {fileID: 11500000, guid: c2caa781fbd9a03408cd51ac4d0b6f29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DelayMs: 1983
 --- !u!1 &1312554370
 GameObject:
   m_ObjectHideFlags: 0
@@ -9086,6 +9093,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gameType: 4
+  gameEndState: 0
 --- !u!1 &1564330818
 GameObject:
   m_ObjectHideFlags: 0
@@ -10681,6 +10689,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dabeecebcad27cb42b2c57a32ec6fb13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  InitialGrayColor: {r: 0, g: 1, b: 0, a: 1}
+  TickingDownGreenColor: {r: 0, g: 1, b: 0, a: 1}
+  NoMoreTimeColor: {r: 0, g: 1, b: 0, a: 1}
+  IsTop: 0
+  initialTime: 
+  increment: 
 --- !u!1 &1816159495
 GameObject:
   m_ObjectHideFlags: 0

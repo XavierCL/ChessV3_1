@@ -5,6 +5,7 @@ public class GameController : MonoBehaviour
 {
     public GameState gameState = new GameState();
     public GameType gameType;
+    public GameEndState gameEndState = GameEndState.Ongoing;
     private PromotionHandler promotionHandler;
     private BoardController boardController;
     private PremoveQueue premoveQueue;
@@ -25,6 +26,7 @@ public class GameController : MonoBehaviour
     public void StartNewGame(GameType gameType)
     {
         this.gameType = gameType;
+        this.gameEndState = GameEndState.Ongoing;
         gameState = new GameState();
 
         // Handle board rotation
@@ -34,10 +36,12 @@ public class GameController : MonoBehaviour
             case GameType.HumanWhiteAiBlack:
             case GameType.Ai1WhiteAi2Black:
                 GetBoardController().RotateWhiteBottom();
+                GameObject.Find(nameof(Clocks)).GetComponent<Clocks>().Restart(false);
                 break;
             case GameType.HumanBlackAiWhite:
             case GameType.Ai1BlackAi2White:
                 GetBoardController().RotateBlackBottom();
+                GameObject.Find(nameof(Clocks)).GetComponent<Clocks>().Restart(true);
                 break;
         }
 
@@ -68,6 +72,17 @@ public class GameController : MonoBehaviour
 
         GetBoardController().AnimateMove(move, animated, gameState);
         gameState.PlayMove(move);
+
+        if (gameState.GetGameEndState() != GameEndState.Ongoing)
+        {
+            this.gameEndState = gameState.GetGameEndState();
+            GetBoardController().ResetPieces(gameState);
+            premoveQueue.Clear();
+            GameObject.Find(nameof(Clocks)).GetComponent<Clocks>().Stop();
+            return;
+        }
+
+        GameObject.Find(nameof(Clocks)).GetComponent<Clocks>().MovePlayed();
         if (gameType == GameType.HumanHuman) GetBoardController().RotateBoard();
         TriggerAiMoveIfNeeded();
         PopPremoveQueueIfNeeded();
@@ -78,6 +93,27 @@ public class GameController : MonoBehaviour
         if (gameType == GameType.HumanWhiteAiBlack && !gameState.whiteTurn) return true;
         if (gameType == GameType.HumanBlackAiWhite && gameState.whiteTurn) return true;
         return false;
+    }
+
+    public void NoMoreTime(bool topPlayer)
+    {
+        GameObject.Find(nameof(AiController)).GetComponent<AiController>().ResetAis();
+
+        switch (gameType)
+        {
+            case GameType.HumanHuman:
+            case GameType.HumanWhiteAiBlack:
+            case GameType.Ai1WhiteAi2Black:
+                gameEndState = topPlayer ? GameEndState.WhiteWin : GameEndState.BlackWin;
+                break;
+            case GameType.HumanBlackAiWhite:
+            case GameType.Ai1BlackAi2White:
+                gameEndState = topPlayer ? GameEndState.BlackWin : GameEndState.WhiteWin;
+                break;
+        }
+
+        GetBoardController().ResetPieces(gameState);
+        premoveQueue.Clear();
     }
 
     private async void TriggerAiMoveIfNeeded()

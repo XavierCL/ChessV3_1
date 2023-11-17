@@ -10,27 +10,29 @@ public class SingleClock : MonoBehaviour
 {
     public Color InitialGrayColor = Color.green;
     public Color TickingDownGreenColor = Color.green;
+    public Color NoMoreTimeColor = Color.green;
+    public bool IsTop = false;
     public string initialTime = "";
     public string increment = "";
 
     private TimeSpan remainingTimeSinceLastTickDown = TimeSpan.Zero;
     private float lastTickDownDateTime = 0;
-    private Regex stringToTimeSpanRegex = new Regex(@"(?:(\d+):)?(\d{2})", RegexOptions.Compiled);
+    private Regex stringToTimeSpanRegex = new Regex(@"(?:(\d+):)?(\d{1,2})", RegexOptions.Compiled);
     public bool TickingDown { get; private set; }
 
     public void ResetClock(string rootInitialTime)
     {
         TickingDown = false;
-        gameObject.GetComponent<TextMeshPro>().color = InitialGrayColor;
+        gameObject.GetComponent<TextMeshProUGUI>().color = InitialGrayColor;
 
         var initialTime = string.IsNullOrEmpty(this.initialTime) ? rootInitialTime : this.initialTime;
-        gameObject.GetComponent<TextMeshPro>().SetText(initialTime);
+        gameObject.GetComponent<TextMeshProUGUI>().SetText(initialTime);
         remainingTimeSinceLastTickDown = stringToTimeSpan(initialTime);
     }
 
     public void TickDown()
     {
-        gameObject.GetComponent<TextMeshPro>().color = TickingDownGreenColor;
+        gameObject.GetComponent<TextMeshProUGUI>().color = TickingDownGreenColor;
         TickingDown = true;
         lastTickDownDateTime = Time.time;
     }
@@ -38,8 +40,9 @@ public class SingleClock : MonoBehaviour
     public void StopTicking(string rootIncrement)
     {
         TickingDown = false;
-        remainingTimeSinceLastTickDown = remainingTimeSinceLastTickDown - TimeSpan.FromSeconds(Time.time - lastTickDownDateTime) + format own or root increment
-        getComponent<Text>().SetColor(InitialGray);
+        var increment = string.IsNullOrEmpty(this.increment) ? rootIncrement : this.increment;
+        remainingTimeSinceLastTickDown = remainingTimeSinceLastTickDown - TimeSpan.FromSeconds(Time.time - lastTickDownDateTime) + stringToTimeSpan(increment);
+        gameObject.GetComponent<TextMeshProUGUI>().color = InitialGrayColor;
     }
 
     public void ForceStop()
@@ -47,32 +50,33 @@ public class SingleClock : MonoBehaviour
         if (!TickingDown) return;
 
         TickingDown = false;
-        remainingTimeSinceLastTickDown = remainingTimeSinceLastTickDown - (Time.now - lastTickDownDateTime);
-        getComponent<Text>().SetColor(InitialGray);
+        remainingTimeSinceLastTickDown = remainingTimeSinceLastTickDown - TimeSpan.FromSeconds(Time.time - lastTickDownDateTime);
+        gameObject.GetComponent<TextMeshProUGUI>().color = InitialGrayColor;
     }
 
     public void Update()
     {
         if (!TickingDown) return;
 
-        TimeSpan timeLeft = remainingTimeSinceLastTickDown - (Time.now - lastTickDownDateTime);
+        TimeSpan timeLeft = remainingTimeSinceLastTickDown - TimeSpan.FromSeconds(Time.time - lastTickDownDateTime);
 
-        if (timeLeft == 0)
+        if (timeLeft <= TimeSpan.Zero)
         {
             TickingDown = false;
             remainingTimeSinceLastTickDown = TimeSpan.Zero;
-            gameController.NoMoreTime(top or bottom);
-            getComponent<Text>().SetColor(NoMoreTimeRed);
+            timeLeft = remainingTimeSinceLastTickDown;
+            GameObject.Find(nameof(GameController)).GetComponent<GameController>().NoMoreTime(IsTop);
+            gameObject.GetComponent<TextMeshProUGUI>().color = NoMoreTimeColor;
         }
 
-        getComponent<Text>().SetText(timeLeft);
+        gameObject.GetComponent<TextMeshProUGUI>().SetText(timeSpanToString(timeLeft));
     }
 
     private TimeSpan stringToTimeSpan(string duration)
     {
         var matches = stringToTimeSpanRegex.Match(duration);
-        var minutes = matches.Groups[0].Value;
-        var seconds = matches.Groups[1].Value;
+        var minutes = matches.Groups[1].Value;
+        var seconds = matches.Groups[2].Value;
 
         var minutesNumber = string.IsNullOrEmpty(minutes) ? 0 : Int32.Parse(minutes);
         var secondsNumber = string.IsNullOrEmpty(seconds) ? 0 : Int32.Parse(seconds);
@@ -81,6 +85,9 @@ public class SingleClock : MonoBehaviour
 
     private string timeSpanToString(TimeSpan duration)
     {
-        return $"{Math.Floor(duration.TotalMinutes)}:{duration.Seconds}";
+        var totalMinutes = Math.Floor(duration.TotalMinutes);
+
+        if (totalMinutes <= 0) return $"{duration.Seconds:00}";
+        return $"{Math.Floor(duration.TotalMinutes)}:{duration.Seconds:00}";
     }
 }

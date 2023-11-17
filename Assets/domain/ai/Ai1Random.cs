@@ -10,4 +10,8 @@ public class Ai1Random : MonoBehaviour, AiInterface
         var legalMoves = gameState.getLegalMoves();
         return Task.FromResult(legalMoves[random.Next(0, legalMoves.Count)]);
     }
+
+    public void ResetAi()
+    {
+    }
 }

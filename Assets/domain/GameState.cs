@@ -101,4 +101,11 @@ public class GameState
 
         ++turn;
     }
+
+    public GameEndState GetGameEndState()
+    {
+        if (getLegalMoves().Count == 0) return GameEndState.Draw;
+
+        return GameEndState.Ongoing;
+    }
 }
