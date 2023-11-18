@@ -15,11 +15,8 @@ public class PlayerInputHandler : MonoBehaviour
 
     void Awake()
     {
+        gameController = GameObject.Find(nameof(GameController)).GetComponent<GameController>();
         promotionHandler = GameObject.Find(nameof(PromotionHandler)).GetComponent<PromotionHandler>();
-    }
-
-    void Start()
-    {
         mainCamera = Camera.main;
     }
 
@@ -27,11 +24,13 @@ public class PlayerInputHandler : MonoBehaviour
     {
         if (context.phase == InputActionPhase.Started)
         {
-            OnPress();
+            var rayHit = Physics2D.GetRayIntersection(mainCamera.ScreenPointToRay(Pointer.current.position.ReadValue()));
+            var collidedGameObject = rayHit.collider != null ? rayHit.collider.gameObject : null;
+            gameController.gameVisual.BoardMousePress(collidedGameObject);
         }
         else if (context.phase == InputActionPhase.Canceled)
         {
-            OnRelease();
+            gameController.gameVisual.BoardMouseRelease();
         }
     }
 
@@ -145,7 +144,7 @@ public class PlayerInputHandler : MonoBehaviour
         {
             // Play move
             var finalPosition = boardController.BoardPositionToWorldPosition(endBoardPosition);
-            gameController.PlayAnimatedMove(moveAttempt, false);
+            gameController.PlayMove(moveAttempt, false);
         }
 
         var spriteRenderer = selectedPiece.GetComponent<SpriteRenderer>();

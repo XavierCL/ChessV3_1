@@ -8,19 +8,23 @@ public class PremoveHandler : MonoBehaviour
     private BoardController boardController;
     private Shapes shapes;
     private PromotionHandler promotionHandler;
+    private PremoveQueue premoveQueue;
 
-    void Start()
+    void Awake()
     {
         boardController = GameObject.Find(nameof(BoardController)).GetComponent<BoardController>();
         promotionHandler = GameObject.Find(nameof(PromotionHandler)).GetComponent<PromotionHandler>();
+        premoveQueue = GameObject.Find(nameof(PremoveQueue)).GetComponent<PremoveQueue>();
         shapes = GameObject.Find(nameof(Shapes)).GetComponent<Shapes>();
+
+        // todo move premove queue here, and on empty also reset the board position, on pop reset the board position and recurse following, etc.
     }
 
     void Update()
     {
         if (promotionHandler.PromotionInProgress) return;
 
-        foreach (var premove in GameObject.Find(nameof(PremoveQueue)).GetComponent<PremoveQueue>().GetMoves())
+        foreach (var premove in premoveQueue.GetMoves())
         {
             var premoveTargetWorldPosition = boardController.BoardPositionToWorldPosition(premove.target);
             shapes.Rectangle(new Vector3(premoveTargetWorldPosition.x, premoveTargetWorldPosition.y, SingleFrameZ), 1, 1, PremoveTargetColor);

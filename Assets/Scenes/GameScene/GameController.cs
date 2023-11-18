@@ -6,14 +6,11 @@ public class GameController : MonoBehaviour
     public GameState gameState = new GameState();
     public GameType gameType;
     public GameEndState gameEndState = GameEndState.Ongoing;
-    private PromotionHandler promotionHandler;
-    private BoardController boardController;
-    private PremoveQueue premoveQueue;
+    public GameVisual gameVisual { get; private set; }
+    private AiController aiController;
 
     public void Start()
     {
-        promotionHandler = GameObject.Find(nameof(PromotionHandler)).GetComponent<PromotionHandler>();
-        premoveQueue = GameObject.Find(nameof(PremoveQueue)).GetComponent<PremoveQueue>();
         StartNewGame(GameType.HumanHuman);
     }
 
@@ -25,34 +22,37 @@ public class GameController : MonoBehaviour
 
     public void StartNewGame(GameType gameType)
     {
+        gameVisual?.Cleanup();
         this.gameType = gameType;
-        this.gameEndState = GameEndState.Ongoing;
+        gameEndState = GameEndState.Ongoing;
         gameState = new GameState();
 
-        // Handle board rotation
-        switch (this.gameType)
+        switch (gameType)
         {
             case GameType.HumanHuman:
+                gameVisual = new HumanOnlyGameVisual();
+                break;
             case GameType.HumanWhiteAiBlack:
-            case GameType.Ai1WhiteAi2Black:
-                GetBoardController().RotateWhiteBottom();
-                GameObject.Find(nameof(Clocks)).GetComponent<Clocks>().Restart(false);
+                gameVisual = new HumanAiGameVisual(true);
                 break;
             case GameType.HumanBlackAiWhite:
+                gameVisual = new HumanAiGameVisual(false);
+                break;
+            case GameType.Ai1WhiteAi2Black:
+                gameVisual = new AiOnlyGameVisual(true);
+                break;
             case GameType.Ai1BlackAi2White:
-                GetBoardController().RotateBlackBottom();
-                GameObject.Find(nameof(Clocks)).GetComponent<Clocks>().Restart(true);
+                gameVisual = new AiOnlyGameVisual(false);
                 break;
         }
 
-        GetBoardController().ClearAnimations();
-        GetBoardController().ResetPieces(gameState);
-        GameObject.Find(nameof(AiController)).GetComponent<AiController>().ResetAis();
+        GetAiController().ResetAis();
         TriggerAiMoveIfNeeded();
     }
 
-    public void PlayAnimatedMove(Move move, bool animated)
+    public void PlayMove(Move move, bool animated)
     {
+        // todo move most of this and player input handler into the game visual classes
         var isValidMove = gameState.getLegalMoves().Any(legalMove => legalMove.Equals(move));
 
         if (!isValidMove)
@@ -97,7 +97,7 @@ public class GameController : MonoBehaviour
 
     public void NoMoreTime(bool topPlayer)
     {
-        GameObject.Find(nameof(AiController)).GetComponent<AiController>().ResetAis();
+        GetAiController().ResetAis();
 
         switch (gameType)
         {
@@ -112,8 +112,7 @@ public class GameController : MonoBehaviour
                 break;
         }
 
-        GetBoardController().ResetPieces(gameState);
-        premoveQueue.Clear();
+        gameVisual.StopGame(gameState);
     }
 
     private async void TriggerAiMoveIfNeeded()
@@ -125,12 +124,12 @@ public class GameController : MonoBehaviour
         || (gameType == GameType.HumanWhiteAiBlack && !gameState.whiteTurn)
         || (gameType == GameType.HumanBlackAiWhite && gameState.whiteTurn))
         {
-            var aiMove = await GameObject.Find(nameof(AiController)).GetComponent<AiController>().GetMove(gameState);
+            var aiMove = await GetAiController().GetMove(gameState);
 
             // Coming back on another thread. If there's no move, then unity has stopped.
             if (aiMove == null) return;
 
-            PlayAnimatedMove(aiMove.move, true);
+            PlayMove(aiMove, true);
         }
     }
 
@@ -149,19 +148,19 @@ public class GameController : MonoBehaviour
 
         var premove = premoveQueue.Pop();
 
-        PlayAnimatedMove(premove, false);
+        PlayMove(premove, false);
         foreach (var nextPremove in premoveQueue.GetMoves())
         {
             GetBoardController().MakePremove(nextPremove);
         }
     }
 
-    private BoardController GetBoardController()
+    private AiController GetAiController()
     {
-        if (boardController != null) return boardController;
+        if (aiController != null) return aiController;
 
-        boardController = GameObject.Find(nameof(BoardController)).GetComponent<BoardController>();
+        aiController = GameObject.Find(nameof(AiController)).GetComponent<AiController>();
 
-        return boardController;
+        return aiController;
     }
 }

@@ -19,24 +19,19 @@ public class AiController : MonoBehaviour
         Ai2Interface = Ai2.GetComponent<AiInterface>();
     }
 
-    public class MoveOrEmpty
-    {
-        public Move move { get; set; }
-    }
-
     public void ResetAis()
     {
         gameId = Guid.NewGuid();
     }
 
-    public async Task<MoveOrEmpty> GetMove(GameState gameState)
+    public async Task<Move> GetMove(GameState gameState)
     {
         var currentGuid = gameId;
         var moveOrEmpty = await Task.Run(async () =>
         {
             if (Ai1Interface == null || Ai2Interface == null) return null;
-            if (gameState.whiteTurn) return new MoveOrEmpty { move = await Ai1Interface.GetMove(gameState) };
-            return new MoveOrEmpty { move = await Ai2Interface.GetMove(gameState) };
+            if (gameState.whiteTurn) return await Ai1Interface.GetMove(gameState);
+            return await Ai2Interface.GetMove(gameState);
         });
 
         if (currentGuid != gameId) return null;

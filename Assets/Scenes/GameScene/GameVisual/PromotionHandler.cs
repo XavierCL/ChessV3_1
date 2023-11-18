@@ -19,8 +19,8 @@ public class PromotionHandler : MonoBehaviour
         promotionKnight = GameObject.Find("promotionKnight");
         promotionBishop = GameObject.Find("promotionBishop");
         promotionQueen = GameObject.Find("promotionQueen");
-        gameObject.SetActive(false);
         shapes = GameObject.Find(nameof(Shapes)).GetComponent<Shapes>();
+        gameObject.SetActive(false);
     }
 
     public void PromptPromotion(BoardPosition source, BoardPosition target)
@@ -67,44 +67,38 @@ public class PromotionHandler : MonoBehaviour
         shapes.Rectangle(new Vector3(collider.transform.position.x, collider.transform.position.y, 0), 1.1f, 1, CurrentTargetColor);
     }
 
-    public void FinalizePromotion(GameObject collider)
+    public Move FinalizePromotion(GameObject collider)
     {
-        if (!PromotionInProgress) return;
+        if (!PromotionInProgress) return null;
 
         var gameController = GameObject.Find(nameof(GameController)).GetComponent<GameController>();
 
         var isWhite = gameController.gameType == GameType.HumanHuman && gameController.gameState.whiteTurn
         || gameController.gameType == GameType.HumanWhiteAiBlack;
 
+        Move moveResult = null;
         if (collider == promotionRook)
         {
-            gameController.PlayAnimatedMove(new Move(promotionStartPosition.Value, promotionEndPosition.Value, isWhite ? PieceType.WhiteRook : PieceType.BlackRook), false);
+            moveResult = new Move(promotionStartPosition.Value, promotionEndPosition.Value, isWhite ? PieceType.WhiteRook : PieceType.BlackRook);
         }
-        else if (collider == promotionKnight)
+        if (collider == promotionKnight)
         {
-            gameController.PlayAnimatedMove(new Move(promotionStartPosition.Value, promotionEndPosition.Value, isWhite ? PieceType.WhiteKnight : PieceType.BlackKnight), false);
+            moveResult = new Move(promotionStartPosition.Value, promotionEndPosition.Value, isWhite ? PieceType.WhiteKnight : PieceType.BlackKnight);
         }
-        else if (collider == promotionBishop)
+        if (collider == promotionBishop)
         {
-            gameController.PlayAnimatedMove(new Move(promotionStartPosition.Value, promotionEndPosition.Value, isWhite ? PieceType.WhiteBishop : PieceType.BlackBishop), false);
+            moveResult = new Move(promotionStartPosition.Value, promotionEndPosition.Value, isWhite ? PieceType.WhiteBishop : PieceType.BlackBishop);
         }
-        else if (collider == promotionQueen)
+        if (collider == promotionQueen)
         {
-            gameController.PlayAnimatedMove(new Move(promotionStartPosition.Value, promotionEndPosition.Value, isWhite ? PieceType.WhiteQueen : PieceType.BlackQueen), false);
-        }
-        else if (gameController.IsPremoveMode())
-        {
-            // Unrelated game object was collided with in premove mode, cancel premove
-            CancelPromotion();
-            GameObject.Find(nameof(PremoveQueue)).GetComponent<PremoveQueue>().Clear();
-            GameObject.Find(nameof(BoardController)).GetComponent<BoardController>().ResetPieces(gameController.gameState);
-        }
-        else
-        {
-            // Unrelated game object was collided with, do nothing
-            return;
+            moveResult = new Move(promotionStartPosition.Value, promotionEndPosition.Value, isWhite ? PieceType.WhiteQueen : PieceType.BlackQueen);
         }
 
-        CancelPromotion();
+        if (moveResult != null)
+        {
+            CancelPromotion();
+        }
+
+        return null;
     }
 }
