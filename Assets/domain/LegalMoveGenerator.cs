@@ -8,12 +8,23 @@ public static class LegalMoveGenerator
     var pseudoLegalMoves = GeneratePseudoLegalMoves(gameState);
     var checkValidationState = new GameState(gameState);
 
-    return pseudoLegalMoves.Where(move =>
+    return pseudoLegalMoves.Where(move => CanOwnKingDieNextTurn(checkValidationState, move)).ToList();
+  }
+
+  private static bool CanOwnKingDieNextTurn(GameState gameState, Move ownMove)
+  {
+    gameState.PlayMove(ownMove);
+    var nextPseudoLegalMoves = GeneratePseudoLegalMoves(gameState);
+    var canOwnKingDieNextMove = nextPseudoLegalMoves.Any(pseudoMove =>
     {
-      checkValidationState.PlayMove(move);
-      var nextPseudoLegalMoves = GeneratePseudoLegalMoves(checkValidationState);
-      // check if king is dead
-    }).ToList();
+      gameState.PlayMove(pseudoMove);
+      var hasOwnKing = gameState.HasKing(gameState.whiteTurn);
+      gameState.UndoMove();
+      return !hasOwnKing;
+    });
+    gameState.UndoMove();
+
+    return canOwnKingDieNextMove
   }
 
   private static List<Move> GeneratePseudoLegalMoves(GameState gameState)

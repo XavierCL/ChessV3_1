@@ -1,8 +1,8 @@
 public class PiecePosition
 {
     public string id { get; }
-    public PieceType pieceType { get; set; }
-    public BoardPosition position { get; set; }
+    public PieceType pieceType { get; }
+    public BoardPosition position { get; }
 
     public PiecePosition(
         string id,
@@ -20,5 +20,10 @@ public class PiecePosition
         id = piecePosition.id;
         pieceType = piecePosition.pieceType;
         position = piecePosition.position;
+    }
+
+    public PiecePosition PlayMove(BoardPosition targetPosition, PieceType promotion)
+    {
+
     }
 }

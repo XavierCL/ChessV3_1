@@ -7,6 +7,7 @@ public class GameState
     public int turn { get; set; }
     public bool whiteTurn { get => turn % 2 == 0; }
     public List<PiecePosition> piecePositions { get; private set; }
+    private List<ReversibleMove> history;
 
     public GameState()
     {
@@ -45,12 +46,14 @@ public class GameState
             new PiecePosition("g6", PieceType.BlackPawn, new BoardPosition(6, 6)),
             new PiecePosition("h6", PieceType.BlackPawn, new BoardPosition(7, 6)),
         };
+        history = new List<ReversibleMove>();
     }
 
     public GameState(GameState gameState)
     {
         turn = gameState.turn;
         piecePositions = gameState.piecePositions.Select(piecePosition => new PiecePosition(piecePosition)).ToList();
+
     }
 
     public List<Move> getLegalMoves()
@@ -90,17 +93,24 @@ public class GameState
     {
         piecePositions = piecePositions.Where(piece => !piece.position.Equals(move.target)).ToList();
 
-        var sourcePiece = piecePositions.Find(piece => piece.position.Equals(move.source));
-        if (sourcePiece == null) return;
+        var sourcePieceIndex = piecePositions.FindIndex(piece => piece.position.Equals(move.source));
+        if (sourcePieceIndex == -1) return;
 
-        sourcePiece.position = move.target;
+        piecePositions[sourcePieceIndex] = new PiecePosition();
+
+        sourcePieceIndex.position = move.target;
 
         if (move.promotion != PieceType.Nothing)
         {
-            sourcePiece.pieceType = move.promotion;
+            sourcePieceIndex.pieceType = move.promotion;
         }
 
         ++turn;
+    }
+
+    public void UndoMove()
+    {
+
     }
 
     public GameEndState GetGameEndState()
