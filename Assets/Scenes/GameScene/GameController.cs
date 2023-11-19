@@ -50,42 +50,29 @@ public class GameController : MonoBehaviour
         TriggerAiMoveIfNeeded();
     }
 
-    public void PlayMove(Move move, bool animated)
+    public void PlayMove(Move move)
     {
         // todo move most of this and player input handler into the game visual classes
         var isValidMove = gameState.getLegalMoves().Any(legalMove => legalMove.Equals(move));
 
         if (!isValidMove)
         {
-            if (!IsPremoveMode())
-            {
-                premoveQueue.Clear();
-                GetBoardController().ResetPieces(gameState);
-                promotionHandler.CancelPromotion();
-                return;
-            }
-
-            premoveQueue.Push(move);
-            GetBoardController().MakePremove(move);
             return;
         }
 
-        GetBoardController().AnimateMove(move, animated, gameState);
         gameState.PlayMove(move);
+        gameVisual.PlayAnimatedMove(move);
 
-        if (gameState.GetGameEndState() != GameEndState.Ongoing)
+        var gameEndState = gameState.GetGameEndState();
+
+        if (gameEndState != GameEndState.Ongoing)
         {
-            this.gameEndState = gameState.GetGameEndState();
-            GetBoardController().ResetPieces(gameState);
-            premoveQueue.Clear();
-            GameObject.Find(nameof(Clocks)).GetComponent<Clocks>().Stop();
+            this.gameEndState = gameEndState;
+            gameVisual.GameOver(gameState);
             return;
         }
 
-        GameObject.Find(nameof(Clocks)).GetComponent<Clocks>().MovePlayed();
-        if (gameType == GameType.HumanHuman) GetBoardController().RotateBoard();
         TriggerAiMoveIfNeeded();
-        PopPremoveQueueIfNeeded();
     }
 
     public bool IsPremoveMode()
@@ -112,7 +99,7 @@ public class GameController : MonoBehaviour
                 break;
         }
 
-        gameVisual.StopGame(gameState);
+        gameVisual.GameOver(gameState);
     }
 
     private async void TriggerAiMoveIfNeeded()
@@ -124,34 +111,15 @@ public class GameController : MonoBehaviour
         || (gameType == GameType.HumanWhiteAiBlack && !gameState.whiteTurn)
         || (gameType == GameType.HumanBlackAiWhite && gameState.whiteTurn))
         {
-            var aiMove = await GetAiController().GetMove(gameState);
+            var aiMove = await GetAiController().GetMove(gameState,
+                (gameType == GameType.Ai1WhiteAi2Black || gameType == GameType.HumanBlackAiWhite) && gameState.whiteTurn ||
+                (gameType == GameType.Ai1BlackAi2White || gameType == GameType.HumanWhiteAiBlack) && !gameState.whiteTurn
+            );
 
             // Coming back on another thread. If there's no move, then unity has stopped.
             if (aiMove == null) return;
 
-            PlayMove(aiMove, true);
-        }
-    }
-
-    private void PopPremoveQueueIfNeeded()
-    {
-        if (gameType == GameType.Ai1WhiteAi2Black
-        || gameType == GameType.Ai1BlackAi2White
-        || gameType == GameType.HumanHuman) return;
-
-        if (gameType == GameType.HumanWhiteAiBlack && !gameState.whiteTurn) return;
-        if (gameType == GameType.HumanBlackAiWhite && gameState.whiteTurn) return;
-
-        if (!premoveQueue.HasMoves()) return;
-
-        GetBoardController().ResetPieces(gameState);
-
-        var premove = premoveQueue.Pop();
-
-        PlayMove(premove, false);
-        foreach (var nextPremove in premoveQueue.GetMoves())
-        {
-            GetBoardController().MakePremove(nextPremove);
+            PlayMove(aiMove);
         }
     }
 

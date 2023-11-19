@@ -27,9 +27,8 @@ public class BoardController : MonoBehaviour
         UpdateAnimation();
     }
 
-    public void DrawPossibleTargets(GameState gameState, BoardPosition source)
+    public void DrawPossibleTargets(List<BoardPosition> possibleTargets, BoardPosition source)
     {
-        var possibleTargets = gameState.getLegalMoves().Where(move => move.source.Equals(source)).Select(move => move.target);
         foreach (var possibleTarget in possibleTargets)
         {
             var possibleWorldPosition = BoardPositionToWorldPosition(possibleTarget);
@@ -37,11 +36,8 @@ public class BoardController : MonoBehaviour
         }
     }
 
-    public void DrawCurrentTarget(GameState gameState, BoardPosition source, Vector2 targetWorldPosition, bool isPremoveMode)
+    public void DrawCurrentTarget(BoardPosition targetPosition)
     {
-        var targetPosition = WorldPositionToBoardPosition(targetWorldPosition);
-        if (!isPremoveMode && !gameState.getLegalMoves().Any(move => move.source.Equals(source) && move.target.Equals(targetPosition))) return;
-
         var normalizedTargetWorldPosition = BoardPositionToWorldPosition(targetPosition);
         shapes.Rectangle(new Vector3(normalizedTargetWorldPosition.x, normalizedTargetWorldPosition.y, SingleFrameZ), 1, 1, CurrentTargetColor);
     }
@@ -130,7 +126,7 @@ public class BoardController : MonoBehaviour
         });
     }
 
-    public void MakePremove(Move move)
+    public void AnimateMove(Move move, bool simpleKill, bool animated)
     {
         var pieceGameObject = GetPieceGameObjects().Find(pieceGameObject => Equals(pieceGameObject.position, move.source));
         if (pieceGameObject == null) return;
@@ -144,41 +140,24 @@ public class BoardController : MonoBehaviour
             killedTarget.position = null;
         }
 
-        pieceGameObject.position = move.target;
-        AnimatePiece(pieceGameObject.gameObject, move.target, move.promotion, false);
-    }
-
-    public void AnimateMove(Move move, bool animated, GameState gameState)
-    {
-        var piecePosition = gameState.getPiecePositions().Find(piecePosition => Equals(piecePosition.position, move.source));
-        if (piecePosition == null) return;
-
-        var pieceGameObject = GetPieceGameObjects().Find(pieceGameObject => pieceGameObject.id == piecePosition.id);
-        if (pieceGameObject == null) return;
-
-        // Kill targets
-        var killedTargetPosition = gameState.getPiecePositions().Find(piecePosition => Equals(piecePosition.position, move.target));
-        if (killedTargetPosition != null)
+        if (!simpleKill)
         {
-            var killedTarget = pieceGameObjects.Find(possibleTarget => Equals(possibleTarget.id, killedTargetPosition.id));
-            killedTarget.gameObject.GetComponent<SpriteRenderer>().enabled = false;
-            killedTarget.gameObject.GetComponent<BoxCollider2D>().enabled = false;
-            killedTarget.position = null;
+            // Todo handle en-passant & rock
         }
-
-        // Todo handle en-passant & rock
 
         pieceGameObject.position = move.target;
         AnimatePiece(pieceGameObject.gameObject, move.target, move.promotion, animated);
     }
 
-    public PieceType GetPieceAtPosition(BoardPosition position)
+    public PiecePosition GetPieceAtGameObject(GameObject gameObject)
     {
-        var foundPieceGameObject = GetPieceGameObjects().FirstOrDefault(pieceGameObject => Equals(pieceGameObject.position, position));
+        var foundPieceGameObject = GetPieceGameObjects().FirstOrDefault(pieceGameObject => Equals(pieceGameObject.gameObject, gameObject));
 
-        if (foundPieceGameObject == null) return PieceType.Nothing;
+        if (foundPieceGameObject == null || !foundPieceGameObject.position.HasValue) return null;
 
-        return GetPieceSprites().GetSpritePieceType(foundPieceGameObject.gameObject.GetComponent<SpriteRenderer>().sprite);
+        var pieceType = GetPieceSprites().GetSpritePieceType(foundPieceGameObject.gameObject.GetComponent<SpriteRenderer>().sprite);
+
+        return new PiecePosition(foundPieceGameObject.id, pieceType, foundPieceGameObject.position.Value);
     }
 
     private void UpdateAnimation()

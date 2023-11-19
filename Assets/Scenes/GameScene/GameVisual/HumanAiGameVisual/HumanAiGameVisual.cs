@@ -1,17 +1,17 @@
 using System;
+using System.Linq;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
-public class HumanAiGameVisual : GameVisual
+public class HumanAiGameVisual : HumanGameVisual
 {
     private bool humanWhite;
-    private PremoveQueue premoveQueue;
-    private PromotionHandler promotionHandler;
+    private PremoveHandler premoveHandler;
 
     public HumanAiGameVisual(bool humanWhite)
     {
         this.humanWhite = humanWhite;
-        premoveQueue = GameObject.Find(nameof(PremoveQueue)).GetComponent<PremoveQueue>();
-        promotionHandler = GameObject.Find(nameof(PromotionHandler)).GetComponent<PromotionHandler>();
+        premoveHandler = GameObject.Find(nameof(PremoveHandler)).GetComponent<PremoveHandler>();
     }
 
     public override void StartGame(GameState gameState)
@@ -21,10 +21,16 @@ public class HumanAiGameVisual : GameVisual
         base.StartGame(gameState);
     }
 
-    public override void StopGame(GameState gameState)
+    public override void PlayAnimatedMove(Move move, bool animated)
     {
-        premoveQueue.Clear();
-        base.StopGame(gameState);
+        base.PlayAnimatedMove(move, animated);
+        PopPremoveQueueIfNeeded();
+    }
+
+    public override void GameOver(GameState gameState)
+    {
+        premoveHandler.Clear(gameState);
+        base.GameOver(gameState);
     }
 
     public override void Cleanup()
@@ -33,8 +39,16 @@ public class HumanAiGameVisual : GameVisual
         base.Cleanup();
     }
 
-    public override void BoardMousePress(GameObject collision)
+    public override void BoardMousePress()
     {
+        var collision = GetPointerCollision();
+
+        if (collision == null)
+        {
+            premoveHandler.Clear(gameController.gameState);
+            return;
+        }
+
         var isHumanTurn = humanWhite == gameController.gameState.whiteTurn;
 
         if (promotionHandler.PromotionInProgress)
@@ -46,36 +60,123 @@ public class HumanAiGameVisual : GameVisual
             if (move == null)
             {
                 // Premoving, cancel premove
-                premoveQueue.Clear();
-                boardController.ResetPieces(gameController.gameState);
-                promotionHandler.CancelPromotion();
+                premoveHandler.Clear(gameController.gameState);
                 return;
             }
 
             if (isHumanTurn)
             {
-                gameController.PlayMove(move, false);
+                gameController.PlayMove(move);
                 return;
             }
 
             // Premoving, add to queue
-            premoveQueue.Push(move);
-            boardController.MakePremove(move);
+            premoveHandler.Push(move);
             return;
         }
 
-        if (collision == null)
+        // Check own pieces
+        var pieceAtPosition = boardController.GetPieceAtGameObject(collision);
+
+        if (humanWhite && !pieceAtPosition.pieceType.IsWhite()
+        || !humanWhite && !pieceAtPosition.pieceType.IsBlack())
         {
-            premoveQueue.Clear();
-            boardController.ResetPieces(gameController.gameState);
+            premoveHandler.Clear(gameController.gameState);
             return;
         }
 
-        // todo missing promotion prompt and selected piece
+        StartDrawPieceToPointer(collision, pieceAtPosition.position);
     }
 
     public override void BoardMouseRelease()
     {
-        throw new System.NotImplementedException();
+        if (!selectedPiece) return;
+
+        var endBoardPosition = GetPointerBoardPosition();
+
+        if (Equals(startPosition, endBoardPosition))
+        {
+            CancelDrawPieceToPointer();
+            return;
+        }
+
+        if (humanWhite == gameController.gameState.whiteTurn && !premoveHandler.HasMoves())
+        {
+            // Reset if move is illegal while in live mode.
+            var validMoves = gameController.gameState.getLegalMoves().Where(move => move.source.Equals(startPosition) && move.target.Equals(endBoardPosition)).ToList();
+            if (validMoves.Count == 0)
+            {
+                CancelDrawPieceToPointer();
+                return;
+            }
+        }
+
+        var sourcePieceType = boardController.GetPieceAtGameObject(selectedPiece);
+
+        if (sourcePieceType.pieceType.IsPawn() && (endBoardPosition.row == 0 || endBoardPosition.row == 7))
+        {
+            // Pawn promotion
+            promotionHandler.PromptPromotion(startPosition, endBoardPosition);
+        }
+        else
+        {
+            // Play move
+            PlayMoveOrPremove(new Move(startPosition, endBoardPosition, PieceType.Nothing));
+        }
+
+        ForceStopDrawPieceToPointer();
+    }
+
+    protected override void UpdateSelectedHover()
+    {
+        base.UpdateSelectedHover();
+
+        if (!selectedPiece) return;
+
+        var isPremoving = humanWhite == gameController.gameState.whiteTurn || premoveHandler.HasMoves();
+        var targetPosition = GetPointerBoardPosition();
+
+        if (isPremoving)
+        {
+            if (Equals(targetPosition, startPosition)) return;
+
+            boardController.DrawCurrentTarget(targetPosition);
+        }
+
+        // Draw legal move dots
+        var legalTargetPositions = gameController
+            .gameState
+            .getLegalMoves()
+            .Where(move => Equals(move.source, startPosition))
+            .Select(move => move.target)
+            .ToList();
+
+        boardController.DrawPossibleTargets(legalTargetPositions, startPosition);
+
+        // Draw currently highlighted square if it's legal
+        if (!legalTargetPositions.Any(position => Equals(position, targetPosition))) return;
+
+        boardController.DrawCurrentTarget(targetPosition);
+
+        return;
+    }
+
+    private void PlayMoveOrPremove(Move move)
+    {
+        var isPremoving = humanWhite == gameController.gameState.whiteTurn && premoveHandler.HasMoves();
+
+        if (isPremoving)
+        {
+            premoveHandler.Push(move);
+            return;
+        }
+
+        gameController.PlayMove(move);
+    }
+
+    private void PopPremoveQueueIfNeeded()
+    {
+        if (humanWhite != gameController.gameState.whiteTurn) return;
+        premoveHandler.ExecuteNext();
     }
 }

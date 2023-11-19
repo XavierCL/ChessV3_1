@@ -22,15 +22,17 @@ public class AiController : MonoBehaviour
     public void ResetAis()
     {
         gameId = Guid.NewGuid();
+        Ai1Interface.ResetAi();
+        Ai2Interface.ResetAi();
     }
 
-    public async Task<Move> GetMove(GameState gameState)
+    public async Task<Move> GetMove(GameState gameState, bool ai1)
     {
         var currentGuid = gameId;
         var moveOrEmpty = await Task.Run(async () =>
         {
             if (Ai1Interface == null || Ai2Interface == null) return null;
-            if (gameState.whiteTurn) return await Ai1Interface.GetMove(gameState);
+            if (ai1) return await Ai1Interface.GetMove(gameState);
             return await Ai2Interface.GetMove(gameState);
         });
 

@@ -23,7 +23,7 @@ public class AiOnlyGameVisual : GameVisual
         base.Cleanup();
     }
 
-    public override void BoardMousePress(GameObject collision)
+    public override void BoardMousePress()
     { }
 
     public override void BoardMouseRelease()
