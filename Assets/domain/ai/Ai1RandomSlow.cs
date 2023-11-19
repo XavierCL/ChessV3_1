@@ -11,11 +11,19 @@ public class Ai1RandomSlow : MonoBehaviour, AiInterface
     private CancellationTokenSource cancellationTokenSource;
     public async Task<Move> GetMove(GameState gameState)
     {
-        var legalMoves = gameState.getLegalMoves();
         cancellationTokenSource = new CancellationTokenSource();
-        await Task.Delay(DelayMs, cancellationTokenSource.Token);
-        cancellationTokenSource = null;
-        return legalMoves[random.Next(0, legalMoves.Count)];
+        try
+        {
+            var legalMoves = gameState.getLegalMoves();
+            await Task.Delay(DelayMs, cancellationTokenSource.Token);
+            cancellationTokenSource = null;
+            return legalMoves[random.Next(0, legalMoves.Count)];
+        }
+        catch
+        {
+            // Delay cancelled, return no move
+            return null;
+        }
     }
 
     public void ResetAi()

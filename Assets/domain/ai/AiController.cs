@@ -10,30 +10,28 @@ public class AiController : MonoBehaviour
 
     public GameObject Ai2;
 
-    private AiInterface Ai1Interface;
-    private AiInterface Ai2Interface;
-
-    public void Start()
-    {
-        Ai1Interface = Ai1.GetComponent<AiInterface>();
-        Ai2Interface = Ai2.GetComponent<AiInterface>();
-    }
-
     public void ResetAis()
     {
         gameId = Guid.NewGuid();
-        Ai1Interface.ResetAi();
-        Ai2Interface.ResetAi();
+
+        var ai1Interface = Ai1.GetComponent<AiInterface>();
+        var ai2Interface = Ai2.GetComponent<AiInterface>();
+
+        ai1Interface.ResetAi();
+        ai2Interface.ResetAi();
     }
 
     public async Task<Move> GetMove(GameState gameState, bool ai1)
     {
+        var ai1Interface = Ai1.GetComponent<AiInterface>();
+        var ai2Interface = Ai2.GetComponent<AiInterface>();
+
         var currentGuid = gameId;
         var moveOrEmpty = await Task.Run(async () =>
         {
-            if (Ai1Interface == null || Ai2Interface == null) return null;
-            if (ai1) return await Ai1Interface.GetMove(gameState);
-            return await Ai2Interface.GetMove(gameState);
+            if (ai1Interface == null || ai2Interface == null) return null;
+            if (ai1) return await ai1Interface.GetMove(gameState);
+            return await ai2Interface.GetMove(gameState);
         });
 
         if (currentGuid != gameId) return null;

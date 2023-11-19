@@ -8,38 +8,19 @@ public class Clocks : MonoBehaviour
     public Color InitialGrayColor = Color.green;
     public Color TickingDownGreenColor = Color.green;
     public Color NoMoreTimeColor = Color.green;
-
-    private GameObject topClock;
-    private GameObject bottomClock;
     private bool isSwapped = false;
-
-    void Awake()
-    {
-        topClock = GameObject.Find("TopTime");
-        bottomClock = GameObject.Find("BottomTime");
-    }
 
     void Start()
     {
-        var topClock = this.topClock.GetComponent<SingleClock>();
-        var bottomClock = this.bottomClock.GetComponent<SingleClock>();
-
-        topClock.InitialGrayColor = InitialGrayColor;
-        topClock.TickingDownGreenColor = TickingDownGreenColor;
-        topClock.NoMoreTimeColor = NoMoreTimeColor;
-        topClock.IsTop = true;
-
-        bottomClock.InitialGrayColor = InitialGrayColor;
-        bottomClock.TickingDownGreenColor = TickingDownGreenColor;
-        bottomClock.NoMoreTimeColor = NoMoreTimeColor;
-        bottomClock.IsTop = false;
+        InitializeClocks();
     }
 
     public void Restart(bool topFirst)
     {
-        var topClock = this.topClock.GetComponent<SingleClock>();
-        var bottomClock = this.bottomClock.GetComponent<SingleClock>();
+        var topClock = StaticReferences.topClock.Value.GetComponent<SingleClock>();
+        var bottomClock = StaticReferences.bottomClock.Value.GetComponent<SingleClock>();
 
+        InitializeClocks();
         topClock.ResetClock(initialTime);
         bottomClock.ResetClock(initialTime);
         ResetSwap();
@@ -56,8 +37,8 @@ public class Clocks : MonoBehaviour
 
     public void MovePlayed()
     {
-        var topClock = this.topClock.GetComponent<SingleClock>();
-        var bottomClock = this.bottomClock.GetComponent<SingleClock>();
+        var topClock = StaticReferences.topClock.Value.GetComponent<SingleClock>();
+        var bottomClock = StaticReferences.bottomClock.Value.GetComponent<SingleClock>();
 
         if (topClock.TickingDown)
         {
@@ -73,8 +54,8 @@ public class Clocks : MonoBehaviour
 
     public void Stop()
     {
-        var topClock = this.topClock.GetComponent<SingleClock>();
-        var bottomClock = this.bottomClock.GetComponent<SingleClock>();
+        var topClock = StaticReferences.topClock.Value.GetComponent<SingleClock>();
+        var bottomClock = StaticReferences.bottomClock.Value.GetComponent<SingleClock>();
 
         topClock.ForceStop();
         bottomClock.ForceStop();
@@ -88,7 +69,26 @@ public class Clocks : MonoBehaviour
 
     public void Swap()
     {
+        var topClock = StaticReferences.topClock.Value;
+        var bottomClock = StaticReferences.bottomClock.Value;
+
         (bottomClock.transform.position, topClock.transform.position) = (topClock.transform.position, bottomClock.transform.position);
         isSwapped = !isSwapped;
+    }
+
+    private void InitializeClocks()
+    {
+        var topClock = StaticReferences.topClock.Value.GetComponent<SingleClock>();
+        var bottomClock = StaticReferences.bottomClock.Value.GetComponent<SingleClock>();
+
+        topClock.InitialGrayColor = InitialGrayColor;
+        topClock.TickingDownGreenColor = TickingDownGreenColor;
+        topClock.NoMoreTimeColor = NoMoreTimeColor;
+        topClock.IsTop = true;
+
+        bottomClock.InitialGrayColor = InitialGrayColor;
+        bottomClock.TickingDownGreenColor = TickingDownGreenColor;
+        bottomClock.NoMoreTimeColor = NoMoreTimeColor;
+        bottomClock.IsTop = false;
     }
 }

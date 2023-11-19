@@ -9,4 +9,6 @@ public static class StaticReferences
     public static Lazy<Clocks> clocks { get; } = new Lazy<Clocks>(() => GameObject.Find(nameof(Clocks)).GetComponent<Clocks>());
     public static Lazy<Shapes> shapes { get; } = new Lazy<Shapes>(() => GameObject.Find(nameof(Shapes)).GetComponent<Shapes>());
     public static Lazy<PieceSprites> pieceSprites { get; } = new Lazy<PieceSprites>(() => GameObject.Find(nameof(PieceSprites)).GetComponent<PieceSprites>());
+    public static Lazy<GameObject> topClock { get; } = new Lazy<GameObject>(() => GameObject.Find("TopTime"));
+    public static Lazy<GameObject> bottomClock { get; } = new Lazy<GameObject>(() => GameObject.Find("BottomTime"));
 }
