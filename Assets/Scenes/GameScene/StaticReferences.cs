@@ -11,4 +11,5 @@ public static class StaticReferences
     public static Lazy<PieceSprites> pieceSprites { get; } = new Lazy<PieceSprites>(() => GameObject.Find(nameof(PieceSprites)).GetComponent<PieceSprites>());
     public static Lazy<GameObject> topClock { get; } = new Lazy<GameObject>(() => GameObject.Find("TopTime"));
     public static Lazy<GameObject> bottomClock { get; } = new Lazy<GameObject>(() => GameObject.Find("BottomTime"));
+    public static Lazy<EndStateText> endStateText { get; } = new Lazy<EndStateText>(() => GameObject.Find(nameof(EndStateText)).GetComponent<EndStateText>());
 }

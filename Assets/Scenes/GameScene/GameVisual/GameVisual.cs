@@ -5,23 +5,27 @@ public abstract class GameVisual
     protected GameController gameController;
     protected BoardController boardController;
     protected Clocks clocks;
+    protected EndStateText endStateText;
 
     public GameVisual()
     {
         gameController = StaticReferences.gameController.Value;
         boardController = StaticReferences.boardController.Value;
         clocks = StaticReferences.clocks.Value;
+        endStateText = StaticReferences.endStateText.Value;
     }
 
     public virtual void StartGame(GameState gameState)
     {
         boardController.ResetPieces(gameState);
+        endStateText.SetEndState(gameState.GetGameEndState());
     }
 
     public virtual void GameOver(GameState gameState)
     {
         boardController.ResetPieces(gameState);
         clocks.Stop();
+        endStateText.SetEndState(gameState.GetGameEndState());
     }
 
     public virtual void Cleanup()
