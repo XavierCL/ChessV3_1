@@ -10,4 +10,9 @@ public class Move
         this.target = target;
         this.promotion = promotion;
     }
+
+    public bool Equals(Move otherMove)
+    {
+        return Equals(source, otherMove.source) && Equals(target, otherMove.target) && Equals(promotion, otherMove.promotion);
+    }
 }

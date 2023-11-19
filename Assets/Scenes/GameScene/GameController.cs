@@ -14,6 +14,11 @@ public class GameController : MonoBehaviour
         StartNewGame(GameType.HumanHuman);
     }
 
+    public void Update()
+    {
+        gameVisual?.Update();
+    }
+
     [ContextMenu("Set initial game")]
     public void SetInitialGame()
     {
@@ -47,6 +52,7 @@ public class GameController : MonoBehaviour
         }
 
         GetAiController().ResetAis();
+        gameVisual.StartGame(gameState);
         TriggerAiMoveIfNeeded();
     }
 

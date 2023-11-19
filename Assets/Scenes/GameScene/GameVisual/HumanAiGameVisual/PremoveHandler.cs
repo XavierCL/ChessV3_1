@@ -15,10 +15,10 @@ public class PremoveHandler : MonoBehaviour
 
     void Awake()
     {
-        gameController = GameObject.Find(nameof(GameController)).GetComponent<GameController>();
-        boardController = GameObject.Find(nameof(BoardController)).GetComponent<BoardController>();
-        promotionHandler = GameObject.Find(nameof(PromotionHandler)).GetComponent<PromotionHandler>();
-        shapes = GameObject.Find(nameof(Shapes)).GetComponent<Shapes>();
+        gameController = StaticReferences.gameController.Value;
+        boardController = StaticReferences.boardController.Value;
+        promotionHandler = StaticReferences.promotionHandler.Value;
+        shapes = StaticReferences.shapes.Value;
     }
 
     void Update()

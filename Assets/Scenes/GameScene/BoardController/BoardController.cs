@@ -19,7 +19,7 @@ public class BoardController : MonoBehaviour
     public void Awake()
     {
         GetPieceGameObjects();
-        shapes = GameObject.Find(nameof(Shapes)).GetComponent<Shapes>();
+        shapes = StaticReferences.shapes.Value;
     }
 
     void Update()
@@ -58,7 +58,7 @@ public class BoardController : MonoBehaviour
             var worldPosition = BoardPositionToWorldPosition(piecePosition.position);
             pieceGameObject.gameObject.transform.position = new Vector3(worldPosition.x, worldPosition.y, 0);
             var spriteRenderer = pieceGameObject.gameObject.GetComponent<SpriteRenderer>();
-            spriteRenderer.sprite = GetPieceSprites().GetSpriteFor(piecePosition.pieceType);
+            spriteRenderer.sprite = StaticReferences.pieceSprites.Value.GetSpriteFor(piecePosition.pieceType);
             spriteRenderer.enabled = true;
             spriteRenderer.sortingLayerName = "Pieces";
             pieceGameObject.gameObject.GetComponent<BoxCollider2D>().enabled = true;
@@ -155,7 +155,7 @@ public class BoardController : MonoBehaviour
 
         if (foundPieceGameObject == null || !foundPieceGameObject.position.HasValue) return null;
 
-        var pieceType = GetPieceSprites().GetSpritePieceType(foundPieceGameObject.gameObject.GetComponent<SpriteRenderer>().sprite);
+        var pieceType = StaticReferences.pieceSprites.Value.GetSpritePieceType(foundPieceGameObject.gameObject.GetComponent<SpriteRenderer>().sprite);
 
         return new PiecePosition(foundPieceGameObject.id, pieceType, foundPieceGameObject.position.Value);
     }
@@ -234,14 +234,5 @@ public class BoardController : MonoBehaviour
         };
 
         return pieceGameObjects;
-    }
-
-    private PieceSprites GetPieceSprites()
-    {
-        if (pieceSprites != null) return pieceSprites;
-
-        pieceSprites = GameObject.Find(nameof(PieceSprites)).GetComponent<PieceSprites>();
-
-        return pieceSprites;
     }
 }

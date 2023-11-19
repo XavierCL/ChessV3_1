@@ -80,15 +80,15 @@ public class Clocks : MonoBehaviour
         bottomClock.ForceStop();
     }
 
+    public void ResetSwap()
+    {
+        if (!isSwapped) return;
+        Swap();
+    }
+
     public void Swap()
     {
         (bottomClock.transform.position, topClock.transform.position) = (topClock.transform.position, bottomClock.transform.position);
         isSwapped = !isSwapped;
-    }
-
-    private void ResetSwap()
-    {
-        if (!isSwapped) return;
-        Swap();
     }
 }

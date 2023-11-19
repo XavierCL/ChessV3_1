@@ -41,6 +41,8 @@ public class HumanAiGameVisual : HumanGameVisual
 
     public override void BoardMousePress()
     {
+        if (gameController.gameEndState != GameEndState.Ongoing) return;
+
         var collision = GetPointerCollision();
 
         if (collision == null)
@@ -53,7 +55,7 @@ public class HumanAiGameVisual : HumanGameVisual
 
         if (promotionHandler.PromotionInProgress)
         {
-            var move = promotionHandler.FinalizePromotion(collision);
+            var move = promotionHandler.FinalizePromotion(collision, humanWhite);
 
             if (move == null && isHumanTurn) return;
 
@@ -78,7 +80,8 @@ public class HumanAiGameVisual : HumanGameVisual
         // Check own pieces
         var pieceAtPosition = boardController.GetPieceAtGameObject(collision);
 
-        if (humanWhite && !pieceAtPosition.pieceType.IsWhite()
+        if (pieceAtPosition == null
+        || humanWhite && !pieceAtPosition.pieceType.IsWhite()
         || !humanWhite && !pieceAtPosition.pieceType.IsBlack())
         {
             premoveHandler.Clear(gameController.gameState);
@@ -116,7 +119,7 @@ public class HumanAiGameVisual : HumanGameVisual
         if (sourcePieceType.pieceType.IsPawn() && (endBoardPosition.row == 0 || endBoardPosition.row == 7))
         {
             // Pawn promotion
-            promotionHandler.PromptPromotion(startPosition, endBoardPosition);
+            promotionHandler.PromptPromotion(startPosition, endBoardPosition, humanWhite);
         }
         else
         {

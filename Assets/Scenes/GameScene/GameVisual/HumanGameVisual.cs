@@ -10,7 +10,7 @@ public abstract class HumanGameVisual : GameVisual
 
     public HumanGameVisual()
     {
-        promotionHandler = GameObject.Find(nameof(PromotionHandler)).GetComponent<PromotionHandler>();
+        promotionHandler = StaticReferences.promotionHandler.Value;
     }
 
     protected GameObject GetPointerCollision()
@@ -34,6 +34,7 @@ public abstract class HumanGameVisual : GameVisual
 
     protected void CancelDrawPieceToPointer()
     {
+        if (selectedPiece == null) return;
         boardController.AnimatePiece(selectedPiece, startPosition, PieceType.Nothing, true);
         var spriteRenderer = selectedPiece.GetComponent<SpriteRenderer>();
         spriteRenderer.sortingLayerName = "Pieces";
@@ -45,6 +46,12 @@ public abstract class HumanGameVisual : GameVisual
         var spriteRenderer = selectedPiece.GetComponent<SpriteRenderer>();
         spriteRenderer.sortingLayerName = "Pieces";
         selectedPiece = null;
+    }
+
+    public override void GameOver(GameState gameState)
+    {
+        CancelDrawPieceToPointer();
+        base.GameOver(gameState);
     }
 
     public override void Update()
@@ -60,7 +67,6 @@ public abstract class HumanGameVisual : GameVisual
         // Sometimes the board is reset while a piece is being held, which changes its sorting layer
         selectedPiece.GetComponent<SpriteRenderer>().sortingLayerName = "Animation";
 
-        // Draw selected piece on mouse
         var mousePosition = Camera.main.ScreenToWorldPoint(Pointer.current.position.ReadValue());
         selectedPiece.transform.position = new Vector3(mousePosition.x, mousePosition.y, 0);
     }

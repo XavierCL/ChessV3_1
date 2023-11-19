@@ -18,7 +18,14 @@ public class SingleClock : MonoBehaviour
     private TimeSpan remainingTimeSinceLastTickDown = TimeSpan.Zero;
     private float lastTickDownDateTime = 0;
     private Regex stringToTimeSpanRegex = new Regex(@"(?:(\d+):)?(\d{1,2})", RegexOptions.Compiled);
+    private GameController gameController;
+
     public bool TickingDown { get; private set; }
+
+    public void Awake()
+    {
+        gameController = StaticReferences.gameController.Value;
+    }
 
     public void ResetClock(string rootInitialTime)
     {
@@ -43,6 +50,7 @@ public class SingleClock : MonoBehaviour
         var increment = string.IsNullOrEmpty(this.increment) ? rootIncrement : this.increment;
         remainingTimeSinceLastTickDown = remainingTimeSinceLastTickDown - TimeSpan.FromSeconds(Time.time - lastTickDownDateTime) + stringToTimeSpan(increment);
         gameObject.GetComponent<TextMeshProUGUI>().color = InitialGrayColor;
+        gameObject.GetComponent<TextMeshProUGUI>().SetText(timeSpanToString(remainingTimeSinceLastTickDown));
     }
 
     public void ForceStop()
@@ -65,7 +73,7 @@ public class SingleClock : MonoBehaviour
             TickingDown = false;
             remainingTimeSinceLastTickDown = TimeSpan.Zero;
             timeLeft = remainingTimeSinceLastTickDown;
-            GameObject.Find(nameof(GameController)).GetComponent<GameController>().NoMoreTime(IsTop);
+            gameController.NoMoreTime(IsTop);
             gameObject.GetComponent<TextMeshProUGUI>().color = NoMoreTimeColor;
         }
 

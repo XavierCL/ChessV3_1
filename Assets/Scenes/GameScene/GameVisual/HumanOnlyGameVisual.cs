@@ -1,6 +1,4 @@
 using System.Linq;
-using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class HumanOnlyGameVisual : HumanGameVisual
 {
@@ -17,8 +15,16 @@ public class HumanOnlyGameVisual : HumanGameVisual
         base.PlayAnimatedMove(move, true);
     }
 
+    public override void Cleanup()
+    {
+        boardController.RotateWhiteBottom();
+        base.Cleanup();
+    }
+
     public override void BoardMousePress()
     {
+        if (gameController.gameEndState != GameEndState.Ongoing) return;
+
         var collision = GetPointerCollision();
 
         if (collision == null)
@@ -28,7 +34,7 @@ public class HumanOnlyGameVisual : HumanGameVisual
 
         if (promotionHandler.PromotionInProgress)
         {
-            var move = promotionHandler.FinalizePromotion(collision);
+            var move = promotionHandler.FinalizePromotion(collision, gameController.gameState.whiteTurn);
             if (move == null) return;
 
             gameController.PlayMove(move);
@@ -37,6 +43,7 @@ public class HumanOnlyGameVisual : HumanGameVisual
         // Check own pieces
         var pieceAtPosition = boardController.GetPieceAtGameObject(collision);
 
+        if (pieceAtPosition == null) return;
         if (pieceAtPosition.pieceType == PieceType.Nothing) return;
         if (gameController.gameState.whiteTurn != pieceAtPosition.pieceType.IsWhite()) return;
 
@@ -66,7 +73,7 @@ public class HumanOnlyGameVisual : HumanGameVisual
         if (validMoves.Count > 1)
         {
             // Pawn promotion
-            promotionHandler.PromptPromotion(startPosition, endBoardPosition);
+            promotionHandler.PromptPromotion(startPosition, endBoardPosition, gameController.gameState.whiteTurn);
         }
         else
         {

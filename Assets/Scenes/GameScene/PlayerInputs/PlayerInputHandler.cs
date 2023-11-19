@@ -7,7 +7,7 @@ public class PlayerInputHandler : MonoBehaviour
 
     void Awake()
     {
-        gameController = GameObject.Find(nameof(GameController)).GetComponent<GameController>();
+        gameController = StaticReferences.gameController.Value;
     }
 
     public void OnPressPointerEvent(InputAction.CallbackContext context)

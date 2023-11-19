@@ -8,29 +8,35 @@ public class PromotionHandler : MonoBehaviour
     private GameObject promotionBishop;
     private GameObject promotionQueen;
     private Shapes shapes;
+    private BoardController boardController;
+    private GameController gameController;
+    private PieceSprites pieceSprites;
+
     private BoardPosition? promotionStartPosition;
     private BoardPosition? promotionEndPosition;
     public bool PromotionInProgress { get => promotionStartPosition != null; }
     public Color CurrentTargetColor = Color.green;
 
-    void Start()
+    void Awake()
     {
         promotionRook = GameObject.Find("promotionRook");
         promotionKnight = GameObject.Find("promotionKnight");
         promotionBishop = GameObject.Find("promotionBishop");
         promotionQueen = GameObject.Find("promotionQueen");
-        shapes = GameObject.Find(nameof(Shapes)).GetComponent<Shapes>();
+        shapes = StaticReferences.shapes.Value;
+        boardController = StaticReferences.boardController.Value;
+        gameController = StaticReferences.gameController.Value;
+        pieceSprites = StaticReferences.pieceSprites.Value;
+    }
+
+    void Start()
+    {
         gameObject.SetActive(false);
     }
 
-    public void PromptPromotion(BoardPosition source, BoardPosition target)
+    public void PromptPromotion(BoardPosition source, BoardPosition target, bool isWhite)
     {
-        var gameController = GameObject.Find(nameof(GameController)).GetComponent<GameController>();
-        var boardController = GameObject.Find(nameof(BoardController)).GetComponent<BoardController>();
-        var pieceSprites = GameObject.Find(nameof(PieceSprites)).GetComponent<PieceSprites>();
-
-        if (gameController.gameType == GameType.HumanHuman && gameController.gameState.whiteTurn
-        || gameController.gameType == GameType.HumanWhiteAiBlack)
+        if (isWhite)
         {
             promotionRook.GetComponent<SpriteRenderer>().sprite = pieceSprites.GetSpriteFor(PieceType.WhiteRook);
             promotionKnight.GetComponent<SpriteRenderer>().sprite = pieceSprites.GetSpriteFor(PieceType.WhiteKnight);
@@ -67,14 +73,9 @@ public class PromotionHandler : MonoBehaviour
         shapes.Rectangle(new Vector3(collider.transform.position.x, collider.transform.position.y, 0), 1.1f, 1, CurrentTargetColor);
     }
 
-    public Move FinalizePromotion(GameObject collider)
+    public Move FinalizePromotion(GameObject collider, bool isWhite)
     {
         if (!PromotionInProgress) return null;
-
-        var gameController = GameObject.Find(nameof(GameController)).GetComponent<GameController>();
-
-        var isWhite = gameController.gameType == GameType.HumanHuman && gameController.gameState.whiteTurn
-        || gameController.gameType == GameType.HumanWhiteAiBlack;
 
         Move moveResult = null;
         if (collider == promotionRook)
@@ -99,6 +100,6 @@ public class PromotionHandler : MonoBehaviour
             CancelPromotion();
         }
 
-        return null;
+        return moveResult;
     }
 }

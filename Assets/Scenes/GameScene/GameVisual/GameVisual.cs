@@ -8,9 +8,9 @@ public abstract class GameVisual
 
     public GameVisual()
     {
-        gameController = GameObject.Find(nameof(GameController)).GetComponent<GameController>();
-        boardController = GameObject.Find(nameof(BoardController)).GetComponent<BoardController>();
-        clocks = GameObject.Find(nameof(Clocks)).GetComponent<Clocks>();
+        gameController = StaticReferences.gameController.Value;
+        boardController = StaticReferences.boardController.Value;
+        clocks = StaticReferences.clocks.Value;
     }
 
     public virtual void StartGame(GameState gameState)
@@ -27,6 +27,7 @@ public abstract class GameVisual
     public virtual void Cleanup()
     {
         boardController.ClearAnimations();
+        clocks.ResetSwap();
     }
 
     public abstract void BoardMousePress();
