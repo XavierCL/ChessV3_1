@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public class PremoveHandler : MonoBehaviour
@@ -43,8 +44,14 @@ public class PremoveHandler : MonoBehaviour
         if (!HasMoves()) return;
 
         var premove = queue.Dequeue();
-        boardController.ResetPieces(gameController.gameState);
 
+        if (!gameController.gameState.getLegalMoves().Any(move => move.Equals(premove)))
+        {
+            Clear();
+            return;
+        }
+
+        boardController.ResetPieces(gameController.gameState);
         gameController.PlayMove(premove);
 
         foreach (var nextPremove in GetMoves())
@@ -58,10 +65,10 @@ public class PremoveHandler : MonoBehaviour
         return queue.Count > 0;
     }
 
-    public void Clear(GameState gameState)
+    public void Clear()
     {
         queue.Clear();
-        boardController.ResetPieces(gameState);
+        boardController.ResetPieces(gameController.gameState);
         promotionHandler.CancelPromotion();
     }
 

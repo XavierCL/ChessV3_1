@@ -108,13 +108,18 @@ public class BoardController : MonoBehaviour
 
     public void AnimatePiece(GameObject gameObject, BoardPosition destination, PieceType newType, bool animated)
     {
+        var existingPieceAnimation = pieceAnimations.Find(pieceAnimation => pieceAnimation.gameObject.Equals(gameObject));
+        var latestPieceType = newType == PieceType.Nothing ? existingPieceAnimation?.newType ?? newType : newType;
+
         pieceAnimations = pieceAnimations.Where(pieceAnimation => !pieceAnimation.gameObject.Equals(gameObject)).ToList();
+
         var startTime = Time.time;
         var startPosition = new Vector2(gameObject.transform.position.x, gameObject.transform.position.y);
         var endWorldPosition = BoardPositionToWorldPosition(destination);
         var deltaNorm = (endWorldPosition - startPosition).magnitude;
         var speed = Mathf.Clamp(deltaNorm / AnimationSeconds, AnimationMinimumSpeed, deltaNorm / AnimationSeconds);
         var finalDuration = animated ? deltaNorm / speed : 0;
+
         pieceAnimations.Add(new PieceAnimation
         {
             gameObject = gameObject,
@@ -122,8 +127,11 @@ public class BoardController : MonoBehaviour
             startTimeSeconds = startTime,
             endPosition = destination,
             endTimeSeconds = startTime + finalDuration,
-            newType = newType,
+            newType = latestPieceType,
         });
+
+        // Handle immediate animations
+        UpdateAnimation();
     }
 
     public void AnimateMove(Move move, bool simpleKill, bool animated)

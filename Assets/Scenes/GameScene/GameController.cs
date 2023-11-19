@@ -67,13 +67,13 @@ public class GameController : MonoBehaviour
         }
 
         gameState.PlayMove(move);
-        gameVisual.PlayAnimatedMove(move);
 
-        var gameEndState = gameState.GetGameEndState();
+        gameEndState = gameState.GetGameEndState();
+
+        gameVisual.PlayAnimatedMove(move);
 
         if (gameEndState != GameEndState.Ongoing)
         {
-            this.gameEndState = gameEndState;
             gameVisual.GameOver(gameState);
             return;
         }
@@ -118,8 +118,10 @@ public class GameController : MonoBehaviour
         || (gameType == GameType.HumanBlackAiWhite && gameState.whiteTurn))
         {
             var aiMove = await GetAiController().GetMove(gameState,
-                (gameType == GameType.Ai1WhiteAi2Black || gameType == GameType.HumanBlackAiWhite) && gameState.whiteTurn ||
-                (gameType == GameType.Ai1BlackAi2White || gameType == GameType.HumanWhiteAiBlack) && !gameState.whiteTurn
+                (gameType == GameType.Ai1WhiteAi2Black) && gameState.whiteTurn ||
+                (gameType == GameType.Ai1BlackAi2White) && !gameState.whiteTurn ||
+                gameType == GameType.HumanWhiteAiBlack ||
+                gameType == GameType.HumanBlackAiWhite
             );
 
             // Coming back on another thread. If there's no move, then unity has stopped.

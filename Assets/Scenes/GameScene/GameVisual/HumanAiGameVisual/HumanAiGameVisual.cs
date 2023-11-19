@@ -1,7 +1,6 @@
-using System;
 using System.Linq;
+using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class HumanAiGameVisual : HumanGameVisual
 {
@@ -23,13 +22,13 @@ public class HumanAiGameVisual : HumanGameVisual
 
     public override void PlayAnimatedMove(Move move, bool animated)
     {
-        base.PlayAnimatedMove(move, animated);
+        base.PlayAnimatedMove(move, humanWhite == gameController.gameState.whiteTurn);
         PopPremoveQueueIfNeeded();
     }
 
     public override void GameOver(GameState gameState)
     {
-        premoveHandler.Clear(gameState);
+        premoveHandler.Clear();
         base.GameOver(gameState);
     }
 
@@ -47,7 +46,7 @@ public class HumanAiGameVisual : HumanGameVisual
 
         if (collision == null)
         {
-            premoveHandler.Clear(gameController.gameState);
+            premoveHandler.Clear();
             return;
         }
 
@@ -62,7 +61,7 @@ public class HumanAiGameVisual : HumanGameVisual
             if (move == null)
             {
                 // Premoving, cancel premove
-                premoveHandler.Clear(gameController.gameState);
+                premoveHandler.Clear();
                 return;
             }
 
@@ -84,7 +83,7 @@ public class HumanAiGameVisual : HumanGameVisual
         || humanWhite && !pieceAtPosition.pieceType.IsWhite()
         || !humanWhite && !pieceAtPosition.pieceType.IsBlack())
         {
-            premoveHandler.Clear(gameController.gameState);
+            premoveHandler.Clear();
             return;
         }
 
@@ -103,7 +102,7 @@ public class HumanAiGameVisual : HumanGameVisual
             return;
         }
 
-        if (humanWhite == gameController.gameState.whiteTurn && !premoveHandler.HasMoves())
+        if (!IsPremoving())
         {
             // Reset if move is illegal while in live mode.
             var validMoves = gameController.gameState.getLegalMoves().Where(move => move.source.Equals(startPosition) && move.target.Equals(endBoardPosition)).ToList();
@@ -136,10 +135,9 @@ public class HumanAiGameVisual : HumanGameVisual
 
         if (!selectedPiece) return;
 
-        var isPremoving = humanWhite == gameController.gameState.whiteTurn || premoveHandler.HasMoves();
         var targetPosition = GetPointerBoardPosition();
 
-        if (isPremoving)
+        if (IsPremoving())
         {
             if (Equals(targetPosition, startPosition)) return;
 
@@ -166,9 +164,7 @@ public class HumanAiGameVisual : HumanGameVisual
 
     private void PlayMoveOrPremove(Move move)
     {
-        var isPremoving = humanWhite == gameController.gameState.whiteTurn && premoveHandler.HasMoves();
-
-        if (isPremoving)
+        if (IsPremoving())
         {
             premoveHandler.Push(move);
             return;
@@ -177,9 +173,18 @@ public class HumanAiGameVisual : HumanGameVisual
         gameController.PlayMove(move);
     }
 
-    private void PopPremoveQueueIfNeeded()
+    private async void PopPremoveQueueIfNeeded()
     {
         if (humanWhite != gameController.gameState.whiteTurn) return;
+
+        // Execute on next lifecycle so GameController.PlayMove has time to finish
+        await Task.Delay(1);
+
         premoveHandler.ExecuteNext();
+    }
+
+    private bool IsPremoving()
+    {
+        return humanWhite != gameController.gameState.whiteTurn || premoveHandler.HasMoves();
     }
 }
