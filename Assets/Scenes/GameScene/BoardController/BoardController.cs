@@ -51,7 +51,7 @@ public class BoardController : MonoBehaviour
     {
         var pieceGameObjects = GetPieceGameObjects().ToDictionary(piece => piece.id);
         var unseenPieceIds = new HashSet<string>(pieceGameObjects.Keys);
-        foreach (var piecePosition in gameState.getPiecePositions())
+        foreach (var piecePosition in gameState.piecePositions)
         {
             unseenPieceIds.Remove(piecePosition.id);
             var pieceGameObject = pieceGameObjects[piecePosition.id];

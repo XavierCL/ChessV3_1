@@ -1,13 +1,12 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using UnityEditor.Experimental.GraphView;
 
 public class GameState
 {
     public int turn { get; set; }
     public bool whiteTurn { get => turn % 2 == 0; }
-    private List<PiecePosition> piecePositions;
+    public List<PiecePosition> piecePositions { get; private set; }
 
     public GameState()
     {
@@ -48,8 +47,15 @@ public class GameState
         };
     }
 
+    public GameState(GameState gameState)
+    {
+        turn = gameState.turn;
+        piecePositions = gameState.piecePositions.Select(piecePosition => new PiecePosition(piecePosition)).ToList();
+    }
+
     public List<Move> getLegalMoves()
     {
+        return this.GenerateLegalMoves();
         var ownPawn = whiteTurn ? PieceType.WhitePawn : PieceType.BlackPawn;
         var ownPawnStartingY = whiteTurn ? 1 : 6;
         var increment = whiteTurn ? 1 : -1;
@@ -78,11 +84,6 @@ public class GameState
                 return new List<Move> { new Move(pawnPosition.position, new BoardPosition(pawnPosition.position.col, pawnPosition.position.row + increment), PieceType.Nothing) };
             })
             .ToList();
-    }
-
-    public List<PiecePosition> getPiecePositions()
-    {
-        return piecePositions;
     }
 
     public void PlayMove(Move move)

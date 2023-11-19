@@ -14,4 +14,11 @@ public class PiecePosition
         this.pieceType = pieceType;
         this.position = position;
     }
+
+    public PiecePosition(PiecePosition piecePosition)
+    {
+        id = piecePosition.id;
+        pieceType = piecePosition.pieceType;
+        position = piecePosition.position;
+    }
 }
