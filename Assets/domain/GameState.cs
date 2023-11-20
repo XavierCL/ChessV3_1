@@ -1,6 +1,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 public class GameState
 {
@@ -9,9 +10,19 @@ public class GameState
     public List<PiecePosition> piecePositions { get; private set; }
     private List<ReversibleMove> history;
 
+    private class DebugOperation
+    {
+        public ReversibleMove reverse { get; set; }
+        public Move move { get; set; }
+    }
+
+    private List<DebugOperation> debugHistory;
+
     public GameState()
     {
         turn = 0;
+        history = new List<ReversibleMove>();
+        debugHistory = new List<DebugOperation>();
         piecePositions = new List<PiecePosition> {
             new PiecePosition("a1", PieceType.WhiteRook, new BoardPosition(0, 0)),
             new PiecePosition("b1", PieceType.WhiteKnight, new BoardPosition(1, 0)),
@@ -46,77 +57,92 @@ public class GameState
             new PiecePosition("g6", PieceType.BlackPawn, new BoardPosition(6, 6)),
             new PiecePosition("h6", PieceType.BlackPawn, new BoardPosition(7, 6)),
         };
-        history = new List<ReversibleMove>();
     }
 
     public GameState(GameState gameState)
     {
         turn = gameState.turn;
-        piecePositions = gameState.piecePositions.Select(piecePosition => new PiecePosition(piecePosition)).ToList();
-
+        history = new List<ReversibleMove>(gameState.history);
+        debugHistory = new List<DebugOperation>(gameState.debugHistory);
+        piecePositions = new List<PiecePosition>(gameState.piecePositions);
     }
 
     public List<Move> getLegalMoves()
     {
         return this.GenerateLegalMoves();
-        var ownPawn = whiteTurn ? PieceType.WhitePawn : PieceType.BlackPawn;
-        var ownPawnStartingY = whiteTurn ? 1 : 6;
-        var increment = whiteTurn ? 1 : -1;
-        var stopCondition = whiteTurn ? 7 : 0;
-        var promotions = whiteTurn
-            ? new List<PieceType> { PieceType.WhiteRook, PieceType.WhiteKnight, PieceType.WhiteBishop, PieceType.WhiteQueen }
-            : new List<PieceType> { PieceType.BlackRook, PieceType.BlackKnight, PieceType.BlackBishop, PieceType.BlackQueen };
-
-        return piecePositions
-            .Where(piecePosition => piecePosition.pieceType == ownPawn && piecePosition.position.row != stopCondition)
-            .SelectMany(pawnPosition =>
-            {
-                if (pawnPosition.position.row == ownPawnStartingY)
-                {
-                    return new List<Move> {
-                        new Move(pawnPosition.position, new BoardPosition(pawnPosition.position.col, pawnPosition.position.row + increment), PieceType.Nothing)   ,
-                        new Move(pawnPosition.position, new BoardPosition(pawnPosition.position.col, pawnPosition.position.row + increment * 2),   PieceType.Nothing)
-                    };
-                }
-
-                if (pawnPosition.position.row == stopCondition - increment)
-                {
-                    return promotions.Select(promotion => new Move(pawnPosition.position, new BoardPosition(pawnPosition.position.col, pawnPosition.position.row + increment), promotion)).ToList();
-                }
-
-                return new List<Move> { new Move(pawnPosition.position, new BoardPosition(pawnPosition.position.col, pawnPosition.position.row + increment), PieceType.Nothing) };
-            })
-            .ToList();
     }
 
     public void PlayMove(Move move)
     {
-        piecePositions = piecePositions.Where(piece => !piece.position.Equals(move.target)).ToList();
+        debugHistory.Add(new DebugOperation { move = move });
+
+        var killedPieceIndex = piecePositions.FindIndex(piece => piece.position.Equals(move.target));
+        PiecePosition killedPiece = null;
+
+        if (killedPieceIndex != -1)
+        {
+            killedPiece = piecePositions[killedPieceIndex];
+            piecePositions.RemoveAt(killedPieceIndex);
+        }
 
         var sourcePieceIndex = piecePositions.FindIndex(piece => piece.position.Equals(move.source));
-        if (sourcePieceIndex == -1) return;
 
-        piecePositions[sourcePieceIndex] = new PiecePosition();
-
-        sourcePieceIndex.position = move.target;
-
-        if (move.promotion != PieceType.Nothing)
+        if (sourcePieceIndex == -1)
         {
-            sourcePieceIndex.pieceType = move.promotion;
+            if (killedPiece != null)
+            {
+                // Revert state
+                piecePositions.Add(killedPiece);
+            }
+
+            throw new System.Exception("Invalid move, no piece at source position");
         }
+
+        var sourcePiece = piecePositions[sourcePieceIndex];
+
+        history.Add(new ReversibleMove(move.source, move.target, sourcePiece.pieceType.IsPawn() && move.promotion != PieceType.Nothing, false, false, false, false, killedPiece));
+
+        piecePositions[sourcePieceIndex] = piecePositions[sourcePieceIndex].PlayMove(move.target, move.promotion);
 
         ++turn;
     }
 
     public void UndoMove()
     {
+        var reversibleMove = history[history.Count - 1];
+        history.RemoveAt(history.Count - 1);
 
+        debugHistory.Add(new DebugOperation { reverse = reversibleMove });
+
+        var sourcePieceIndex = piecePositions.FindIndex(piece => piece.position.Equals(reversibleMove.target));
+
+        if (sourcePieceIndex == -1)
+        {
+            history.Add(reversibleMove);
+            throw new System.Exception("Invalid undo, no piece at target position");
+        }
+
+        var sourcePiece = piecePositions[sourcePieceIndex];
+        piecePositions[sourcePieceIndex] = sourcePiece.PlayMove(reversibleMove.source, reversibleMove.pawnPromoted ? sourcePiece.pieceType.IsWhite() ? PieceType.WhitePawn : PieceType.BlackPawn : PieceType.Nothing);
+
+        if (reversibleMove.killed != null)
+        {
+            piecePositions.Add(reversibleMove.killed);
+        }
+
+        --turn;
     }
 
     public GameEndState GetGameEndState()
     {
-        if (getLegalMoves().Count == 0) return GameEndState.Draw;
+        if (getLegalMoves().Count > 0) return GameEndState.Ongoing;
+        var canOwnKingDie = LegalMoveGenerator.CanOwnKingDie(this);
+        if (!canOwnKingDie) return GameEndState.Draw;
+        return whiteTurn ? GameEndState.BlackWin : GameEndState.WhiteWin;
+    }
 
-        return GameEndState.Ongoing;
+    public bool HasKing(bool white)
+    {
+        return piecePositions.Any(piecePosition => white ? piecePosition.pieceType == PieceType.WhiteKing : piecePosition.pieceType == PieceType.BlackKing);
     }
 }

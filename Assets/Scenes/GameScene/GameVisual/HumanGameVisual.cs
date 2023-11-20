@@ -43,6 +43,8 @@ public abstract class HumanGameVisual : GameVisual
 
     protected void ForceStopDrawPieceToPointer()
     {
+        if (selectedPiece == null) return;
+
         var spriteRenderer = selectedPiece.GetComponent<SpriteRenderer>();
         spriteRenderer.sortingLayerName = "Pieces";
         selectedPiece = null;
@@ -50,8 +52,19 @@ public abstract class HumanGameVisual : GameVisual
 
     public override void GameOver(GameState gameState)
     {
-        CancelDrawPieceToPointer();
         base.GameOver(gameState);
+        if (selectedPiece == null) return;
+
+        var finalSelectedPiecePosition = boardController.GetPieceAtGameObject(selectedPiece);
+
+        if (finalSelectedPiecePosition == null)
+        {
+            ForceStopDrawPieceToPointer();
+        }
+
+        // If the AI ends the game, we want the piece being dragged to return to the game state position, not the start position
+        startPosition = finalSelectedPiecePosition.position;
+        CancelDrawPieceToPointer();
     }
 
     public override void Update()

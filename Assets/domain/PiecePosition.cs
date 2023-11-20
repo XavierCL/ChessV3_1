@@ -1,3 +1,7 @@
+
+using System.Diagnostics;
+
+[DebuggerDisplay("{pieceType} ({position.col}, {position.row})")]
 public class PiecePosition
 {
     public string id { get; }
@@ -24,6 +28,6 @@ public class PiecePosition
 
     public PiecePosition PlayMove(BoardPosition targetPosition, PieceType promotion)
     {
-
+        return new PiecePosition(id, promotion == PieceType.Nothing ? pieceType : promotion, targetPosition);
     }
 }

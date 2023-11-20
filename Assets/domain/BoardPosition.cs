@@ -1,3 +1,6 @@
+using System.Diagnostics;
+
+[DebuggerDisplay("{col}, {row}")]
 public struct BoardPosition
 {
     public int index { get; set; }
