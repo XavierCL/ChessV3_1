@@ -47,7 +47,7 @@ public class BoardController : MonoBehaviour
         pieceAnimations.Clear();
     }
 
-    public void ResetPieces(GameState gameState)
+    public void ResetPieces(GameStateInterface gameState)
     {
         var pieceGameObjects = GetPieceGameObjects().ToDictionary(piece => piece.id);
         var unseenPieceIds = new HashSet<string>(pieceGameObjects.Keys);
@@ -150,7 +150,24 @@ public class BoardController : MonoBehaviour
 
         if (!simpleKill)
         {
-            // Todo handle en-passant & rock
+            var pieceType = StaticReferences.pieceSprites.Value.GetSpritePieceType(pieceGameObject.gameObject.GetComponent<SpriteRenderer>().sprite);
+
+            // En passant
+            if (pieceType.IsPawn() && move.source.col != move.target.col && killedTarget == null)
+            {
+                killedTarget = GetPieceGameObjects().Find(possibleTarget => Equals(possibleTarget.position, new BoardPosition(move.target.col, move.source.row)));
+
+                if (killedTarget == null)
+                {
+                    throw new System.Exception("Couldn't find killed en passant");
+                }
+
+                killedTarget.gameObject.GetComponent<SpriteRenderer>().enabled = false;
+                killedTarget.gameObject.GetComponent<BoxCollider2D>().enabled = false;
+                killedTarget.position = null;
+            }
+
+            // Todo handle rock
         }
 
         pieceGameObject.position = move.target;

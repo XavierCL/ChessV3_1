@@ -3,20 +3,20 @@ using System.Linq;
 
 public static class LegalMoveGenerator
 {
-  public static List<Move> GenerateLegalMoves(this GameState gameState)
+  public static List<Move> GenerateLegalMoves(this V1GameState gameState)
   {
     var pseudoLegalMoves = GeneratePseudoLegalMoves(gameState, gameState.whiteTurn);
-    var checkValidationState = new GameState(gameState);
+    var checkValidationState = new V1GameState(gameState);
 
     return pseudoLegalMoves.Where(move => !CanOwnKingDieAfterMove(checkValidationState, move)).ToList();
   }
 
-  public static bool CanOwnKingDie(GameState gameState)
+  public static bool CanOwnKingDie(V1GameState gameState)
   {
-    return CanKingDie(new GameState(gameState), gameState.whiteTurn);
+    return CanKingDie(new V1GameState(gameState), gameState.whiteTurn);
   }
 
-  private static bool CanOwnKingDieAfterMove(GameState gameState, Move ownMove)
+  private static bool CanOwnKingDieAfterMove(V1GameState gameState, Move ownMove)
   {
     gameState.PlayMove(ownMove);
     var canOwnKingDieNextMove = CanKingDie(gameState, !gameState.whiteTurn);
@@ -25,7 +25,7 @@ public static class LegalMoveGenerator
     return canOwnKingDieNextMove;
   }
 
-  private static bool CanKingDie(GameState gameState, bool whiteKing)
+  private static bool CanKingDie(V1GameState gameState, bool whiteKing)
   {
     var nextPseudoLegalMoves = GeneratePseudoLegalMoves(gameState, !whiteKing);
     return nextPseudoLegalMoves.Any(pseudoMove =>
@@ -37,7 +37,7 @@ public static class LegalMoveGenerator
     });
   }
 
-  private static List<Move> GeneratePseudoLegalMoves(GameState gameState, bool white)
+  private static List<Move> GeneratePseudoLegalMoves(V1GameState gameState, bool white)
   {
     return gameState.piecePositions
       .Where(piecePosition => piecePosition.pieceType.IsWhite() == white)
@@ -45,19 +45,22 @@ public static class LegalMoveGenerator
       .ToList();
   }
 
-  private static List<Move> GetPseudoLegalMoves(GameState gameState, PiecePosition piecePosition)
+  private static List<Move> GetPseudoLegalMoves(V1GameState gameState, PiecePosition piecePosition)
   {
     switch (piecePosition.pieceType)
     {
       case PieceType.WhitePawn:
       case PieceType.BlackPawn:
-        return GetPseudoLegalPawnMoves(piecePosition);
+        return GetPseudoLegalPawnMoves(gameState, piecePosition);
+      case PieceType.WhiteRook:
+      case PieceType.BlackRook:
+        return GetPseudoLegalRookMoves(gameState, piecePosition);
       default:
         return new List<Move>();
     }
   }
 
-  private static List<Move> GetPseudoLegalPawnMoves(PiecePosition piecePosition)
+  private static List<Move> GetPseudoLegalPawnMoves(V1GameState gameState, PiecePosition piecePosition)
   {
     var ownPawnStartingY = piecePosition.pieceType.IsWhite() ? 1 : 6;
     var increment = piecePosition.pieceType.IsWhite() ? 1 : -1;
@@ -66,24 +69,56 @@ public static class LegalMoveGenerator
         ? new List<PieceType> { PieceType.WhiteRook, PieceType.WhiteKnight, PieceType.WhiteBishop, PieceType.WhiteQueen }
         : new List<PieceType> { PieceType.BlackRook, PieceType.BlackKnight, PieceType.BlackBishop, PieceType.BlackQueen };
 
-    // Starting position can move up two rows
-    if (piecePosition.position.row == ownPawnStartingY)
+    var moves = new List<Move>();
+
+    var oneUpPosition = new BoardPosition(piecePosition.position.col, piecePosition.position.row + increment);
+    if (!gameState.piecePositions.Any(piece => piece.position.Equals(oneUpPosition)))
     {
-      return new List<Move> {
-        new Move(piecePosition.position, new BoardPosition(piecePosition.position.col, piecePosition.position.row + increment), PieceType.Nothing),
-        new Move(piecePosition.position, new BoardPosition(piecePosition.position.col, piecePosition.position.row + increment * 2), PieceType.Nothing)
-      };
+      moves.Add(new Move(piecePosition.position, oneUpPosition, PieceType.Nothing));
     }
 
-    // Promotions
-    if (piecePosition.position.row == stopCondition - increment)
+    var twoUpPosition = new BoardPosition(piecePosition.position.col, piecePosition.position.row + increment * 2);
+    if (piecePosition.position.row == ownPawnStartingY && !gameState.piecePositions.Any(piece => piece.position.Equals(twoUpPosition)))
     {
-      return promotions
-        .Select(promotion => new Move(piecePosition.position, new BoardPosition(piecePosition.position.col, piecePosition.position.row + increment), promotion))
-        .ToList();
+      moves.Add(new Move(piecePosition.position, twoUpPosition, PieceType.Nothing));
     }
 
-    // Normal 1 square move
-    return new List<Move> { new Move(piecePosition.position, new BoardPosition(piecePosition.position.col, piecePosition.position.row + increment), PieceType.Nothing) };
+    var captureLeftPosition = new BoardPosition(piecePosition.position.col - 1, piecePosition.position.row + increment);
+    if (piecePosition.position.col != 0 && gameState.piecePositions.Any(piece => piece.pieceType.IsWhite() != piecePosition.pieceType.IsWhite() && piece.position.Equals(captureLeftPosition)))
+    {
+      moves.Add(new Move(piecePosition.position, captureLeftPosition, PieceType.Nothing));
+    }
+
+    var captureRightPosition = new BoardPosition(piecePosition.position.col + 1, piecePosition.position.row + increment);
+    if (piecePosition.position.col != 7 && gameState.piecePositions.Any(piece => piece.pieceType.IsWhite() != piecePosition.pieceType.IsWhite() && piece.position.Equals(captureRightPosition)))
+    {
+      moves.Add(new Move(piecePosition.position, captureRightPosition, PieceType.Nothing));
+    }
+
+    // En passant
+    var neighbourLeftPosition = new BoardPosition(piecePosition.position.col - 1, piecePosition.position.row);
+    if (piecePosition.position.col != 7 && gameState.history.Count > 0 && gameState.history[^1].target.Equals(neighbourLeftPosition) && gameState.piecePositions.Any(piece => piece.pieceType.IsWhite() != piecePosition.pieceType.IsWhite() && piece.pieceType.IsPawn() && piece.position.Equals(neighbourLeftPosition)))
+    {
+      moves.Add(new Move(piecePosition.position, captureLeftPosition, PieceType.Nothing));
+    }
+
+    var neighbourRightPosition = new BoardPosition(piecePosition.position.col + 1, piecePosition.position.row);
+    if (piecePosition.position.col != 7 && gameState.history.Count > 0 && gameState.history[^1].target.Equals(neighbourRightPosition) && gameState.piecePositions.Any(piece => piece.pieceType.IsWhite() != piecePosition.pieceType.IsWhite() && piece.pieceType.IsPawn() && piece.position.Equals(neighbourRightPosition)))
+    {
+      moves.Add(new Move(piecePosition.position, captureLeftPosition, PieceType.Nothing));
+    }
+
+    // Multiply moves by promotions
+    if (piecePosition.position.row + increment == stopCondition)
+    {
+      moves = moves.SelectMany(noPromotionMove => promotions.Select(promotion => new Move(piecePosition.position, noPromotionMove.target, promotion))).ToList();
+    }
+
+    return moves;
+  }
+
+  private static List<Move> GetPseudoLegalRookMoves(V1GameState gameState, PiecePosition piecePosition)
+  {
+    return new List<Move> { };
   }
 }

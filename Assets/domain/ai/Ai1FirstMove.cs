@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Ai1FirstMove : MonoBehaviour, AiInterface
 {
-    public Task<Move> GetMove(GameState gameState)
+    public Task<Move> GetMove(GameStateInterface gameState)
     {
         return Task.FromResult(gameState.getLegalMoves()[0]);
     }

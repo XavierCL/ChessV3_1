@@ -9,7 +9,7 @@ public class Ai1RandomSlow : MonoBehaviour, AiInterface
     public int DelayMs;
     private System.Random random = new System.Random();
     private CancellationTokenSource cancellationTokenSource;
-    public async Task<Move> GetMove(GameState gameState)
+    public async Task<Move> GetMove(GameStateInterface gameState)
     {
         cancellationTokenSource = new CancellationTokenSource();
         try

@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 
-public class GameState : GameStateInterface
+public class V1GameState : GameStateInterface
 {
     public int turn { get; private set; }
     public bool whiteTurn { get => turn % 2 == 0; }
-    public List<PiecePosition> piecePositions { get; private set; }
-    private List<ReversibleMove> history;
+    public List<PiecePosition> piecePositions { get; }
+    public List<ReversibleMove> history { get; }
 
-    public GameState()
+    public V1GameState()
     {
         turn = 0;
         history = new List<ReversibleMove>();
@@ -49,7 +49,7 @@ public class GameState : GameStateInterface
         };
     }
 
-    public GameState(GameState gameState)
+    public V1GameState(GameStateInterface gameState)
     {
         turn = gameState.turn;
         history = new List<ReversibleMove>(gameState.history);
@@ -63,7 +63,6 @@ public class GameState : GameStateInterface
 
     public void PlayMove(Move move)
     {
-
         var killedPieceIndex = piecePositions.FindIndex(piece => piece.position.Equals(move.target));
         PiecePosition killedPiece = null;
 
@@ -77,20 +76,28 @@ public class GameState : GameStateInterface
 
         if (sourcePieceIndex == -1)
         {
-            if (killedPiece != null)
-            {
-                // Revert state
-                piecePositions.Add(killedPiece);
-            }
-
             throw new System.Exception("Invalid move, no piece at source position");
         }
 
         var sourcePiece = piecePositions[sourcePieceIndex];
 
-        history.Add(new ReversibleMove(move.source, move.target, sourcePiece.pieceType.IsPawn() && move.promotion != PieceType.Nothing, false, false, false, false, killedPiece));
-
         piecePositions[sourcePieceIndex] = piecePositions[sourcePieceIndex].PlayMove(move.target, move.promotion);
+
+        // En passant
+        if (sourcePiece.pieceType.IsPawn() && move.source.col != move.target.col && killedPieceIndex == -1)
+        {
+            killedPieceIndex = piecePositions.FindIndex(piece => piece.position.Equals(new BoardPosition(move.target.col, move.source.row)));
+
+            if (killedPieceIndex == -1)
+            {
+                throw new System.Exception("Invalid move, en passant without enemy piece");
+            }
+
+            killedPiece = piecePositions[killedPieceIndex];
+            piecePositions.RemoveAt(killedPieceIndex);
+        }
+
+        history.Add(new ReversibleMove(move.source, move.target, sourcePiece.pieceType.IsPawn() && move.promotion != PieceType.Nothing, false, false, false, false, killedPiece));
 
         ++turn;
     }

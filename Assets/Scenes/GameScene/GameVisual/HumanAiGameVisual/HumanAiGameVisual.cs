@@ -13,7 +13,7 @@ public class HumanAiGameVisual : HumanGameVisual
         premoveHandler = GameObject.Find(nameof(PremoveHandler)).GetComponent<PremoveHandler>();
     }
 
-    public override void StartGame(GameState gameState)
+    public override void StartGame(GameStateInterface gameState)
     {
         if (!humanWhite) boardController.RotateBlackBottom();
         clocks.Restart(!humanWhite);
@@ -26,7 +26,7 @@ public class HumanAiGameVisual : HumanGameVisual
         PopPremoveQueueIfNeeded();
     }
 
-    public override void GameOver(GameState gameState)
+    public override void GameOver(GameStateInterface gameState)
     {
         premoveHandler.Clear();
         base.GameOver(gameState);

@@ -50,7 +50,7 @@ public abstract class HumanGameVisual : GameVisual
         selectedPiece = null;
     }
 
-    public override void GameOver(GameState gameState)
+    public override void GameOver(GameStateInterface gameState)
     {
         base.GameOver(gameState);
         if (selectedPiece == null) return;

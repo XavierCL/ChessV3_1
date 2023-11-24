@@ -15,13 +15,13 @@ public abstract class GameVisual
         endStateText = StaticReferences.endStateText.Value;
     }
 
-    public virtual void StartGame(GameState gameState)
+    public virtual void StartGame(GameStateInterface gameState)
     {
         boardController.ResetPieces(gameState);
         endStateText.SetEndState(gameState.GetGameEndState());
     }
 
-    public virtual void GameOver(GameState gameState)
+    public virtual void GameOver(GameStateInterface gameState)
     {
         boardController.ResetPieces(gameState);
         clocks.Stop();

@@ -3,11 +3,18 @@ using UnityEngine;
 
 public class GameController : MonoBehaviour
 {
-    public GameState gameState = new GameState();
+    public GameStateFactoryInterface gameStateFactory;
+    public GameStateInterface gameState;
     public GameType gameType;
     public GameEndState gameEndState = GameEndState.Ongoing;
     public GameVisual gameVisual { get; private set; }
     private AiController aiController;
+
+    public GameController()
+    {
+        gameStateFactory = new V1GameStateFactory();
+        gameState = gameStateFactory.StartingPosition();
+    }
 
     public void Start()
     {
@@ -30,7 +37,7 @@ public class GameController : MonoBehaviour
         gameVisual?.Cleanup();
         this.gameType = gameType;
         gameEndState = GameEndState.Ongoing;
-        gameState = new GameState();
+        gameState = gameStateFactory.StartingPosition();
 
         switch (gameType)
         {

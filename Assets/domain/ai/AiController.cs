@@ -21,7 +21,7 @@ public class AiController : MonoBehaviour
         ai2Interface.ResetAi();
     }
 
-    public async Task<Move> GetMove(GameState gameState, bool ai1)
+    public async Task<Move> GetMove(GameStateInterface gameState, bool ai1)
     {
         var ai1Interface = Ai1.GetComponent<AiInterface>();
         var ai2Interface = Ai2.GetComponent<AiInterface>();

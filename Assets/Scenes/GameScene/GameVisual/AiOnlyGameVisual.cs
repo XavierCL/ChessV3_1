@@ -10,7 +10,7 @@ public class AiOnlyGameVisual : GameVisual
         this.whiteTop = whiteTop;
     }
 
-    public override void StartGame(GameState gameState)
+    public override void StartGame(GameStateInterface gameState)
     {
         if (whiteTop) boardController.RotateBlackBottom();
         clocks.Restart(whiteTop);

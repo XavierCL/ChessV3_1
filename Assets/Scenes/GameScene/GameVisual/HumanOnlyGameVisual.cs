@@ -2,7 +2,7 @@ using System.Linq;
 
 public class HumanOnlyGameVisual : HumanGameVisual
 {
-    public override void StartGame(GameState gameState)
+    public override void StartGame(GameStateInterface gameState)
     {
         base.StartGame(gameState);
         clocks.Restart(false);
