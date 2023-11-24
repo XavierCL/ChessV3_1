@@ -1,28 +1,18 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 
-public class GameState
+public class GameState : GameStateInterface
 {
-    public int turn { get; set; }
+    public int turn { get; private set; }
     public bool whiteTurn { get => turn % 2 == 0; }
     public List<PiecePosition> piecePositions { get; private set; }
     private List<ReversibleMove> history;
-
-    private class DebugOperation
-    {
-        public ReversibleMove reverse { get; set; }
-        public Move move { get; set; }
-    }
-
-    private List<DebugOperation> debugHistory;
 
     public GameState()
     {
         turn = 0;
         history = new List<ReversibleMove>();
-        debugHistory = new List<DebugOperation>();
         piecePositions = new List<PiecePosition> {
             new PiecePosition("a1", PieceType.WhiteRook, new BoardPosition(0, 0)),
             new PiecePosition("b1", PieceType.WhiteKnight, new BoardPosition(1, 0)),
@@ -63,7 +53,6 @@ public class GameState
     {
         turn = gameState.turn;
         history = new List<ReversibleMove>(gameState.history);
-        debugHistory = new List<DebugOperation>(gameState.debugHistory);
         piecePositions = new List<PiecePosition>(gameState.piecePositions);
     }
 
@@ -74,7 +63,6 @@ public class GameState
 
     public void PlayMove(Move move)
     {
-        debugHistory.Add(new DebugOperation { move = move });
 
         var killedPieceIndex = piecePositions.FindIndex(piece => piece.position.Equals(move.target));
         PiecePosition killedPiece = null;
@@ -111,8 +99,6 @@ public class GameState
     {
         var reversibleMove = history[history.Count - 1];
         history.RemoveAt(history.Count - 1);
-
-        debugHistory.Add(new DebugOperation { reverse = reversibleMove });
 
         var sourcePieceIndex = piecePositions.FindIndex(piece => piece.position.Equals(reversibleMove.target));
 
