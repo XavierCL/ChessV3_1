@@ -55,6 +55,9 @@ public static class LegalMoveGenerator
       case PieceType.WhiteRook:
       case PieceType.BlackRook:
         return GetPseudoLegalRookMoves(gameState, piecePosition);
+      case PieceType.WhiteKnight:
+      case PieceType.BlackKnight:
+        return GetPseudoLegalKnightMoves(gameState, piecePosition);
       case PieceType.WhiteBishop:
       case PieceType.BlackBishop:
         return GetPseudoLegalBishopMoves(gameState, piecePosition);
@@ -137,6 +140,32 @@ public static class LegalMoveGenerator
       .Concat(GetPseudoRayMoves(gameState, piecePosition.position, -1, 0, piecePosition.pieceType.IsWhite()))
       .Concat(GetPseudoRayMoves(gameState, piecePosition.position, 0, 1, piecePosition.pieceType.IsWhite()))
       .Concat(GetPseudoRayMoves(gameState, piecePosition.position, 0, -1, piecePosition.pieceType.IsWhite())).ToList();
+  }
+
+  private static List<Move> GetPseudoLegalKnightMoves(V1GameState gameState, PiecePosition piecePosition)
+  {
+    var jumps = new[]{
+      new { col = piecePosition.position.col - 2, row = piecePosition.position.row - 1},
+      new { col = piecePosition.position.col - 2, row = piecePosition.position.row + 1},
+      new { col = piecePosition.position.col - 1, row = piecePosition.position.row + 2},
+      new { col = piecePosition.position.col + 1, row = piecePosition.position.row + 2},
+      new { col = piecePosition.position.col + 2, row = piecePosition.position.row + 1},
+      new { col = piecePosition.position.col + 2, row = piecePosition.position.row - 1},
+      new { col = piecePosition.position.col - 1, row = piecePosition.position.row - 2},
+      new { col = piecePosition.position.col + 1, row = piecePosition.position.row - 2},
+    };
+
+    return jumps.Where(jump =>
+    {
+      if (!BoardPosition.IsInBoard(jump.col, jump.row)) return false;
+
+      var collision = gameState.piecePositions.Find(piece => piece.position.Equals(new BoardPosition(jump.col, jump.row)));
+
+      if (collision == null) return true;
+
+      return collision.pieceType.IsWhite() != piecePosition.pieceType.IsWhite();
+    }).Select(jump => new Move(piecePosition.position, new BoardPosition(jump.col, jump.row), PieceType.Nothing))
+    .ToList();
   }
 
   private static List<Move> GetPseudoLegalBishopMoves(V1GameState gameState, PiecePosition piecePosition)
