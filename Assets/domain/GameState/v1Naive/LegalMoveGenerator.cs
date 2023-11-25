@@ -97,15 +97,23 @@ public static class LegalMoveGenerator
 
     // En passant
     var neighbourLeftPosition = new BoardPosition(piecePosition.position.col - 1, piecePosition.position.row);
-    if (piecePosition.position.col != 7 && gameState.history.Count > 0 && gameState.history[^1].target.Equals(neighbourLeftPosition) && gameState.piecePositions.Any(piece => piece.pieceType.IsWhite() != piecePosition.pieceType.IsWhite() && piece.pieceType.IsPawn() && piece.position.Equals(neighbourLeftPosition)))
+    if (piecePosition.position.col != 0 && gameState.history.Count > 0 && gameState.piecePositions.Any(piece => piece.pieceType.IsWhite() != piecePosition.pieceType.IsWhite() && piece.pieceType.IsPawn() && piece.position.Equals(neighbourLeftPosition)))
     {
-      moves.Add(new Move(piecePosition.position, captureLeftPosition, PieceType.Nothing));
+      var lastHistory = gameState.history[^1];
+      if (lastHistory.target.Equals(neighbourLeftPosition) && lastHistory.target.row == lastHistory.source.row - increment * 2)
+      {
+        moves.Add(new Move(piecePosition.position, captureLeftPosition, PieceType.Nothing));
+      }
     }
 
     var neighbourRightPosition = new BoardPosition(piecePosition.position.col + 1, piecePosition.position.row);
-    if (piecePosition.position.col != 7 && gameState.history.Count > 0 && gameState.history[^1].target.Equals(neighbourRightPosition) && gameState.piecePositions.Any(piece => piece.pieceType.IsWhite() != piecePosition.pieceType.IsWhite() && piece.pieceType.IsPawn() && piece.position.Equals(neighbourRightPosition)))
+    if (piecePosition.position.col != 7 && gameState.history.Count > 0 && gameState.piecePositions.Any(piece => piece.pieceType.IsWhite() != piecePosition.pieceType.IsWhite() && piece.pieceType.IsPawn() && piece.position.Equals(neighbourRightPosition)))
     {
-      moves.Add(new Move(piecePosition.position, captureLeftPosition, PieceType.Nothing));
+      var lastHistory = gameState.history[^1];
+      if (lastHistory.target.Equals(neighbourRightPosition) && lastHistory.target.row == lastHistory.source.row - increment * 2)
+      {
+        moves.Add(new Move(piecePosition.position, captureRightPosition, PieceType.Nothing));
+      }
     }
 
     // Multiply moves by promotions
