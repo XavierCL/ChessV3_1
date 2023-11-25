@@ -39,7 +39,9 @@ public static class LegalMoveGenerator
 
   private static List<Move> GeneratePseudoLegalMoves(V1GameState gameState, bool white)
   {
-    return gameState.piecePositions
+    var piecePositions = new List<PiecePosition>(gameState.piecePositions);
+
+    return piecePositions
       .Where(piecePosition => piecePosition.pieceType.IsWhite() == white)
       .SelectMany(piecePosition => GetPseudoLegalMoves(gameState, piecePosition))
       .ToList();

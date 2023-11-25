@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -130,7 +131,7 @@ public class BoardController : MonoBehaviour
             newType = latestPieceType,
         });
 
-        // Handle immediate animations
+        // Handle immediate animations so there's no flicker
         UpdateAnimation();
     }
 
@@ -159,7 +160,7 @@ public class BoardController : MonoBehaviour
 
                 if (killedTarget == null)
                 {
-                    throw new System.Exception("Couldn't find killed en passant");
+                    throw new Exception("Couldn't find killed en passant");
                 }
 
                 killedTarget.gameObject.GetComponent<SpriteRenderer>().enabled = false;
@@ -167,7 +168,19 @@ public class BoardController : MonoBehaviour
                 killedTarget.position = null;
             }
 
-            // Todo handle rock
+            if (pieceType.IsKing() && Math.Abs(move.source.col - move.target.col) == 2)
+            {
+                var swappedRook = GetPieceGameObjects().Find(possibleRook => Equals(possibleRook.position, new BoardPosition(move.target.col == 6 ? 7 : 0, move.target.row)));
+
+                if (swappedRook == null)
+                {
+                    throw new Exception("Couldn't find visual castle rook");
+                }
+
+                var newRookPosition = new BoardPosition((move.target.col + move.source.col) / 2, move.target.row); ;
+                swappedRook.position = newRookPosition;
+                AnimatePiece(swappedRook.gameObject, newRookPosition, PieceType.Nothing, true);
+            }
         }
 
         pieceGameObject.position = move.target;
@@ -201,8 +214,6 @@ public class BoardController : MonoBehaviour
                 spriteRenderer.sprite = pieceSprites.GetSpriteFor(pieceAnimation.newType);
             }
             spriteRenderer.sortingLayerName = "Pieces";
-
-            // Todo handle rock
         }
 
         pieceAnimations = pieceAnimations.Where(pieceAnimation => pieceAnimation.endTimeSeconds > frameTime).ToList();
