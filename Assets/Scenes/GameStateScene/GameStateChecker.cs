@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -17,18 +18,19 @@ public class GameStateChecker : MonoBehaviour
 
         foreach (var startingPosition in StartingPositions())
         {
-            var startTime = Time.time;
+            var startTime = DateTime.UtcNow;
             version1Counts.Add(CountLegalMoves(factory1.FromGameState(startingPosition), Ply));
-            version1Time += Time.time - startTime;
+            version1Time += (DateTime.UtcNow - startTime).TotalMilliseconds;
 
-            startTime = Time.time;
+            startTime = DateTime.UtcNow;
             version2Counts.Add(CountLegalMoves(factory2.FromGameState(startingPosition), Ply));
-            version2Time += Time.time - startTime;
+            version2Time += (DateTime.UtcNow - startTime).TotalMilliseconds;
         }
 
-        Debug.Log(("Time 1", version1Time));
-        Debug.Log(("Time 2", version2Time));
+        Debug.Log(("Time 1", version1Time / 1000));
+        Debug.Log(("Time 2", version2Time / 1000));
         Debug.Log("Counts 1:" + string.Join(", ", version1Counts));
+        Debug.Log("Counts 2:" + string.Join(", ", version2Counts));
 
         if (!version1Counts.SequenceEqual(version2Counts))
         {

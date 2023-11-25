@@ -55,6 +55,12 @@ public static class LegalMoveGenerator
       case PieceType.WhiteRook:
       case PieceType.BlackRook:
         return GetPseudoLegalRookMoves(gameState, piecePosition);
+      case PieceType.WhiteBishop:
+      case PieceType.BlackBishop:
+        return GetPseudoLegalBishopMoves(gameState, piecePosition);
+      case PieceType.WhiteQueen:
+      case PieceType.BlackQueen:
+        return GetPseudoLegalQueenMoves(gameState, piecePosition);
       default:
         return new List<Move>();
     }
@@ -127,6 +133,51 @@ public static class LegalMoveGenerator
 
   private static List<Move> GetPseudoLegalRookMoves(V1GameState gameState, PiecePosition piecePosition)
   {
-    return new List<Move> { };
+    return GetPseudoRayMoves(gameState, piecePosition.position, 1, 0, piecePosition.pieceType.IsWhite())
+      .Concat(GetPseudoRayMoves(gameState, piecePosition.position, -1, 0, piecePosition.pieceType.IsWhite()))
+      .Concat(GetPseudoRayMoves(gameState, piecePosition.position, 0, 1, piecePosition.pieceType.IsWhite()))
+      .Concat(GetPseudoRayMoves(gameState, piecePosition.position, 0, -1, piecePosition.pieceType.IsWhite())).ToList();
+  }
+
+  private static List<Move> GetPseudoLegalBishopMoves(V1GameState gameState, PiecePosition piecePosition)
+  {
+    return GetPseudoRayMoves(gameState, piecePosition.position, 1, 1, piecePosition.pieceType.IsWhite())
+      .Concat(GetPseudoRayMoves(gameState, piecePosition.position, -1, 1, piecePosition.pieceType.IsWhite()))
+      .Concat(GetPseudoRayMoves(gameState, piecePosition.position, -1, -1, piecePosition.pieceType.IsWhite()))
+      .Concat(GetPseudoRayMoves(gameState, piecePosition.position, 1, -1, piecePosition.pieceType.IsWhite())).ToList();
+  }
+
+  private static List<Move> GetPseudoLegalQueenMoves(V1GameState gameState, PiecePosition piecePosition)
+  {
+    return GetPseudoRayMoves(gameState, piecePosition.position, 1, 0, piecePosition.pieceType.IsWhite())
+      .Concat(GetPseudoRayMoves(gameState, piecePosition.position, -1, 0, piecePosition.pieceType.IsWhite()))
+      .Concat(GetPseudoRayMoves(gameState, piecePosition.position, 0, 1, piecePosition.pieceType.IsWhite()))
+      .Concat(GetPseudoRayMoves(gameState, piecePosition.position, 0, -1, piecePosition.pieceType.IsWhite()))
+      .Concat(GetPseudoRayMoves(gameState, piecePosition.position, 1, 1, piecePosition.pieceType.IsWhite()))
+      .Concat(GetPseudoRayMoves(gameState, piecePosition.position, -1, 1, piecePosition.pieceType.IsWhite()))
+      .Concat(GetPseudoRayMoves(gameState, piecePosition.position, -1, -1, piecePosition.pieceType.IsWhite()))
+      .Concat(GetPseudoRayMoves(gameState, piecePosition.position, 1, -1, piecePosition.pieceType.IsWhite())).ToList();
+  }
+
+  private static List<Move> GetPseudoRayMoves(V1GameState gameState, BoardPosition position, int colIncrement, int rowIncrement, bool isWhite)
+  {
+    var moves = new List<Move>();
+    var col = position.col + colIncrement;
+    var row = position.row + rowIncrement;
+    while (col <= 7 && col >= 0 && row <= 7 && row >= 0)
+    {
+      var foundCollision = gameState.piecePositions.Find(piece => piece.position.Equals(new BoardPosition(col, row)));
+
+      if (foundCollision != null && foundCollision.pieceType.IsWhite() == isWhite) return moves;
+
+      moves.Add(new Move(position, new BoardPosition(col, row), PieceType.Nothing));
+
+      if (foundCollision != null) return moves;
+
+      col += colIncrement;
+      row += rowIncrement;
+    }
+
+    return moves;
   }
 }
