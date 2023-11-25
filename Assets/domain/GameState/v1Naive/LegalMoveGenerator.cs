@@ -64,8 +64,11 @@ public static class LegalMoveGenerator
       case PieceType.WhiteQueen:
       case PieceType.BlackQueen:
         return GetPseudoLegalQueenMoves(gameState, piecePosition);
+      case PieceType.WhiteKing:
+      case PieceType.BlackKing:
+        return GetPseudoLegalKingMoves(gameState, piecePosition);
       default:
-        return new List<Move>();
+        throw new System.Exception("Not a valid piece");
     }
   }
 
@@ -186,6 +189,85 @@ public static class LegalMoveGenerator
       .Concat(GetPseudoRayMoves(gameState, piecePosition.position, -1, 1, piecePosition.pieceType.IsWhite()))
       .Concat(GetPseudoRayMoves(gameState, piecePosition.position, -1, -1, piecePosition.pieceType.IsWhite()))
       .Concat(GetPseudoRayMoves(gameState, piecePosition.position, 1, -1, piecePosition.pieceType.IsWhite())).ToList();
+  }
+
+  private static List<Move> GetPseudoLegalKingMoves(V1GameState gameState, PiecePosition piecePosition)
+  {
+    var landings = new[]{
+      new { col = piecePosition.position.col - 1, row = piecePosition.position.row - 1},
+      new { col = piecePosition.position.col - 1, row = piecePosition.position.row    },
+      new { col = piecePosition.position.col - 1, row = piecePosition.position.row + 1},
+      new { col = piecePosition.position.col    , row = piecePosition.position.row + 1},
+      new { col = piecePosition.position.col + 1, row = piecePosition.position.row + 1},
+      new { col = piecePosition.position.col + 1, row = piecePosition.position.row    },
+      new { col = piecePosition.position.col + 1, row = piecePosition.position.row - 1},
+      new { col = piecePosition.position.col    , row = piecePosition.position.row - 1},
+    };
+
+    var normalMoves = landings.Where(landing =>
+    {
+      if (!BoardPosition.IsInBoard(landing.col, landing.row)) return false;
+
+      var collision = gameState.piecePositions.Find(piece => piece.position.Equals(new BoardPosition(landing.col, landing.row)));
+
+      if (collision == null) return true;
+
+      return collision.pieceType.IsWhite() != piecePosition.pieceType.IsWhite();
+    }).Select(landing => new Move(piecePosition.position, new BoardPosition(landing.col, landing.row), PieceType.Nothing))
+    .ToList();
+
+    var rocks = new[] {
+      new { isWhite = true, canRock = gameState.whiteCastleKingSide, emptyPositions = new List<BoardPosition>{ new BoardPosition(5, 0), new BoardPosition(6, 0) }, noCheckPositions = new List<BoardPosition>{ new BoardPosition(5, 0), new BoardPosition(6, 0) } },
+      new { isWhite = true, canRock = gameState.whiteCastleQueenSide, emptyPositions = new List<BoardPosition>{ new BoardPosition(3, 0), new BoardPosition(2, 0), new BoardPosition(1, 0) }, noCheckPositions = new List<BoardPosition>{ new BoardPosition(3, 0), new BoardPosition(2, 0) } },
+      new { isWhite = false, canRock = gameState.blackCastleKingSide, emptyPositions = new List<BoardPosition>{ new BoardPosition(5, 7), new BoardPosition(6, 7) }, noCheckPositions = new List<BoardPosition>{ new BoardPosition(5, 7), new BoardPosition(6, 7) } },
+      new { isWhite = false, canRock = gameState.blackCastleQueenSide, emptyPositions = new List<BoardPosition>{ new BoardPosition(3, 7), new BoardPosition(2, 7), new BoardPosition(1, 7) }, noCheckPositions = new List<BoardPosition>{ new BoardPosition(3, 7), new BoardPosition(2, 7) } },
+    };
+
+    var rockMoves = rocks.Where(rock =>
+    {
+      if (!rock.canRock) return false;
+      if (rock.isWhite != piecePosition.pieceType.IsWhite()) return false;
+
+      foreach (var emptyPosition in rock.emptyPositions)
+      {
+        if (gameState.piecePositions.Any(piece => piece.position.Equals(emptyPosition))) return false;
+      }
+
+      var whiteRockKingSide = gameState.whiteCastleKingSide;
+      var whiteRockQueenSide = gameState.whiteCastleQueenSide;
+      var blackRockKingSide = gameState.blackCastleKingSide;
+      var blackRockQueenSide = gameState.blackCastleQueenSide;
+
+      // Disable rocks whilst doing a rock king dies check to avoid infinite loop.
+      gameState.whiteCastleKingSide = false;
+      gameState.whiteCastleQueenSide = false;
+      gameState.blackCastleKingSide = false;
+      gameState.blackCastleQueenSide = false;
+
+      try
+      {
+        if (CanKingDie(gameState, rock.isWhite)) return false;
+
+        foreach (var noCheckPosition in rock.noCheckPositions)
+        {
+          gameState.SimplePieceMove(new Move(piecePosition.position, noCheckPosition, PieceType.Nothing));
+          var canKingDie = CanKingDie(gameState, rock.isWhite);
+          gameState.SimplePieceMove(new Move(noCheckPosition, piecePosition.position, PieceType.Nothing));
+          if (canKingDie) return false;
+        }
+      }
+      finally
+      {
+        gameState.whiteCastleKingSide = whiteRockKingSide;
+        gameState.whiteCastleQueenSide = whiteRockQueenSide;
+        gameState.blackCastleKingSide = blackRockKingSide;
+        gameState.blackCastleQueenSide = blackRockQueenSide;
+      }
+
+      return true;
+    }).Select(rock => new Move(piecePosition.position, rock.noCheckPositions[^1], PieceType.Nothing)).ToList();
+
+    return normalMoves.Concat(rockMoves).ToList();
   }
 
   private static List<Move> GetPseudoRayMoves(V1GameState gameState, BoardPosition position, int colIncrement, int rowIncrement, bool isWhite)

@@ -1,4 +1,5 @@
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -8,11 +9,21 @@ public class V1GameState : GameStateInterface
     public bool whiteTurn { get => turn % 2 == 0; }
     public List<PiecePosition> piecePositions { get; }
     public List<ReversibleMove> history { get; }
+    public bool whiteCastleKingSide { get; set; }
+    public bool whiteCastleQueenSide { get; set; }
+    public bool blackCastleKingSide { get; set; }
+    public bool blackCastleQueenSide { get; set; }
 
     public V1GameState()
     {
         turn = 0;
         history = new List<ReversibleMove>();
+
+        whiteCastleKingSide = true;
+        whiteCastleQueenSide = true;
+        blackCastleKingSide = true;
+        blackCastleQueenSide = true;
+
         piecePositions = new List<PiecePosition> {
             new PiecePosition("a1", PieceType.WhiteRook, new BoardPosition(0, 0)),
             new PiecePosition("b1", PieceType.WhiteKnight, new BoardPosition(1, 0)),
@@ -54,6 +65,10 @@ public class V1GameState : GameStateInterface
         turn = gameState.turn;
         history = new List<ReversibleMove>(gameState.history);
         piecePositions = new List<PiecePosition>(gameState.piecePositions);
+        whiteCastleKingSide = gameState.whiteCastleKingSide;
+        whiteCastleQueenSide = gameState.whiteCastleQueenSide;
+        blackCastleKingSide = gameState.blackCastleKingSide;
+        blackCastleQueenSide = gameState.blackCastleQueenSide;
     }
 
     public List<Move> getLegalMoves()
@@ -97,9 +112,74 @@ public class V1GameState : GameStateInterface
             piecePositions.RemoveAt(killedPieceIndex);
         }
 
-        history.Add(new ReversibleMove(move.source, move.target, sourcePiece.pieceType.IsPawn() && move.promotion != PieceType.Nothing, false, false, false, false, killedPiece));
+        var lostWhiteKingCastleRight = whiteCastleKingSide && (sourcePiece.pieceType == PieceType.WhiteKing || sourcePiece.position.Equals(new BoardPosition(7, 0)));
+        var lostWhiteQueenCastleRight = whiteCastleQueenSide && (sourcePiece.pieceType == PieceType.WhiteKing || sourcePiece.position.Equals(new BoardPosition(0, 0)));
+        var lostBlackKingCastleRight = blackCastleKingSide && (sourcePiece.pieceType == PieceType.BlackKing || sourcePiece.position.Equals(new BoardPosition(7, 7)));
+        var lostBlackQueenCastleRight = blackCastleQueenSide && (sourcePiece.pieceType == PieceType.BlackKing || sourcePiece.position.Equals(new BoardPosition(0, 7)));
+
+        whiteCastleKingSide = whiteCastleKingSide && !lostWhiteKingCastleRight;
+        whiteCastleQueenSide = whiteCastleQueenSide && !lostWhiteQueenCastleRight;
+        blackCastleKingSide = blackCastleKingSide && !lostBlackKingCastleRight;
+        blackCastleQueenSide = blackCastleQueenSide && !lostBlackQueenCastleRight;
+
+        // Castling
+        if (sourcePiece.pieceType.IsKing() && Math.Abs(move.target.col - move.source.col) == 2)
+        {
+            if (move.source.Equals(new BoardPosition(4, 0)) && move.target.Equals(new BoardPosition(6, 0)))
+            {
+                var rookIndex = piecePositions.FindIndex(piece => piece.position.Equals(new BoardPosition(7, 0)));
+
+                if (rookIndex == -1)
+                {
+                    throw new Exception("Could not find rook while castling white king");
+                }
+
+                piecePositions[rookIndex] = piecePositions[rookIndex].PlayMove(new BoardPosition(5, 0), PieceType.Nothing);
+            }
+            else if (move.source.Equals(new BoardPosition(4, 0)) && move.target.Equals(new BoardPosition(2, 0)))
+            {
+                var rookIndex = piecePositions.FindIndex(piece => piece.position.Equals(new BoardPosition(0, 0)));
+
+                if (rookIndex == -1)
+                {
+                    throw new Exception("Could not find rook while castling white queen");
+                }
+
+                piecePositions[rookIndex] = piecePositions[rookIndex].PlayMove(new BoardPosition(3, 0), PieceType.Nothing);
+            }
+            else if (move.source.Equals(new BoardPosition(4, 7)) && move.target.Equals(new BoardPosition(6, 7)))
+            {
+                var rookIndex = piecePositions.FindIndex(piece => piece.position.Equals(new BoardPosition(7, 7)));
+
+                if (rookIndex == -1)
+                {
+                    throw new Exception("Could not find rook while castling black king");
+                }
+
+                piecePositions[rookIndex] = piecePositions[rookIndex].PlayMove(new BoardPosition(5, 7), PieceType.Nothing);
+            }
+            else if (move.source.Equals(new BoardPosition(4, 7)) && move.target.Equals(new BoardPosition(2, 7)))
+            {
+                var rookIndex = piecePositions.FindIndex(piece => piece.position.Equals(new BoardPosition(0, 7)));
+
+                if (rookIndex == -1)
+                {
+                    throw new Exception("Could not find rook while castling black queen");
+                }
+
+                piecePositions[rookIndex] = piecePositions[rookIndex].PlayMove(new BoardPosition(3, 7), PieceType.Nothing);
+            }
+        }
+
+        history.Add(new ReversibleMove(move.source, move.target, sourcePiece.pieceType.IsPawn() && move.promotion != PieceType.Nothing, lostWhiteKingCastleRight, lostWhiteQueenCastleRight, lostBlackKingCastleRight, lostBlackQueenCastleRight, killedPiece));
 
         ++turn;
+    }
+
+    public void SimplePieceMove(Move move)
+    {
+        var sourcePieceIndex = piecePositions.FindIndex(piece => piece.position.Equals(move.source));
+        piecePositions[sourcePieceIndex] = piecePositions[sourcePieceIndex].PlayMove(move.target, move.promotion);
     }
 
     public void UndoMove()
@@ -121,6 +201,60 @@ public class V1GameState : GameStateInterface
         if (reversibleMove.killed != null)
         {
             piecePositions.Add(reversibleMove.killed);
+        }
+
+        if (reversibleMove.lostWhiteKingCastleRight) whiteCastleKingSide = true;
+        if (reversibleMove.lostWhiteQueenCastleRight) whiteCastleQueenSide = true;
+        if (reversibleMove.lostBlackKingCastleRight) blackCastleKingSide = true;
+        if (reversibleMove.lostBlackQueenCastleRight) blackCastleQueenSide = true;
+
+        // Castling
+        if (sourcePiece.pieceType.IsKing() && Math.Abs(reversibleMove.target.col - reversibleMove.source.col) == 2)
+        {
+            if (reversibleMove.source.Equals(new BoardPosition(4, 0)) && reversibleMove.target.Equals(new BoardPosition(6, 0)))
+            {
+                var rookIndex = piecePositions.FindIndex(piece => piece.position.Equals(new BoardPosition(5, 0)));
+
+                if (rookIndex == -1)
+                {
+                    throw new Exception("Invalid undo, Could not find rook while castling white king");
+                }
+
+                piecePositions[rookIndex] = piecePositions[rookIndex].PlayMove(new BoardPosition(7, 0), PieceType.Nothing);
+            }
+            else if (reversibleMove.source.Equals(new BoardPosition(4, 0)) && reversibleMove.target.Equals(new BoardPosition(2, 0)))
+            {
+                var rookIndex = piecePositions.FindIndex(piece => piece.position.Equals(new BoardPosition(3, 0)));
+
+                if (rookIndex == -1)
+                {
+                    throw new Exception("Invalid undo, Could not find rook while castling white queen");
+                }
+
+                piecePositions[rookIndex] = piecePositions[rookIndex].PlayMove(new BoardPosition(0, 0), PieceType.Nothing);
+            }
+            else if (reversibleMove.source.Equals(new BoardPosition(4, 7)) && reversibleMove.target.Equals(new BoardPosition(6, 7)))
+            {
+                var rookIndex = piecePositions.FindIndex(piece => piece.position.Equals(new BoardPosition(5, 7)));
+
+                if (rookIndex == -1)
+                {
+                    throw new Exception("Invalid undo, Could not find rook while castling black king");
+                }
+
+                piecePositions[rookIndex] = piecePositions[rookIndex].PlayMove(new BoardPosition(7, 7), PieceType.Nothing);
+            }
+            else if (reversibleMove.source.Equals(new BoardPosition(4, 7)) && reversibleMove.target.Equals(new BoardPosition(2, 7)))
+            {
+                var rookIndex = piecePositions.FindIndex(piece => piece.position.Equals(new BoardPosition(3, 7)));
+
+                if (rookIndex == -1)
+                {
+                    throw new Exception("Invalid undo, Could not find rook while castling black queen");
+                }
+
+                piecePositions[rookIndex] = piecePositions[rookIndex].PlayMove(new BoardPosition(0, 7), PieceType.Nothing);
+            }
         }
 
         --turn;

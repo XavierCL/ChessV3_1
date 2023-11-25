@@ -37,6 +37,12 @@ public static class PieceTypeExtensions
         || pieceType == PieceType.BlackKing;
     }
 
+    public static bool IsKing(this PieceType pieceType)
+    {
+        return pieceType == PieceType.WhiteKing
+        || pieceType == PieceType.BlackKing;
+    }
+
     public static bool IsPawn(this PieceType pieceType)
     {
         return pieceType == PieceType.WhitePawn
