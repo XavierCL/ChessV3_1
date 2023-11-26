@@ -48,11 +48,11 @@ public class BoardController : MonoBehaviour
         pieceAnimations.Clear();
     }
 
-    public void ResetPieces(GameStateInterface gameState)
+    public void ResetPieces(BoardStateInterface boardState)
     {
         var pieceGameObjects = GetPieceGameObjects().ToDictionary(piece => piece.id);
         var unseenPieceIds = new HashSet<string>(pieceGameObjects.Keys);
-        foreach (var piecePosition in gameState.piecePositions)
+        foreach (var piecePosition in boardState.piecePositions)
         {
             unseenPieceIds.Remove(piecePosition.id);
             var pieceGameObject = pieceGameObjects[piecePosition.id];
@@ -64,6 +64,7 @@ public class BoardController : MonoBehaviour
             spriteRenderer.sortingLayerName = "Pieces";
             pieceGameObject.gameObject.GetComponent<BoxCollider2D>().enabled = true;
             pieceGameObject.position = piecePosition.position;
+            pieceGameObject.pieceType = piecePosition.pieceType;
         }
 
         foreach (var unseenPieceId in unseenPieceIds)
@@ -151,7 +152,7 @@ public class BoardController : MonoBehaviour
 
         if (!simpleKill)
         {
-            var pieceType = StaticReferences.pieceSprites.Value.GetSpritePieceType(pieceGameObject.gameObject.GetComponent<SpriteRenderer>().sprite);
+            var pieceType = pieceGameObject.pieceType;
 
             // En passant
             if (pieceType.IsPawn() && move.source.col != move.target.col && killedTarget == null)
@@ -184,6 +185,15 @@ public class BoardController : MonoBehaviour
         }
 
         pieceGameObject.position = move.target;
+
+        // In case next animation is queued before the previous one finished and the sprite was assigned.
+        pieceGameObject.gameObject.GetComponent<SpriteRenderer>().sprite = pieceSprites.GetSpriteFor(pieceGameObject.pieceType);
+
+        if (move.promotion != PieceType.Nothing)
+        {
+            pieceGameObject.pieceType = move.promotion;
+        }
+
         AnimatePiece(pieceGameObject.gameObject, move.target, move.promotion, animated);
     }
 
@@ -193,7 +203,7 @@ public class BoardController : MonoBehaviour
 
         if (foundPieceGameObject == null || !foundPieceGameObject.position.HasValue) return null;
 
-        var pieceType = StaticReferences.pieceSprites.Value.GetSpritePieceType(foundPieceGameObject.gameObject.GetComponent<SpriteRenderer>().sprite);
+        var pieceType = foundPieceGameObject.pieceType;
 
         return new PiecePosition(foundPieceGameObject.id, pieceType, foundPieceGameObject.position.Value);
     }

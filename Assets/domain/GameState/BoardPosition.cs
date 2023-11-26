@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-[DebuggerDisplay("{col}, {row}")]
+[DebuggerDisplay("{col},{row}")]
 public struct BoardPosition
 {
     public int index { get; set; }
@@ -16,5 +16,16 @@ public struct BoardPosition
     public static bool IsInBoard(int col, int row)
     {
         return row >= 0 && row <= 7 && col >= 0 && col <= 7;
+    }
+
+    public override int GetHashCode()
+    {
+        return index;
+    }
+
+    public override bool Equals(object obj)
+    {
+        var other = (BoardPosition)obj;
+        return index == other.index;
     }
 }

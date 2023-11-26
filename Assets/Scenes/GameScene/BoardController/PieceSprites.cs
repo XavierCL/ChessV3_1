@@ -36,37 +36,4 @@ public class PieceSprites : MonoBehaviour
 
         throw new System.Exception("Error loading non existing sprite");
     }
-
-    public PieceType GetSpritePieceType(Sprite sprite)
-    {
-        switch (sprite.name)
-        {
-            case "Chess_Pieces_Sprite_9c_0":
-                return PieceType.WhiteKing;
-            case "Chess_Pieces_Sprite_9c_1":
-                return PieceType.WhiteQueen;
-            case "Chess_Pieces_Sprite_9c_2":
-                return PieceType.WhiteBishop;
-            case "Chess_Pieces_Sprite_9c_3":
-                return PieceType.WhiteKnight;
-            case "Chess_Pieces_Sprite_9c_4":
-                return PieceType.WhiteRook;
-            case "Chess_Pieces_Sprite_9c_5":
-                return PieceType.WhitePawn;
-            case "Chess_Pieces_Sprite_9c_6":
-                return PieceType.BlackKing;
-            case "Chess_Pieces_Sprite_9c_7":
-                return PieceType.BlackQueen;
-            case "Chess_Pieces_Sprite_9c_8":
-                return PieceType.BlackBishop;
-            case "Chess_Pieces_Sprite_9c_9":
-                return PieceType.BlackKnight;
-            case "Chess_Pieces_Sprite_9c_10":
-                return PieceType.BlackRook;
-            case "Chess_Pieces_Sprite_9c_11":
-                return PieceType.BlackPawn;
-        }
-
-        throw new System.Exception("Error loading non existing piece type");
-    }
 }

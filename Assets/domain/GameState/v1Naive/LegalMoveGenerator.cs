@@ -3,78 +3,75 @@ using System.Linq;
 
 public static class LegalMoveGenerator
 {
+  /// <summary>
+  /// Doesn't take end game draws in consideration (three-fold nor 50 moves)
+  /// </summary>
   public static List<Move> GenerateLegalMoves(this V1GameState gameState)
   {
-    var pseudoLegalMoves = GeneratePseudoLegalMoves(gameState, gameState.whiteTurn);
-    var checkValidationState = new V1GameState(gameState);
-
-    return pseudoLegalMoves.Where(move => !CanOwnKingDieAfterMove(checkValidationState, move)).ToList();
+    var pseudoLegalMoves = GeneratePseudoLegalMoves(gameState.boardState, gameState.whiteTurn);
+    return pseudoLegalMoves.Where(move => !CanKingDieAfterMove(gameState.boardState, move, gameState.whiteTurn)).ToList();
   }
 
   public static bool CanOwnKingDie(V1GameState gameState)
   {
-    return CanKingDie(new V1GameState(gameState), gameState.whiteTurn);
+    return CanKingDie(gameState.boardState, gameState.whiteTurn);
   }
 
-  private static bool CanOwnKingDieAfterMove(V1GameState gameState, Move ownMove)
+  private static bool CanKingDieAfterMove(V1BoardState boardState, Move ownMove, bool whiteKing)
   {
-    gameState.PlayMove(ownMove);
-    var canOwnKingDieNextMove = CanKingDie(gameState, !gameState.whiteTurn);
-    gameState.UndoMove();
-
-    return canOwnKingDieNextMove;
+    var kingMightBeInCheckState = boardState.PlayMove(ownMove).boardState;
+    return CanKingDie(kingMightBeInCheckState, whiteKing);
   }
 
-  private static bool CanKingDie(V1GameState gameState, bool whiteKing)
+  private static bool CanKingDie(V1BoardState boardState, bool whiteKing)
   {
-    var nextPseudoLegalMoves = GeneratePseudoLegalMoves(gameState, !whiteKing);
+    var nextPseudoLegalMoves = GeneratePseudoLegalMoves(boardState, !whiteKing);
     return nextPseudoLegalMoves.Any(pseudoMove =>
     {
-      gameState.PlayMove(pseudoMove);
-      var hasOwnKing = gameState.HasKing(whiteKing);
-      gameState.UndoMove();
-      return !hasOwnKing;
+      var kingMightHaveDiedState = boardState.PlayMove(pseudoMove).boardState;
+      var hasKing = kingMightHaveDiedState.HasKing(whiteKing);
+      return !hasKing;
     });
   }
 
-  private static List<Move> GeneratePseudoLegalMoves(V1GameState gameState, bool white)
+  private static List<Move> GeneratePseudoLegalMoves(V1BoardState boardState, bool white)
   {
-    var piecePositions = new List<PiecePosition>(gameState.piecePositions);
+    var piecePositions = new List<PiecePosition>(boardState.piecePositions);
 
     return piecePositions
       .Where(piecePosition => piecePosition.pieceType.IsWhite() == white)
-      .SelectMany(piecePosition => GetPseudoLegalMoves(gameState, piecePosition))
+      .SelectMany(piecePosition => GetPseudoLegalMoves(boardState, piecePosition))
       .ToList();
   }
 
-  private static List<Move> GetPseudoLegalMoves(V1GameState gameState, PiecePosition piecePosition)
+  private static List<Move> GetPseudoLegalMoves(V1BoardState boardState, PiecePosition piecePosition)
   {
     switch (piecePosition.pieceType)
     {
       case PieceType.WhitePawn:
       case PieceType.BlackPawn:
-        return GetPseudoLegalPawnMoves(gameState, piecePosition);
+        return GetPseudoLegalPawnMoves(boardState, piecePosition);
       case PieceType.WhiteRook:
       case PieceType.BlackRook:
-        return GetPseudoLegalRookMoves(gameState, piecePosition);
+        return GetPseudoLegalRookMoves(boardState, piecePosition);
       case PieceType.WhiteKnight:
       case PieceType.BlackKnight:
-        return GetPseudoLegalKnightMoves(gameState, piecePosition);
+        return GetPseudoLegalKnightMoves(boardState, piecePosition);
       case PieceType.WhiteBishop:
       case PieceType.BlackBishop:
-        return GetPseudoLegalBishopMoves(gameState, piecePosition);
+        return GetPseudoLegalBishopMoves(boardState, piecePosition);
       case PieceType.WhiteQueen:
       case PieceType.BlackQueen:
-        return GetPseudoLegalQueenMoves(gameState, piecePosition);
+        return GetPseudoLegalQueenMoves(boardState, piecePosition);
       case PieceType.WhiteKing:
       case PieceType.BlackKing:
-        return GetPseudoLegalKingMoves(gameState, piecePosition);
+        return GetPseudoLegalKingMoves(boardState, piecePosition);
       default:
         throw new System.Exception("Not a valid piece");
     }
   }
 
-  private static List<Move> GetPseudoLegalPawnMoves(V1GameState gameState, PiecePosition piecePosition)
+  private static List<Move> GetPseudoLegalPawnMoves(V1BoardState boardState, PiecePosition piecePosition)
   {
     var ownPawnStartingY = piecePosition.pieceType.IsWhite() ? 1 : 6;
     var increment = piecePosition.pieceType.IsWhite() ? 1 : -1;
@@ -86,48 +83,40 @@ public static class LegalMoveGenerator
     var moves = new List<Move>();
 
     var oneUpPosition = new BoardPosition(piecePosition.position.col, piecePosition.position.row + increment);
-    if (!gameState.piecePositions.Any(piece => piece.position.Equals(oneUpPosition)))
+    if (!boardState.piecePositions.Any(piece => piece.position.Equals(oneUpPosition)))
     {
       moves.Add(new Move(piecePosition.position, oneUpPosition, PieceType.Nothing));
     }
 
     var twoUpPosition = new BoardPosition(piecePosition.position.col, piecePosition.position.row + increment * 2);
-    if (piecePosition.position.row == ownPawnStartingY && !gameState.piecePositions.Any(piece => piece.position.Equals(twoUpPosition)))
+    if (piecePosition.position.row == ownPawnStartingY && !boardState.piecePositions.Any(piece => piece.position.Equals(twoUpPosition)))
     {
       moves.Add(new Move(piecePosition.position, twoUpPosition, PieceType.Nothing));
     }
 
     var captureLeftPosition = new BoardPosition(piecePosition.position.col - 1, piecePosition.position.row + increment);
-    if (piecePosition.position.col != 0 && gameState.piecePositions.Any(piece => piece.pieceType.IsWhite() != piecePosition.pieceType.IsWhite() && piece.position.Equals(captureLeftPosition)))
+    if (piecePosition.position.col != 0 && boardState.piecePositions.Any(piece => piece.pieceType.IsWhite() != piecePosition.pieceType.IsWhite() && piece.position.Equals(captureLeftPosition)))
     {
       moves.Add(new Move(piecePosition.position, captureLeftPosition, PieceType.Nothing));
     }
 
     var captureRightPosition = new BoardPosition(piecePosition.position.col + 1, piecePosition.position.row + increment);
-    if (piecePosition.position.col != 7 && gameState.piecePositions.Any(piece => piece.pieceType.IsWhite() != piecePosition.pieceType.IsWhite() && piece.position.Equals(captureRightPosition)))
+    if (piecePosition.position.col != 7 && boardState.piecePositions.Any(piece => piece.pieceType.IsWhite() != piecePosition.pieceType.IsWhite() && piece.position.Equals(captureRightPosition)))
     {
       moves.Add(new Move(piecePosition.position, captureRightPosition, PieceType.Nothing));
     }
 
     // En passant
     var neighbourLeftPosition = new BoardPosition(piecePosition.position.col - 1, piecePosition.position.row);
-    if (piecePosition.position.col != 0 && gameState.history.Count > 0 && gameState.piecePositions.Any(piece => piece.pieceType.IsWhite() != piecePosition.pieceType.IsWhite() && piece.pieceType.IsPawn() && piece.position.Equals(neighbourLeftPosition)))
+    if (piecePosition.position.col != 0 && boardState.enPassantColumn == neighbourLeftPosition.col && boardState.piecePositions.Any(piece => piece.pieceType.IsWhite() != piecePosition.pieceType.IsWhite() && piece.pieceType.IsPawn() && piece.position.Equals(neighbourLeftPosition)))
     {
-      var lastHistory = gameState.history[^1];
-      if (lastHistory.target.Equals(neighbourLeftPosition) && lastHistory.target.row == lastHistory.source.row - increment * 2)
-      {
-        moves.Add(new Move(piecePosition.position, captureLeftPosition, PieceType.Nothing));
-      }
+      moves.Add(new Move(piecePosition.position, captureLeftPosition, PieceType.Nothing));
     }
 
     var neighbourRightPosition = new BoardPosition(piecePosition.position.col + 1, piecePosition.position.row);
-    if (piecePosition.position.col != 7 && gameState.history.Count > 0 && gameState.piecePositions.Any(piece => piece.pieceType.IsWhite() != piecePosition.pieceType.IsWhite() && piece.pieceType.IsPawn() && piece.position.Equals(neighbourRightPosition)))
+    if (piecePosition.position.col != 7 && boardState.enPassantColumn == neighbourRightPosition.col && boardState.piecePositions.Any(piece => piece.pieceType.IsWhite() != piecePosition.pieceType.IsWhite() && piece.pieceType.IsPawn() && piece.position.Equals(neighbourRightPosition)))
     {
-      var lastHistory = gameState.history[^1];
-      if (lastHistory.target.Equals(neighbourRightPosition) && lastHistory.target.row == lastHistory.source.row - increment * 2)
-      {
-        moves.Add(new Move(piecePosition.position, captureRightPosition, PieceType.Nothing));
-      }
+      moves.Add(new Move(piecePosition.position, captureRightPosition, PieceType.Nothing));
     }
 
     // Multiply moves by promotions
@@ -139,15 +128,15 @@ public static class LegalMoveGenerator
     return moves;
   }
 
-  private static List<Move> GetPseudoLegalRookMoves(V1GameState gameState, PiecePosition piecePosition)
+  private static List<Move> GetPseudoLegalRookMoves(V1BoardState boardState, PiecePosition piecePosition)
   {
-    return GetPseudoRayMoves(gameState, piecePosition.position, 1, 0, piecePosition.pieceType.IsWhite())
-      .Concat(GetPseudoRayMoves(gameState, piecePosition.position, -1, 0, piecePosition.pieceType.IsWhite()))
-      .Concat(GetPseudoRayMoves(gameState, piecePosition.position, 0, 1, piecePosition.pieceType.IsWhite()))
-      .Concat(GetPseudoRayMoves(gameState, piecePosition.position, 0, -1, piecePosition.pieceType.IsWhite())).ToList();
+    return GetPseudoRayMoves(boardState, piecePosition.position, 1, 0, piecePosition.pieceType.IsWhite())
+      .Concat(GetPseudoRayMoves(boardState, piecePosition.position, -1, 0, piecePosition.pieceType.IsWhite()))
+      .Concat(GetPseudoRayMoves(boardState, piecePosition.position, 0, 1, piecePosition.pieceType.IsWhite()))
+      .Concat(GetPseudoRayMoves(boardState, piecePosition.position, 0, -1, piecePosition.pieceType.IsWhite())).ToList();
   }
 
-  private static List<Move> GetPseudoLegalKnightMoves(V1GameState gameState, PiecePosition piecePosition)
+  private static List<Move> GetPseudoLegalKnightMoves(V1BoardState boardState, PiecePosition piecePosition)
   {
     var jumps = new[]{
       new { col = piecePosition.position.col - 2, row = piecePosition.position.row - 1},
@@ -164,7 +153,7 @@ public static class LegalMoveGenerator
     {
       if (!BoardPosition.IsInBoard(jump.col, jump.row)) return false;
 
-      var collision = gameState.piecePositions.Find(piece => piece.position.Equals(new BoardPosition(jump.col, jump.row)));
+      var collision = boardState.piecePositions.Find(piece => piece.position.Equals(new BoardPosition(jump.col, jump.row)));
 
       if (collision == null) return true;
 
@@ -173,27 +162,27 @@ public static class LegalMoveGenerator
     .ToList();
   }
 
-  private static List<Move> GetPseudoLegalBishopMoves(V1GameState gameState, PiecePosition piecePosition)
+  private static List<Move> GetPseudoLegalBishopMoves(V1BoardState boardState, PiecePosition piecePosition)
   {
-    return GetPseudoRayMoves(gameState, piecePosition.position, 1, 1, piecePosition.pieceType.IsWhite())
-      .Concat(GetPseudoRayMoves(gameState, piecePosition.position, -1, 1, piecePosition.pieceType.IsWhite()))
-      .Concat(GetPseudoRayMoves(gameState, piecePosition.position, -1, -1, piecePosition.pieceType.IsWhite()))
-      .Concat(GetPseudoRayMoves(gameState, piecePosition.position, 1, -1, piecePosition.pieceType.IsWhite())).ToList();
+    return GetPseudoRayMoves(boardState, piecePosition.position, 1, 1, piecePosition.pieceType.IsWhite())
+      .Concat(GetPseudoRayMoves(boardState, piecePosition.position, -1, 1, piecePosition.pieceType.IsWhite()))
+      .Concat(GetPseudoRayMoves(boardState, piecePosition.position, -1, -1, piecePosition.pieceType.IsWhite()))
+      .Concat(GetPseudoRayMoves(boardState, piecePosition.position, 1, -1, piecePosition.pieceType.IsWhite())).ToList();
   }
 
-  private static List<Move> GetPseudoLegalQueenMoves(V1GameState gameState, PiecePosition piecePosition)
+  private static List<Move> GetPseudoLegalQueenMoves(V1BoardState boardState, PiecePosition piecePosition)
   {
-    return GetPseudoRayMoves(gameState, piecePosition.position, 1, 0, piecePosition.pieceType.IsWhite())
-      .Concat(GetPseudoRayMoves(gameState, piecePosition.position, -1, 0, piecePosition.pieceType.IsWhite()))
-      .Concat(GetPseudoRayMoves(gameState, piecePosition.position, 0, 1, piecePosition.pieceType.IsWhite()))
-      .Concat(GetPseudoRayMoves(gameState, piecePosition.position, 0, -1, piecePosition.pieceType.IsWhite()))
-      .Concat(GetPseudoRayMoves(gameState, piecePosition.position, 1, 1, piecePosition.pieceType.IsWhite()))
-      .Concat(GetPseudoRayMoves(gameState, piecePosition.position, -1, 1, piecePosition.pieceType.IsWhite()))
-      .Concat(GetPseudoRayMoves(gameState, piecePosition.position, -1, -1, piecePosition.pieceType.IsWhite()))
-      .Concat(GetPseudoRayMoves(gameState, piecePosition.position, 1, -1, piecePosition.pieceType.IsWhite())).ToList();
+    return GetPseudoRayMoves(boardState, piecePosition.position, 1, 0, piecePosition.pieceType.IsWhite())
+      .Concat(GetPseudoRayMoves(boardState, piecePosition.position, -1, 0, piecePosition.pieceType.IsWhite()))
+      .Concat(GetPseudoRayMoves(boardState, piecePosition.position, 0, 1, piecePosition.pieceType.IsWhite()))
+      .Concat(GetPseudoRayMoves(boardState, piecePosition.position, 0, -1, piecePosition.pieceType.IsWhite()))
+      .Concat(GetPseudoRayMoves(boardState, piecePosition.position, 1, 1, piecePosition.pieceType.IsWhite()))
+      .Concat(GetPseudoRayMoves(boardState, piecePosition.position, -1, 1, piecePosition.pieceType.IsWhite()))
+      .Concat(GetPseudoRayMoves(boardState, piecePosition.position, -1, -1, piecePosition.pieceType.IsWhite()))
+      .Concat(GetPseudoRayMoves(boardState, piecePosition.position, 1, -1, piecePosition.pieceType.IsWhite())).ToList();
   }
 
-  private static List<Move> GetPseudoLegalKingMoves(V1GameState gameState, PiecePosition piecePosition)
+  private static List<Move> GetPseudoLegalKingMoves(V1BoardState boardState, PiecePosition piecePosition)
   {
     var landings = new[]{
       new { col = piecePosition.position.col - 1, row = piecePosition.position.row - 1},
@@ -210,7 +199,7 @@ public static class LegalMoveGenerator
     {
       if (!BoardPosition.IsInBoard(landing.col, landing.row)) return false;
 
-      var collision = gameState.piecePositions.Find(piece => piece.position.Equals(new BoardPosition(landing.col, landing.row)));
+      var collision = boardState.piecePositions.Find(piece => piece.position.Equals(new BoardPosition(landing.col, landing.row)));
 
       if (collision == null) return true;
 
@@ -219,10 +208,10 @@ public static class LegalMoveGenerator
     .ToList();
 
     var rocks = new[] {
-      new { isWhite = true, canRock = gameState.whiteCastleKingSide, emptyPositions = new List<BoardPosition>{ new BoardPosition(5, 0), new BoardPosition(6, 0) }, noCheckPositions = new List<BoardPosition>{ new BoardPosition(5, 0), new BoardPosition(6, 0) } },
-      new { isWhite = true, canRock = gameState.whiteCastleQueenSide, emptyPositions = new List<BoardPosition>{ new BoardPosition(3, 0), new BoardPosition(2, 0), new BoardPosition(1, 0) }, noCheckPositions = new List<BoardPosition>{ new BoardPosition(3, 0), new BoardPosition(2, 0) } },
-      new { isWhite = false, canRock = gameState.blackCastleKingSide, emptyPositions = new List<BoardPosition>{ new BoardPosition(5, 7), new BoardPosition(6, 7) }, noCheckPositions = new List<BoardPosition>{ new BoardPosition(5, 7), new BoardPosition(6, 7) } },
-      new { isWhite = false, canRock = gameState.blackCastleQueenSide, emptyPositions = new List<BoardPosition>{ new BoardPosition(3, 7), new BoardPosition(2, 7), new BoardPosition(1, 7) }, noCheckPositions = new List<BoardPosition>{ new BoardPosition(3, 7), new BoardPosition(2, 7) } },
+      new { isWhite = true, canRock = boardState.whiteCastleKingSide, emptyPositions = new List<BoardPosition>{ new BoardPosition(5, 0), new BoardPosition(6, 0) }, noCheckPositions = new List<BoardPosition>{ new BoardPosition(5, 0), new BoardPosition(6, 0) } },
+      new { isWhite = true, canRock = boardState.whiteCastleQueenSide, emptyPositions = new List<BoardPosition>{ new BoardPosition(3, 0), new BoardPosition(2, 0), new BoardPosition(1, 0) }, noCheckPositions = new List<BoardPosition>{ new BoardPosition(3, 0), new BoardPosition(2, 0) } },
+      new { isWhite = false, canRock = boardState.blackCastleKingSide, emptyPositions = new List<BoardPosition>{ new BoardPosition(5, 7), new BoardPosition(6, 7) }, noCheckPositions = new List<BoardPosition>{ new BoardPosition(5, 7), new BoardPosition(6, 7) } },
+      new { isWhite = false, canRock = boardState.blackCastleQueenSide, emptyPositions = new List<BoardPosition>{ new BoardPosition(3, 7), new BoardPosition(2, 7), new BoardPosition(1, 7) }, noCheckPositions = new List<BoardPosition>{ new BoardPosition(3, 7), new BoardPosition(2, 7) } },
     };
 
     var rockMoves = rocks.Where(rock =>
@@ -232,38 +221,20 @@ public static class LegalMoveGenerator
 
       foreach (var emptyPosition in rock.emptyPositions)
       {
-        if (gameState.piecePositions.Any(piece => piece.position.Equals(emptyPosition))) return false;
+        if (boardState.piecePositions.Any(piece => piece.position.Equals(emptyPosition))) return false;
       }
 
-      var whiteRockKingSide = gameState.whiteCastleKingSide;
-      var whiteRockQueenSide = gameState.whiteCastleQueenSide;
-      var blackRockKingSide = gameState.blackCastleKingSide;
-      var blackRockQueenSide = gameState.blackCastleQueenSide;
+      var lastCheckedBoardState = boardState;
+      var lastKingPosition = piecePosition.position;
 
-      // Disable rocks whilst doing a rock king dies check to avoid infinite loop.
-      gameState.whiteCastleKingSide = false;
-      gameState.whiteCastleQueenSide = false;
-      gameState.blackCastleKingSide = false;
-      gameState.blackCastleQueenSide = false;
+      if (CanKingDie(lastCheckedBoardState, rock.isWhite)) return false;
 
-      try
+      foreach (var noCheckPosition in rock.noCheckPositions)
       {
-        if (CanKingDie(gameState, rock.isWhite)) return false;
-
-        foreach (var noCheckPosition in rock.noCheckPositions)
-        {
-          gameState.SimplePieceMove(new Move(piecePosition.position, noCheckPosition, PieceType.Nothing));
-          var canKingDie = CanKingDie(gameState, rock.isWhite);
-          gameState.SimplePieceMove(new Move(noCheckPosition, piecePosition.position, PieceType.Nothing));
-          if (canKingDie) return false;
-        }
-      }
-      finally
-      {
-        gameState.whiteCastleKingSide = whiteRockKingSide;
-        gameState.whiteCastleQueenSide = whiteRockQueenSide;
-        gameState.blackCastleKingSide = blackRockKingSide;
-        gameState.blackCastleQueenSide = blackRockQueenSide;
+        lastCheckedBoardState = boardState.PlayMove(new Move(lastKingPosition, noCheckPosition, PieceType.Nothing)).boardState;
+        lastKingPosition = noCheckPosition;
+        var canKingDie = CanKingDie(lastCheckedBoardState, rock.isWhite);
+        if (canKingDie) return false;
       }
 
       return true;
@@ -272,14 +243,14 @@ public static class LegalMoveGenerator
     return normalMoves.Concat(rockMoves).ToList();
   }
 
-  private static List<Move> GetPseudoRayMoves(V1GameState gameState, BoardPosition position, int colIncrement, int rowIncrement, bool isWhite)
+  private static List<Move> GetPseudoRayMoves(V1BoardState boardState, BoardPosition position, int colIncrement, int rowIncrement, bool isWhite)
   {
     var moves = new List<Move>();
     var col = position.col + colIncrement;
     var row = position.row + rowIncrement;
     while (col <= 7 && col >= 0 && row <= 7 && row >= 0)
     {
-      var foundCollision = gameState.piecePositions.Find(piece => piece.position.Equals(new BoardPosition(col, row)));
+      var foundCollision = boardState.piecePositions.Find(piece => piece.position.Equals(new BoardPosition(col, row)));
 
       if (foundCollision != null && foundCollision.pieceType.IsWhite() == isWhite) return moves;
 

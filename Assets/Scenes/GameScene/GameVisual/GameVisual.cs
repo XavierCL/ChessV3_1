@@ -17,13 +17,13 @@ public abstract class GameVisual
 
     public virtual void StartGame(GameStateInterface gameState)
     {
-        boardController.ResetPieces(gameState);
+        boardController.ResetPieces(gameState.BoardState);
         endStateText.SetEndState(gameState.GetGameEndState());
     }
 
     public virtual void GameOver(GameStateInterface gameState)
     {
-        boardController.ResetPieces(gameState);
+        boardController.ResetPieces(gameState.BoardState);
         clocks.Stop();
         endStateText.SetEndState(gameState.GetGameEndState());
     }

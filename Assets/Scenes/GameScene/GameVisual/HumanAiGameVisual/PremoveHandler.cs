@@ -51,7 +51,7 @@ public class PremoveHandler : MonoBehaviour
             return;
         }
 
-        boardController.ResetPieces(gameController.gameState);
+        boardController.ResetPieces(gameController.gameState.BoardState);
         gameController.PlayMove(premove);
 
         foreach (var nextPremove in GetMoves())
@@ -68,7 +68,7 @@ public class PremoveHandler : MonoBehaviour
     public void Clear()
     {
         queue.Clear();
-        boardController.ResetPieces(gameController.gameState);
+        boardController.ResetPieces(gameController.gameState.BoardState);
         promotionHandler.CancelPromotion();
     }
 

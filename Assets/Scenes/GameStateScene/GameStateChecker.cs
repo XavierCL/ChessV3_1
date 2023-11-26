@@ -40,6 +40,8 @@ public class GameStateChecker : MonoBehaviour
 
     private long CountLegalMoves(GameStateInterface gameState, int ply)
     {
+        if (gameState.GetGameEndState() != GameEndState.Ongoing) return 0;
+
         var legalMoves = gameState.getLegalMoves();
 
         if (ply <= 1) return legalMoves.Count;
