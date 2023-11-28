@@ -1,3 +1,6 @@
+using System.Diagnostics;
+
+[DebuggerDisplay("{source.pretty}{target.pretty}")]
 public class Move
 {
     public BoardPosition source { get; }
@@ -14,5 +17,10 @@ public class Move
     public bool Equals(Move otherMove)
     {
         return Equals(source, otherMove.source) && Equals(target, otherMove.target) && Equals(promotion, otherMove.promotion);
+    }
+
+    public override string ToString()
+    {
+        return $"{source.pretty}{target.pretty}";
     }
 }

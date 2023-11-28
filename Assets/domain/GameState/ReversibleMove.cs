@@ -11,7 +11,18 @@ public class ReversibleMove
     public int oldPassantColumn { get; }
     public PiecePosition killed { get; }
 
-    public ReversibleMove(BoardPosition source, BoardPosition target, int oldStaleTurns, bool pawnPromoted, bool lostBlackKingCastleRight, bool lostBlackQueenCastleRight, bool lostWhiteKingCastleRight, bool lostWhiteQueenCastleRight, int oldEnPassantColumn, PiecePosition killed)
+    public ReversibleMove(
+        BoardPosition source,
+        BoardPosition target,
+        int oldStaleTurns,
+        bool pawnPromoted,
+        bool lostWhiteKingCastleRight,
+        bool lostWhiteQueenCastleRight,
+        bool lostBlackKingCastleRight,
+        bool lostBlackQueenCastleRight,
+        int oldEnPassantColumn,
+        PiecePosition killed
+    )
     {
         this.source = source;
         this.target = target;

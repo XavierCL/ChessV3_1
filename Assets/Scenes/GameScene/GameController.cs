@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class GameController : MonoBehaviour
 {
+    public bool PrintFen = false;
     public GameStateFactoryInterface gameStateFactory;
     public GameStateInterface gameState;
     public GameType gameType;
@@ -65,7 +66,6 @@ public class GameController : MonoBehaviour
 
     public void PlayMove(Move move)
     {
-        // todo move most of this and player input handler into the game visual classes
         var isValidMove = gameState.getLegalMoves().Any(legalMove => legalMove.Equals(move));
 
         if (!isValidMove)
@@ -74,6 +74,8 @@ public class GameController : MonoBehaviour
         }
 
         gameState.PlayMove(move);
+
+        if (PrintFen) Debug.Log(gameState.GetFen());
 
         gameEndState = gameState.GetGameEndState();
 

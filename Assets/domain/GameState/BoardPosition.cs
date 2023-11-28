@@ -1,12 +1,13 @@
 using System.Diagnostics;
 
-[DebuggerDisplay("{col},{row}")]
+[DebuggerDisplay("{pretty}")]
 public struct BoardPosition
 {
     public int index { get; set; }
 
     public int col { get => index % 8; }
     public int row { get => index / 8; }
+    public string pretty { get => ((char)('a' + col)).ToString() + ((char)('1' + row)).ToString(); }
 
     public BoardPosition(int col, int row)
     {

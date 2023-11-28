@@ -3,13 +3,12 @@ using System.Linq;
 
 public class V1GameState : GameStateInterface
 {
-    public int turn { get; private set; }
-    public bool whiteTurn { get => turn % 2 == 0; }
-    public int staleTurns { get; private set; }
-    public BoardStateInterface BoardState { get => boardState; }
+    public override int turn { get; protected set; }
+    public override int staleTurns { get; protected set; }
+    public override BoardStateInterface BoardState { get => boardState; }
     public V1BoardState boardState { get; private set; }
-    public List<ReversibleMove> history { get; }
-    public Dictionary<BoardStateInterface, ushort> Snapshots { get => snapshots.ToDictionary(tuple => (BoardStateInterface)tuple.Key, tuple => tuple.Value); }
+    public override List<ReversibleMove> history { get; }
+    public override Dictionary<BoardStateInterface, ushort> Snapshots { get => snapshots.ToDictionary(tuple => (BoardStateInterface)tuple.Key, tuple => tuple.Value); }
     public Dictionary<V1BoardState, ushort> snapshots { get; }
 
     public V1GameState()
@@ -30,12 +29,28 @@ public class V1GameState : GameStateInterface
         snapshots = gameState.Snapshots.ToDictionary(tuple => new V1BoardState(tuple.Key), tuple => tuple.Value);
     }
 
-    public List<Move> getLegalMoves()
+    public V1GameState(List<PiecePosition> piecePositions, bool whiteStarts, Castling castling)
+    {
+        turn = whiteStarts ? 0 : 1;
+        staleTurns = 0;
+        history = new List<ReversibleMove>();
+        boardState = new V1BoardState(
+            piecePositions,
+            (castling & Castling.WhiteKing) == Castling.WhiteKing,
+            (castling & Castling.WhiteQueen) == Castling.WhiteQueen,
+            (castling & Castling.BlackKing) == Castling.BlackKing,
+            (castling & Castling.BlackQueen) == Castling.BlackQueen,
+            -1
+        );
+        snapshots = new Dictionary<V1BoardState, ushort>();
+    }
+
+    public override List<Move> getLegalMoves()
     {
         return this.GenerateLegalMoves();
     }
 
-    public void PlayMove(Move move)
+    public override void PlayMove(Move move)
     {
         var oldBoardState = boardState;
         var nextBoardPlay = oldBoardState.PlayMove(move);
@@ -48,18 +63,33 @@ public class V1GameState : GameStateInterface
         var lostBlackKingCastleRight = oldBoardState.blackCastleKingSide != nextBoardPlay.boardState.blackCastleKingSide;
         var lostBlackQueenCastleRight = oldBoardState.blackCastleQueenSide != nextBoardPlay.boardState.blackCastleQueenSide;
 
-        history.Add(new ReversibleMove(move.source, move.target, staleTurns, nextBoardPlay.sourcePiece.pieceType.IsPawn() && move.promotion != PieceType.Nothing, lostWhiteKingCastleRight, lostWhiteQueenCastleRight, lostBlackKingCastleRight, lostBlackQueenCastleRight, oldBoardState.enPassantColumn, nextBoardPlay.killedPiece));
+        history.Add(new ReversibleMove(
+            move.source,
+            move.target,
+            staleTurns,
+            nextBoardPlay.sourcePiece.pieceType.IsPawn() && move.promotion != PieceType.Nothing,
+            lostWhiteKingCastleRight,
+            lostWhiteQueenCastleRight,
+            lostBlackKingCastleRight,
+            lostBlackQueenCastleRight,
+            oldBoardState.enPassantColumn,
+            nextBoardPlay.killedPiece
+        ));
 
         staleTurns = nextBoardPlay.sourcePiece.pieceType.IsPawn() || nextBoardPlay.killedPiece != null ? 0 : staleTurns + 1;
 
         ++turn;
     }
 
-    public void UndoMove()
+    public override void UndoMove()
     {
-        var reversibleMove = history[history.Count - 1];
+        var reversibleMove = history[^1];
         history.RemoveAt(history.Count - 1);
         boardState = boardState.UndoMove(reversibleMove);
+        if (!snapshots.ContainsKey(boardState))
+        {
+            throw new System.Exception("Could not undo move: board isn't a snapshot");
+        }
         var oldSnapshotCount = snapshots[boardState];
 
         if (oldSnapshotCount == 1)
@@ -75,7 +105,7 @@ public class V1GameState : GameStateInterface
         --turn;
     }
 
-    public GameEndState GetGameEndState()
+    public override GameEndState GetGameEndState()
     {
         if (staleTurns >= 100) return GameEndState.Draw;
         if (snapshots.GetValueOrDefault(boardState) >= 2) return GameEndState.Draw;

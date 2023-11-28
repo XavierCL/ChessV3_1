@@ -69,7 +69,7 @@ public class V1BoardState : BoardStateInterface
     enPassantColumn = other.enPassantColumn;
   }
 
-  private V1BoardState(List<PiecePosition> piecePositions, bool whiteCastleKingSide, bool whiteCastleQueenSide, bool blackCastleKingSide, bool blackCastleQueenSide, int enPassantColumn)
+  public V1BoardState(List<PiecePosition> piecePositions, bool whiteCastleKingSide, bool whiteCastleQueenSide, bool blackCastleKingSide, bool blackCastleQueenSide, int enPassantColumn)
   {
     this.piecePositions = piecePositions;
     this.whiteCastleKingSide = whiteCastleKingSide;
