@@ -169,3 +169,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Ply: 3
   showFirstPly: 0
+  OnlyLastPosition: 1
+  OnlyFirstState: 1

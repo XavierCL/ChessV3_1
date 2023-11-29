@@ -8,6 +8,8 @@ public class GameStateChecker : MonoBehaviour
 {
     public int Ply = 1;
     public bool showFirstPly = false;
+    public bool OnlyLastPosition = false;
+    public bool OnlyFirstState = false;
 
     void Start()
     {
@@ -15,18 +17,27 @@ public class GameStateChecker : MonoBehaviour
         var version2Counts = new List<long>();
         var version1Time = 0.0;
         var version2Time = 0.0;
-        var factory1 = new V2GameStateFactory();
-        var factory2 = new V1GameStateFactory();
+        var factory1 = new V4GameStateFactory();
+        var factory2 = new V3GameStateFactory();
 
-        foreach (var startingPosition in StartingPositions())
+        var startingPositions = StartingPositions();
+        if (OnlyLastPosition)
+        {
+            startingPositions = new List<GameStateInterface> { startingPositions[^1] };
+        }
+
+        foreach (var startingPosition in startingPositions)
         {
             var startTime = DateTime.UtcNow;
             version1Counts.Add(CountLegalMoves(factory1.FromGameState(startingPosition), Ply, showFirstPly));
             version1Time += (DateTime.UtcNow - startTime).TotalMilliseconds;
 
-            startTime = DateTime.UtcNow;
-            version2Counts.Add(CountLegalMoves(factory2.FromGameState(startingPosition), Ply, false));
-            version2Time += (DateTime.UtcNow - startTime).TotalMilliseconds;
+            if (!OnlyFirstState)
+            {
+                startTime = DateTime.UtcNow;
+                version2Counts.Add(CountLegalMoves(factory2.FromGameState(startingPosition), Ply, false));
+                version2Time += (DateTime.UtcNow - startTime).TotalMilliseconds;
+            }
         }
 
         Debug.Log(("Time 1", version1Time / 1000));
@@ -34,7 +45,7 @@ public class GameStateChecker : MonoBehaviour
         Debug.Log("Counts 1:" + string.Join(", ", version1Counts));
         Debug.Log("Counts 2:" + string.Join(", ", version2Counts));
 
-        if (!version1Counts.SequenceEqual(version2Counts))
+        if (!OnlyFirstState && !version1Counts.SequenceEqual(version2Counts))
         {
             throw new Exception("Not equal");
         }
@@ -72,9 +83,9 @@ public class GameStateChecker : MonoBehaviour
     private List<GameStateInterface> StartingPositions()
     {
         return new List<GameStateInterface> {
-            // new V1GameStateFactory().StartingPosition(),
-            // new V1GameStateFactory().FromFen("rnbqkb1r/pppp1p1p/5np1/4p3/2B1P3/2N2N2/PPPP1PPP/R1BQK2R b KQkq"),
-            // new V1GameStateFactory().FromFen("2kr1b2/1bp4r/p1nq1p2/3pp3/P3n1P1/3P4/1PP1QP1p/RNB1K1R1 w -"),
+            new V1GameStateFactory().StartingPosition(),
+            new V1GameStateFactory().FromFen("rnbqkb1r/pppp1p1p/5np1/4p3/2B1P3/2N2N2/PPPP1PPP/R1BQK2R b KQkq"),
+            new V1GameStateFactory().FromFen("2kr1b2/1bp4r/p1nq1p2/3pp3/P3n1P1/3P4/1PP1QP1p/RNB1K1R1 w -"),
             new V1GameStateFactory().FromFen("rnbqk2r/pp2bpp1/5n1p/P2pp3/8/1Pp1PNPB/1BPPQP1P/RN2K2R b KQkq"),
         };
     }
