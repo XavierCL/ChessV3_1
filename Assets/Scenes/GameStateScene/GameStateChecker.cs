@@ -9,7 +9,7 @@ public class GameStateChecker : MonoBehaviour
     public int Ply = 1;
     public bool showFirstPly = false;
     public bool OnlyLastPosition = false;
-    public bool OnlyFirstState = false;
+    public bool OnlyFirstGameState = false;
 
     void Start()
     {
@@ -17,8 +17,8 @@ public class GameStateChecker : MonoBehaviour
         var version2Counts = new List<long>();
         var version1Time = 0.0;
         var version2Time = 0.0;
-        var factory1 = new V4GameStateFactory();
-        var factory2 = new V3GameStateFactory();
+        var factory1 = new V5GameStateFactory();
+        var factory2 = new V4GameStateFactory();
 
         var startingPositions = StartingPositions();
         if (OnlyLastPosition)
@@ -32,7 +32,7 @@ public class GameStateChecker : MonoBehaviour
             version1Counts.Add(CountLegalMoves(factory1.FromGameState(startingPosition), Ply, showFirstPly));
             version1Time += (DateTime.UtcNow - startTime).TotalMilliseconds;
 
-            if (!OnlyFirstState)
+            if (!OnlyFirstGameState)
             {
                 startTime = DateTime.UtcNow;
                 version2Counts.Add(CountLegalMoves(factory2.FromGameState(startingPosition), Ply, false));
@@ -45,7 +45,7 @@ public class GameStateChecker : MonoBehaviour
         Debug.Log("Counts 1:" + string.Join(", ", version1Counts));
         Debug.Log("Counts 2:" + string.Join(", ", version2Counts));
 
-        if (!OnlyFirstState && !version1Counts.SequenceEqual(version2Counts))
+        if (!OnlyFirstGameState && !version1Counts.SequenceEqual(version2Counts))
         {
             throw new Exception("Not equal");
         }
