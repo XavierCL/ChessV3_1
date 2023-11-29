@@ -1,29 +1,29 @@
 using System.Collections.Generic;
 using System.Linq;
 
-public static class LegalMoveGenerator
+public static class V2LegalMoveGenerator
 {
   /// <summary>
   /// Doesn't take end game draws in consideration (three-fold nor 50 moves)
   /// </summary>
-  public static List<Move> GenerateLegalMoves(this V1GameState gameState)
+  public static List<Move> GenerateLegalMoves(this V2GameState gameState)
   {
     var pseudoLegalMoves = GeneratePseudoLegalMoves(gameState.boardState, gameState.whiteTurn);
     return pseudoLegalMoves.Where(move => !CanKingDieAfterMove(gameState.boardState, move, gameState.whiteTurn)).ToList();
   }
 
-  public static bool CanOwnKingDie(V1GameState gameState)
+  public static bool CanOwnKingDie(V2GameState gameState)
   {
     return CanKingDie(gameState.boardState, gameState.whiteTurn);
   }
 
-  private static bool CanKingDieAfterMove(V1BoardState boardState, Move ownMove, bool whiteKing)
+  private static bool CanKingDieAfterMove(V2BoardState boardState, Move ownMove, bool whiteKing)
   {
     var kingMightBeInCheckState = boardState.PlayMove(ownMove).boardState;
     return CanKingDie(kingMightBeInCheckState, whiteKing);
   }
 
-  private static bool CanKingDie(V1BoardState boardState, bool whiteKing)
+  private static bool CanKingDie(V2BoardState boardState, bool whiteKing)
   {
     var nextPseudoLegalMoves = GeneratePseudoLegalMoves(boardState, !whiteKing, true);
     return nextPseudoLegalMoves.Any(pseudoMove =>
@@ -34,7 +34,7 @@ public static class LegalMoveGenerator
     });
   }
 
-  private static List<Move> GeneratePseudoLegalMoves(V1BoardState boardState, bool white, bool canKillKingOnly = false)
+  private static List<Move> GeneratePseudoLegalMoves(V2BoardState boardState, bool white, bool canKillKingOnly = false)
   {
     var piecePositions = new List<PiecePosition>(boardState.piecePositions);
 
@@ -44,7 +44,7 @@ public static class LegalMoveGenerator
       .ToList();
   }
 
-  private static List<Move> GetPseudoLegalMoves(V1BoardState boardState, PiecePosition piecePosition, bool canKillKingOnly)
+  private static List<Move> GetPseudoLegalMoves(V2BoardState boardState, PiecePosition piecePosition, bool canKillKingOnly)
   {
     switch (piecePosition.pieceType)
     {
@@ -71,7 +71,7 @@ public static class LegalMoveGenerator
     }
   }
 
-  private static List<Move> GetPseudoLegalPawnMoves(V1BoardState boardState, PiecePosition piecePosition, bool canKillKingOnly)
+  private static List<Move> GetPseudoLegalPawnMoves(V2BoardState boardState, PiecePosition piecePosition, bool canKillKingOnly)
   {
     var ownPawnStartingY = piecePosition.pieceType.IsWhite() ? 1 : 6;
     var increment = piecePosition.pieceType.IsWhite() ? 1 : -1;
@@ -83,49 +83,55 @@ public static class LegalMoveGenerator
     var moves = new List<Move>();
 
     var oneUpPosition = new BoardPosition(piecePosition.position.col, piecePosition.position.row + increment);
-    var oneUpPieceExists = boardState.piecePositions.Any(piece => piece.position.Equals(oneUpPosition));
+    var oneUpPieceExists = boardState.GetPieceTypeAtPosition(oneUpPosition) != PieceType.Nothing;
     if (!oneUpPieceExists && !canKillKingOnly)
     {
       moves.Add(new Move(piecePosition.position, oneUpPosition, PieceType.Nothing));
     }
 
     var twoUpPosition = new BoardPosition(piecePosition.position.col, piecePosition.position.row + increment * 2);
-    if (piecePosition.position.row == ownPawnStartingY && !oneUpPieceExists && !canKillKingOnly && !boardState.piecePositions.Any(piece => piece.position.Equals(twoUpPosition)))
+    if (piecePosition.position.row == ownPawnStartingY && !oneUpPieceExists && !canKillKingOnly && boardState.GetPieceTypeAtPosition(twoUpPosition) == PieceType.Nothing)
     {
       moves.Add(new Move(piecePosition.position, twoUpPosition, PieceType.Nothing));
     }
 
     var captureLeftPosition = new BoardPosition(piecePosition.position.col - 1, piecePosition.position.row + increment);
-    var captureLeft = boardState.piecePositions.Find(piece => piece.pieceType.IsWhite() != piecePosition.pieceType.IsWhite() && piece.position.Equals(captureLeftPosition));
-    if (piecePosition.position.col != 0 && captureLeft != null)
+    var captureLeft = boardState.GetPieceTypeAtPosition(captureLeftPosition);
+    if (piecePosition.position.col != 0 && captureLeft != PieceType.Nothing && captureLeft.IsWhite() != piecePosition.pieceType.IsWhite())
     {
-      if (captureLeft.pieceType.IsKing() || !canKillKingOnly)
+      if (captureLeft.IsKing() || !canKillKingOnly)
       {
         moves.Add(new Move(piecePosition.position, captureLeftPosition, PieceType.Nothing));
       }
     }
 
     var captureRightPosition = new BoardPosition(piecePosition.position.col + 1, piecePosition.position.row + increment);
-    var captureRight = boardState.piecePositions.Find(piece => piece.pieceType.IsWhite() != piecePosition.pieceType.IsWhite() && piece.position.Equals(captureRightPosition));
-    if (piecePosition.position.col != 7 && captureRight != null)
+    var captureRight = boardState.GetPieceTypeAtPosition(captureRightPosition);
+    if (piecePosition.position.col != 7 && captureRight != PieceType.Nothing && captureRight.IsWhite() != piecePosition.pieceType.IsWhite())
     {
-      if (captureRight.pieceType.IsKing() || !canKillKingOnly)
+      if (captureRight.IsKing() || !canKillKingOnly)
       {
         moves.Add(new Move(piecePosition.position, captureRightPosition, PieceType.Nothing));
       }
     }
 
     // En passant
-    var neighbourLeftPosition = new BoardPosition(piecePosition.position.col - 1, piecePosition.position.row);
-    if (piecePosition.position.col != 0 && boardState.enPassantColumn == neighbourLeftPosition.col && !canKillKingOnly && boardState.piecePositions.Any(piece => piece.pieceType.IsWhite() != piecePosition.pieceType.IsWhite() && piece.pieceType.IsPawn() && piece.position.Equals(neighbourLeftPosition)))
+    var enemyFourthRow = piecePosition.pieceType.IsWhite() ? 4 : 3;
+    if (piecePosition.position.row == enemyFourthRow)
     {
-      moves.Add(new Move(piecePosition.position, captureLeftPosition, PieceType.Nothing));
-    }
+      var neighbourLeftPosition = new BoardPosition(piecePosition.position.col - 1, piecePosition.position.row);
+      var neighbourLeft = boardState.GetPieceTypeAtPosition(neighbourLeftPosition);
+      if (piecePosition.position.col != 0 && boardState.enPassantColumn == neighbourLeftPosition.col && !canKillKingOnly && neighbourLeft.IsWhite() != piecePosition.pieceType.IsWhite() && neighbourLeft.IsPawn())
+      {
+        moves.Add(new Move(piecePosition.position, captureLeftPosition, PieceType.Nothing));
+      }
 
-    var neighbourRightPosition = new BoardPosition(piecePosition.position.col + 1, piecePosition.position.row);
-    if (piecePosition.position.col != 7 && boardState.enPassantColumn == neighbourRightPosition.col && !canKillKingOnly && boardState.piecePositions.Any(piece => piece.pieceType.IsWhite() != piecePosition.pieceType.IsWhite() && piece.pieceType.IsPawn() && piece.position.Equals(neighbourRightPosition)))
-    {
-      moves.Add(new Move(piecePosition.position, captureRightPosition, PieceType.Nothing));
+      var neighbourRightPosition = new BoardPosition(piecePosition.position.col + 1, piecePosition.position.row);
+      var neighbourRight = boardState.GetPieceTypeAtPosition(neighbourRightPosition);
+      if (piecePosition.position.col != 7 && boardState.enPassantColumn == neighbourRightPosition.col && !canKillKingOnly && neighbourRight.IsWhite() != piecePosition.pieceType.IsWhite() && neighbourRight.IsPawn())
+      {
+        moves.Add(new Move(piecePosition.position, captureRightPosition, PieceType.Nothing));
+      }
     }
 
     // Multiply moves by promotions
@@ -137,7 +143,7 @@ public static class LegalMoveGenerator
     return moves;
   }
 
-  private static List<Move> GetPseudoLegalRookMoves(V1BoardState boardState, PiecePosition piecePosition, bool canKillKingOnly)
+  private static List<Move> GetPseudoLegalRookMoves(V2BoardState boardState, PiecePosition piecePosition, bool canKillKingOnly)
   {
     return GetPseudoRayMoves(boardState, piecePosition.position, 1, 0, piecePosition.pieceType.IsWhite(), canKillKingOnly)
       .Concat(GetPseudoRayMoves(boardState, piecePosition.position, -1, 0, piecePosition.pieceType.IsWhite(), canKillKingOnly))
@@ -145,7 +151,7 @@ public static class LegalMoveGenerator
       .Concat(GetPseudoRayMoves(boardState, piecePosition.position, 0, -1, piecePosition.pieceType.IsWhite(), canKillKingOnly)).ToList();
   }
 
-  private static List<Move> GetPseudoLegalKnightMoves(V1BoardState boardState, PiecePosition piecePosition, bool canKillKingOnly)
+  private static List<Move> GetPseudoLegalKnightMoves(V2BoardState boardState, PiecePosition piecePosition, bool canKillKingOnly)
   {
     var jumps = new[]{
       new { col = piecePosition.position.col - 2, row = piecePosition.position.row - 1},
@@ -162,18 +168,18 @@ public static class LegalMoveGenerator
     {
       if (!BoardPosition.IsInBoard(jump.col, jump.row)) return false;
 
-      var collision = boardState.piecePositions.Find(piece => piece.position.Equals(new BoardPosition(jump.col, jump.row)));
+      var collision = boardState.GetPieceTypeAtPosition(new BoardPosition(jump.col, jump.row));
 
-      if (collision == null) return true;
+      if (collision == PieceType.Nothing) return true;
 
-      if (collision.pieceType.IsWhite() == piecePosition.pieceType.IsWhite()) return false;
+      if (collision.IsWhite() == piecePosition.pieceType.IsWhite()) return false;
 
-      return collision.pieceType.IsKing() || !canKillKingOnly;
+      return collision.IsKing() || !canKillKingOnly;
     }).Select(jump => new Move(piecePosition.position, new BoardPosition(jump.col, jump.row), PieceType.Nothing))
     .ToList();
   }
 
-  private static List<Move> GetPseudoLegalBishopMoves(V1BoardState boardState, PiecePosition piecePosition, bool canKillKingOnly)
+  private static List<Move> GetPseudoLegalBishopMoves(V2BoardState boardState, PiecePosition piecePosition, bool canKillKingOnly)
   {
     return GetPseudoRayMoves(boardState, piecePosition.position, 1, 1, piecePosition.pieceType.IsWhite(), canKillKingOnly)
       .Concat(GetPseudoRayMoves(boardState, piecePosition.position, -1, 1, piecePosition.pieceType.IsWhite(), canKillKingOnly))
@@ -181,7 +187,7 @@ public static class LegalMoveGenerator
       .Concat(GetPseudoRayMoves(boardState, piecePosition.position, 1, -1, piecePosition.pieceType.IsWhite(), canKillKingOnly)).ToList();
   }
 
-  private static List<Move> GetPseudoLegalQueenMoves(V1BoardState boardState, PiecePosition piecePosition, bool canKillKingOnly)
+  private static List<Move> GetPseudoLegalQueenMoves(V2BoardState boardState, PiecePosition piecePosition, bool canKillKingOnly)
   {
     return GetPseudoRayMoves(boardState, piecePosition.position, 1, 0, piecePosition.pieceType.IsWhite(), canKillKingOnly)
       .Concat(GetPseudoRayMoves(boardState, piecePosition.position, -1, 0, piecePosition.pieceType.IsWhite(), canKillKingOnly))
@@ -193,7 +199,7 @@ public static class LegalMoveGenerator
       .Concat(GetPseudoRayMoves(boardState, piecePosition.position, 1, -1, piecePosition.pieceType.IsWhite(), canKillKingOnly)).ToList();
   }
 
-  private static List<Move> GetPseudoLegalKingMoves(V1BoardState boardState, PiecePosition piecePosition, bool canKillKingOnly)
+  private static List<Move> GetPseudoLegalKingMoves(V2BoardState boardState, PiecePosition piecePosition, bool canKillKingOnly)
   {
     var landings = new[]{
       new { col = piecePosition.position.col - 1, row = piecePosition.position.row - 1},
@@ -210,13 +216,13 @@ public static class LegalMoveGenerator
     {
       if (!BoardPosition.IsInBoard(landing.col, landing.row)) return false;
 
-      var collision = boardState.piecePositions.Find(piece => piece.position.Equals(new BoardPosition(landing.col, landing.row)));
+      var collision = boardState.GetPieceTypeAtPosition(new BoardPosition(landing.col, landing.row));
 
-      if (collision == null) return true;
+      if (collision == PieceType.Nothing) return true;
 
-      if (collision.pieceType.IsWhite() == piecePosition.pieceType.IsWhite()) return false;
+      if (collision.IsWhite() == piecePosition.pieceType.IsWhite()) return false;
 
-      return collision.pieceType.IsKing() || !canKillKingOnly;
+      return collision.IsKing() || !canKillKingOnly;
     }).Select(landing => new Move(piecePosition.position, new BoardPosition(landing.col, landing.row), PieceType.Nothing))
     .ToList();
 
@@ -236,7 +242,7 @@ public static class LegalMoveGenerator
 
       foreach (var emptyPosition in rock.emptyPositions)
       {
-        if (boardState.piecePositions.Any(piece => piece.position.Equals(emptyPosition))) return false;
+        if (boardState.GetPieceTypeAtPosition(emptyPosition) != PieceType.Nothing) return false;
       }
 
       var lastCheckedBoardState = boardState;
@@ -258,23 +264,23 @@ public static class LegalMoveGenerator
     return normalMoves.Concat(rockMoves).ToList();
   }
 
-  private static List<Move> GetPseudoRayMoves(V1BoardState boardState, BoardPosition position, int colIncrement, int rowIncrement, bool isWhite, bool canKillKingOnly)
+  private static List<Move> GetPseudoRayMoves(V2BoardState boardState, BoardPosition position, int colIncrement, int rowIncrement, bool isWhite, bool canKillKingOnly)
   {
     var moves = new List<Move>();
     var col = position.col + colIncrement;
     var row = position.row + rowIncrement;
     while (col <= 7 && col >= 0 && row <= 7 && row >= 0)
     {
-      var foundCollision = boardState.piecePositions.Find(piece => piece.position.Equals(new BoardPosition(col, row)));
+      var foundCollision = boardState.GetPieceTypeAtPosition(new BoardPosition(col, row));
 
-      if (foundCollision != null && foundCollision.pieceType.IsWhite() == isWhite) return moves;
+      if (foundCollision != PieceType.Nothing && foundCollision.IsWhite() == isWhite) return moves;
 
-      if (!canKillKingOnly || foundCollision != null && foundCollision.pieceType.IsKing())
+      if (!canKillKingOnly || foundCollision != PieceType.Nothing && foundCollision.IsKing())
       {
         moves.Add(new Move(position, new BoardPosition(col, row), PieceType.Nothing));
       }
 
-      if (foundCollision != null) return moves;
+      if (foundCollision != PieceType.Nothing) return moves;
 
       col += colIncrement;
       row += rowIncrement;

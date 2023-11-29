@@ -1,40 +1,40 @@
 using System.Collections.Generic;
 using System.Linq;
 
-public class V1GameState : GameStateInterface
+public class V2GameState : GameStateInterface
 {
     public override int turn { get; protected set; }
     public override int staleTurns { get; protected set; }
     public override BoardStateInterface BoardState { get => boardState; }
-    public V1BoardState boardState { get; private set; }
+    public V2BoardState boardState { get; private set; }
     public override List<ReversibleMove> history { get; }
     public override Dictionary<BoardStateInterface, ushort> Snapshots { get => snapshots.ToDictionary(tuple => (BoardStateInterface)tuple.Key, tuple => tuple.Value); }
-    public Dictionary<V1BoardState, ushort> snapshots { get; }
+    public Dictionary<V2BoardState, ushort> snapshots { get; }
 
-    public V1GameState()
+    public V2GameState()
     {
         turn = 0;
         staleTurns = 0;
         history = new List<ReversibleMove>();
-        boardState = new V1BoardState();
-        snapshots = new Dictionary<V1BoardState, ushort>();
+        boardState = new V2BoardState();
+        snapshots = new Dictionary<V2BoardState, ushort>();
     }
 
-    public V1GameState(GameStateInterface gameState)
+    public V2GameState(GameStateInterface gameState)
     {
         turn = gameState.turn;
         staleTurns = gameState.staleTurns;
         history = new List<ReversibleMove>(gameState.history);
-        boardState = new V1BoardState(gameState.BoardState);
-        snapshots = gameState.Snapshots.ToDictionary(tuple => new V1BoardState(tuple.Key), tuple => tuple.Value);
+        boardState = new V2BoardState(gameState.BoardState);
+        snapshots = gameState.Snapshots.ToDictionary(tuple => new V2BoardState(tuple.Key), tuple => tuple.Value);
     }
 
-    public V1GameState(List<PiecePosition> piecePositions, bool whiteStarts, Castling castling)
+    public V2GameState(List<PiecePosition> piecePositions, bool whiteStarts, Castling castling)
     {
         turn = whiteStarts ? 0 : 1;
         staleTurns = 0;
         history = new List<ReversibleMove>();
-        boardState = new V1BoardState(
+        boardState = new V2BoardState(
             piecePositions,
             (castling & Castling.WhiteKing) == Castling.WhiteKing,
             (castling & Castling.WhiteQueen) == Castling.WhiteQueen,
@@ -42,7 +42,7 @@ public class V1GameState : GameStateInterface
             (castling & Castling.BlackQueen) == Castling.BlackQueen,
             -1
         );
-        snapshots = new Dictionary<V1BoardState, ushort>();
+        snapshots = new Dictionary<V2BoardState, ushort>();
     }
 
     public override List<Move> getLegalMoves()
@@ -110,7 +110,7 @@ public class V1GameState : GameStateInterface
         if (staleTurns >= 100) return GameEndState.Draw;
         if (snapshots.GetValueOrDefault(boardState) >= 2) return GameEndState.Draw;
         if (getLegalMoves().Count > 0) return GameEndState.Ongoing;
-        var canOwnKingDie = V1LegalMoveGenerator.CanOwnKingDie(this);
+        var canOwnKingDie = V2LegalMoveGenerator.CanOwnKingDie(this);
         if (!canOwnKingDie) return GameEndState.Draw;
         return whiteTurn ? GameEndState.BlackWin : GameEndState.WhiteWin;
     }
