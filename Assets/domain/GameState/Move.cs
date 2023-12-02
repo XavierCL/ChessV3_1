@@ -21,6 +21,35 @@ public class Move
 
     public override string ToString()
     {
-        return $"{source.pretty}{target.pretty}";
+        var promotionText = "";
+        switch (promotion)
+        {
+            case PieceType.WhiteRook:
+                promotionText = "R";
+                break;
+            case PieceType.BlackRook:
+                promotionText = "r";
+                break;
+            case PieceType.WhiteKnight:
+                promotionText = "N";
+                break;
+            case PieceType.BlackKnight:
+                promotionText = "n";
+                break;
+            case PieceType.WhiteBishop:
+                promotionText = "B";
+                break;
+            case PieceType.BlackBishop:
+                promotionText = "b";
+                break;
+            case PieceType.WhiteQueen:
+                promotionText = "Q";
+                break;
+            case PieceType.BlackQueen:
+                promotionText = "q";
+                break;
+        }
+
+        return $"{source.pretty}{target.pretty}{promotionText}";
     }
 }

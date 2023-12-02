@@ -7,11 +7,16 @@ public struct BoardPosition
 
     public int col { get => index % 8; }
     public int row { get => index / 8; }
-    public string pretty { get => ((char)('a' + col)).ToString() + ((char)('1' + row)).ToString(); }
+    public string pretty { get => $"{(char)('a' + col)}{(char)('1' + row)}"; }
 
     public BoardPosition(int col, int row)
     {
         index = row * 8 + col;
+    }
+
+    public BoardPosition(int index)
+    {
+        this.index = index;
     }
 
     public static bool IsInBoard(int col, int row)

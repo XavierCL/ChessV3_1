@@ -17,8 +17,8 @@ public class GameStateChecker : MonoBehaviour
         var version2Counts = new List<long>();
         var version1Time = 0.0;
         var version2Time = 0.0;
-        var factory1 = new V5GameStateFactory();
-        var factory2 = new V4GameStateFactory();
+        var factory1 = new V7GameStateFactory();
+        var factory2 = new V6GameStateFactory();
 
         var startingPositions = StartingPositions();
         if (OnlyLastPosition)
@@ -55,14 +55,29 @@ public class GameStateChecker : MonoBehaviour
     {
         if (gameState.GetGameEndState() != GameEndState.Ongoing) return 0;
 
-        var legalMoves = gameState.getLegalMoves().OrderBy(move => move.ToString()).ToList();
+        var legalMoves = gameState.getLegalMoves();
 
         if (showPly)
         {
             Debug.Log($"First ply: {legalMoves.Count}");
         }
 
-        if (ply <= 1) return legalMoves.Count;
+        if (ply <= 1)
+        {
+            if (showPly)
+            {
+                Debug.Log(string.Join("\n", legalMoves.OrderBy(move => move.ToString()).Select(move => $"{move}: {1}")));
+            }
+
+            return legalMoves.Count;
+        }
+
+        if (showPly)
+        {
+            legalMoves = legalMoves.OrderBy(move => move.ToString()).ToList();
+        }
+
+        var firstPlyCounts = new List<string>();
 
         long count = 0;
         foreach (var move in legalMoves)
@@ -74,9 +89,15 @@ public class GameStateChecker : MonoBehaviour
 
             if (showPly)
             {
-                Debug.Log($"{move}: {moveCount}");
+                firstPlyCounts.Add($"{move}: {moveCount}");
             }
         }
+
+        if (showPly)
+        {
+            Debug.Log(string.Join("\n", firstPlyCounts));
+        }
+
         return count;
     }
 
@@ -85,8 +106,9 @@ public class GameStateChecker : MonoBehaviour
         return new List<GameStateInterface> {
             new V1GameStateFactory().StartingPosition(),
             new V1GameStateFactory().FromFen("rnbqkb1r/pppp1p1p/5np1/4p3/2B1P3/2N2N2/PPPP1PPP/R1BQK2R b KQkq"),
-            new V1GameStateFactory().FromFen("2kr1b2/1bp4r/p1nq1p2/3pp3/P3n1P1/3P4/1PP1QP1p/RNB1K1R1 w -"),
             new V1GameStateFactory().FromFen("rnbqk2r/pp2bpp1/5n1p/P2pp3/8/1Pp1PNPB/1BPPQP1P/RN2K2R b KQkq"),
+            new V1GameStateFactory().FromFen("2kr1b2/1bp4r/p1nq1p2/3pp3/P3n1P1/3P4/1PP1QP1p/RNB1K1R1 w -"),
+            new V1GameStateFactory().FromFen("2kr1b2/1bp4r/p1nq1p2/3pp3/P3n1P1/3P4/1PP1QP2/RNB2KRr w -"),
         };
     }
 }

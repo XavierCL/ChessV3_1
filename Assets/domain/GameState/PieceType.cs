@@ -48,4 +48,28 @@ public static class PieceTypeExtensions
         return pieceType == PieceType.WhitePawn
         || pieceType == PieceType.BlackPawn;
     }
+
+    public static bool IsQueen(this PieceType pieceType)
+    {
+        return pieceType == PieceType.WhiteQueen
+        || pieceType == PieceType.BlackQueen;
+    }
+
+    public static bool IsBishop(this PieceType pieceType)
+    {
+        return pieceType == PieceType.WhiteBishop
+        || pieceType == PieceType.BlackBishop;
+    }
+
+    public static bool IsRook(this PieceType pieceType)
+    {
+        return pieceType == PieceType.WhiteRook
+        || pieceType == PieceType.BlackRook;
+    }
+
+    public static bool IsKnight(this PieceType pieceType)
+    {
+        return pieceType == PieceType.WhiteKnight
+        || pieceType == PieceType.BlackKnight;
+    }
 }
