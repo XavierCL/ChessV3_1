@@ -1,75 +1,59 @@
 public enum PieceType
 {
     Nothing = 0,
-    WhitePawn,
-    WhiteRook,
-    WhiteKnight,
-    WhiteBishop,
-    WhiteQueen,
-    WhiteKing,
-    BlackPawn,
-    BlackRook,
-    BlackKnight,
-    BlackBishop,
-    BlackQueen,
-    BlackKing,
+    WhitePawn = 1,
+    WhiteRook = 2,
+    WhiteKnight = 3,
+    WhiteBishop = 4,
+    WhiteQueen = 5,
+    WhiteKing = 6,
+    BlackPawn = 9,
+    BlackRook = 10,
+    BlackKnight = 11,
+    BlackBishop = 12,
+    BlackQueen = 13,
+    BlackKing = 14,
 }
 
 public static class PieceTypeExtensions
 {
     public static bool IsWhite(this PieceType pieceType)
     {
-        return pieceType == PieceType.WhitePawn
-        || pieceType == PieceType.WhiteRook
-        || pieceType == PieceType.WhiteKnight
-        || pieceType == PieceType.WhiteBishop
-        || pieceType == PieceType.WhiteQueen
-        || pieceType == PieceType.WhiteKing;
+        return pieceType != PieceType.Nothing && (((int)pieceType & 8) == 0);
     }
 
     public static bool IsBlack(this PieceType pieceType)
     {
-        return pieceType == PieceType.BlackPawn
-        || pieceType == PieceType.BlackRook
-        || pieceType == PieceType.BlackKnight
-        || pieceType == PieceType.BlackBishop
-        || pieceType == PieceType.BlackQueen
-        || pieceType == PieceType.BlackKing;
+        return ((int)pieceType & 8) == 8;
     }
 
     public static bool IsKing(this PieceType pieceType)
     {
-        return pieceType == PieceType.WhiteKing
-        || pieceType == PieceType.BlackKing;
+        return ((int)pieceType & 7) == 6;
     }
 
     public static bool IsPawn(this PieceType pieceType)
     {
-        return pieceType == PieceType.WhitePawn
-        || pieceType == PieceType.BlackPawn;
+        return ((int)pieceType & 7) == 1;
     }
 
     public static bool IsQueen(this PieceType pieceType)
     {
-        return pieceType == PieceType.WhiteQueen
-        || pieceType == PieceType.BlackQueen;
+        return ((int)pieceType & 7) == 5;
     }
 
     public static bool IsBishop(this PieceType pieceType)
     {
-        return pieceType == PieceType.WhiteBishop
-        || pieceType == PieceType.BlackBishop;
+        return ((int)pieceType & 7) == 4;
     }
 
     public static bool IsRook(this PieceType pieceType)
     {
-        return pieceType == PieceType.WhiteRook
-        || pieceType == PieceType.BlackRook;
+        return ((int)pieceType & 7) == 2;
     }
 
     public static bool IsKnight(this PieceType pieceType)
     {
-        return pieceType == PieceType.WhiteKnight
-        || pieceType == PieceType.BlackKnight;
+        return ((int)pieceType & 7) == 3;
     }
 }

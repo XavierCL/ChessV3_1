@@ -3,7 +3,7 @@ using System.Diagnostics;
 [DebuggerDisplay("{pretty}")]
 public struct BoardPosition
 {
-    public int index { get; set; }
+    public readonly int index;
 
     public int col { get => index % 8; }
     public int row { get => index / 8; }

@@ -13,7 +13,7 @@ public class GameController : MonoBehaviour
 
     public GameController()
     {
-        gameStateFactory = new V1GameStateFactory();
+        gameStateFactory = new V5GameStateFactory();
         gameState = gameStateFactory.StartingPosition();
     }
 

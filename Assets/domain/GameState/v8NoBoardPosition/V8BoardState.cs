@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 
 [DebuggerDisplay("{piecePositions.Count} pieces")]
-public class V7BoardState : BoardStateInterface
+public class V8BoardState : BoardStateInterface
 {
   private List<PiecePosition> _piecePositions;
   public List<PiecePosition> piecePositions
@@ -37,7 +37,7 @@ public class V7BoardState : BoardStateInterface
   public BoardPosition whiteKingPosition { get; }
   public BoardPosition blackKingPosition { get; }
 
-  public V7BoardState()
+  public V8BoardState()
   {
     whiteCastleKingSide = true;
     whiteCastleQueenSide = true;
@@ -99,7 +99,7 @@ public class V7BoardState : BoardStateInterface
   }
 
 
-  public V7BoardState(BoardStateInterface other)
+  public V8BoardState(BoardStateInterface other)
   {
     whiteCastleKingSide = other.whiteCastleKingSide;
     whiteCastleQueenSide = other.whiteCastleQueenSide;
@@ -125,7 +125,7 @@ public class V7BoardState : BoardStateInterface
     }
   }
 
-  public V7BoardState(PieceType[] boardPieces, bool whiteCastleKingSide, bool whiteCastleQueenSide, bool blackCastleKingSide, bool blackCastleQueenSide, int enPassantColumn, BoardPosition whiteKingPosition, BoardPosition blackKingPosition)
+  public V8BoardState(PieceType[] boardPieces, bool whiteCastleKingSide, bool whiteCastleQueenSide, bool blackCastleKingSide, bool blackCastleQueenSide, int enPassantColumn, BoardPosition whiteKingPosition, BoardPosition blackKingPosition)
   {
     this.boardPieces = boardPieces;
     this.whiteCastleKingSide = whiteCastleKingSide;
@@ -137,7 +137,7 @@ public class V7BoardState : BoardStateInterface
     this.blackKingPosition = blackKingPosition;
   }
 
-  public V7BoardState(List<PiecePosition> piecePositions, bool whiteCastleKingSide, bool whiteCastleQueenSide, bool blackCastleKingSide, bool blackCastleQueenSide)
+  public V8BoardState(List<PiecePosition> piecePositions, bool whiteCastleKingSide, bool whiteCastleQueenSide, bool blackCastleKingSide, bool blackCastleQueenSide)
   {
     this.whiteCastleKingSide = whiteCastleKingSide;
     this.whiteCastleQueenSide = whiteCastleQueenSide;
@@ -165,14 +165,22 @@ public class V7BoardState : BoardStateInterface
 
   public class BoardStatePlay
   {
-    public V7BoardState boardState { get; set; }
-    public PiecePosition sourcePiece { get; set; }
-    public PiecePosition killedPiece { get; set; }
+    public readonly V8BoardState boardState;
+    public readonly PiecePosition sourcePiece;
+    public readonly PiecePosition killedPiece;
+
+    public BoardStatePlay(V8BoardState boardState, PiecePosition sourcePiece, PiecePosition killedPiece)
+    {
+      this.boardState = boardState;
+      this.sourcePiece = sourcePiece;
+      this.killedPiece = killedPiece;
+    }
   }
 
   public BoardStatePlay PlayMove(Move move)
   {
-    var newBoardPieces = (PieceType[])boardPieces.Clone();
+    var newBoardPieces = new PieceType[64];
+    Array.Copy(boardPieces, newBoardPieces, 64);
     PiecePosition killedPiece = null;
 
     var killedPieceType = boardPieces[move.target.index];
@@ -202,10 +210,15 @@ public class V7BoardState : BoardStateInterface
       newBoardPieces[killedPiece.position.index] = PieceType.Nothing;
     }
 
-    var lostWhiteKingCastleRight = this.whiteCastleKingSide && (sourcePiece.pieceType == PieceType.WhiteKing || move.source.Equals(new BoardPosition(7, 0)) || move.target.Equals(new BoardPosition(7, 0)));
-    var lostWhiteQueenCastleRight = this.whiteCastleQueenSide && (sourcePiece.pieceType == PieceType.WhiteKing || move.source.Equals(new BoardPosition(0, 0)) || move.target.Equals(new BoardPosition(0, 0)));
-    var lostBlackKingCastleRight = this.blackCastleKingSide && (sourcePiece.pieceType == PieceType.BlackKing || move.source.Equals(new BoardPosition(7, 7)) || move.target.Equals(new BoardPosition(7, 7)));
-    var lostBlackQueenCastleRight = this.blackCastleQueenSide && (sourcePiece.pieceType == PieceType.BlackKing || move.source.Equals(new BoardPosition(0, 7)) || move.target.Equals(new BoardPosition(0, 7)));
+    var whiteKingRookPosition = V8BoardPosition.fromColRow(7, 0);
+    var whiteQueenRookPosition = V8BoardPosition.fromColRow(0, 0);
+    var blackKingRookPosition = V8BoardPosition.fromColRow(7, 7);
+    var blackQueenRookPosition = V8BoardPosition.fromColRow(0, 7);
+
+    var lostWhiteKingCastleRight = this.whiteCastleKingSide && (sourcePiece.pieceType == PieceType.WhiteKing || move.source.index == whiteKingRookPosition || move.target.index == whiteKingRookPosition);
+    var lostWhiteQueenCastleRight = this.whiteCastleQueenSide && (sourcePiece.pieceType == PieceType.WhiteKing || move.source.index == whiteQueenRookPosition || move.target.index == whiteQueenRookPosition);
+    var lostBlackKingCastleRight = this.blackCastleKingSide && (sourcePiece.pieceType == PieceType.BlackKing || move.source.index == blackKingRookPosition || move.target.index == blackKingRookPosition);
+    var lostBlackQueenCastleRight = this.blackCastleQueenSide && (sourcePiece.pieceType == PieceType.BlackKing || move.source.index == blackQueenRookPosition || move.target.index == blackQueenRookPosition);
 
     var whiteCastleKingSide = this.whiteCastleKingSide && !lostWhiteKingCastleRight;
     var whiteCastleQueenSide = this.whiteCastleQueenSide && !lostWhiteQueenCastleRight;
@@ -215,31 +228,31 @@ public class V7BoardState : BoardStateInterface
     // Castling
     if (sourcePieceType.IsKing() && Math.Abs(move.target.col - move.source.col) == 2)
     {
-      var oldRookPosition = new BoardPosition(0, 0);
-      var newRookPosition = new BoardPosition(0, 0);
-      if (move.source.Equals(new BoardPosition(4, 0)) && move.target.Equals(new BoardPosition(6, 0)))
+      var oldRookPosition = 0;
+      var newRookPosition = 0;
+      if (move.source.index == V8BoardPosition.fromColRow(4, 0) && move.target.index == V8BoardPosition.fromColRow(6, 0))
       {
-        oldRookPosition = new BoardPosition(7, 0);
-        newRookPosition = new BoardPosition(5, 0);
+        oldRookPosition = V8BoardPosition.fromColRow(7, 0);
+        newRookPosition = V8BoardPosition.fromColRow(5, 0);
       }
-      else if (move.source.Equals(new BoardPosition(4, 0)) && move.target.Equals(new BoardPosition(2, 0)))
+      else if (move.source.index == V8BoardPosition.fromColRow(4, 0) && move.target.index == V8BoardPosition.fromColRow(2, 0))
       {
-        oldRookPosition = new BoardPosition(0, 0);
-        newRookPosition = new BoardPosition(3, 0);
+        oldRookPosition = V8BoardPosition.fromColRow(0, 0);
+        newRookPosition = V8BoardPosition.fromColRow(3, 0);
       }
-      else if (move.source.Equals(new BoardPosition(4, 7)) && move.target.Equals(new BoardPosition(6, 7)))
+      else if (move.source.index == V8BoardPosition.fromColRow(4, 7) && move.target.index == V8BoardPosition.fromColRow(6, 7))
       {
-        oldRookPosition = new BoardPosition(7, 7);
-        newRookPosition = new BoardPosition(5, 7);
+        oldRookPosition = V8BoardPosition.fromColRow(7, 7);
+        newRookPosition = V8BoardPosition.fromColRow(5, 7);
       }
-      else if (move.source.Equals(new BoardPosition(4, 7)) && move.target.Equals(new BoardPosition(2, 7)))
+      else if (move.source.index == V8BoardPosition.fromColRow(4, 7) && move.target.index == V8BoardPosition.fromColRow(2, 7))
       {
-        oldRookPosition = new BoardPosition(0, 7);
-        newRookPosition = new BoardPosition(3, 7);
+        oldRookPosition = V8BoardPosition.fromColRow(0, 7);
+        newRookPosition = V8BoardPosition.fromColRow(3, 7);
       }
 
-      newBoardPieces[newRookPosition.index] = newBoardPieces[oldRookPosition.index];
-      newBoardPieces[oldRookPosition.index] = PieceType.Nothing;
+      newBoardPieces[newRookPosition] = newBoardPieces[oldRookPosition];
+      newBoardPieces[oldRookPosition] = PieceType.Nothing;
     }
 
     var enPassantColumn = sourcePiece.pieceType.IsPawn() && Math.Abs(move.source.row - move.target.row) == 2 ? move.source.col : -1;
@@ -258,9 +271,8 @@ public class V7BoardState : BoardStateInterface
       }
     }
 
-    return new BoardStatePlay()
-    {
-      boardState = new V7BoardState(
+    return new BoardStatePlay(
+      new V8BoardState(
         newBoardPieces,
         whiteCastleKingSide,
         whiteCastleQueenSide,
@@ -270,12 +282,12 @@ public class V7BoardState : BoardStateInterface
         whiteKingPosition,
         blackKingPosition
       ),
-      sourcePiece = sourcePiece,
-      killedPiece = killedPiece
-    };
+      sourcePiece,
+      killedPiece
+    );
   }
 
-  public V7BoardState UndoMove(ReversibleMove reversibleMove)
+  public V8BoardState UndoMove(ReversibleMove reversibleMove)
   {
     var newBoardPieces = (PieceType[])boardPieces.Clone();
     var sourcePieceType = newBoardPieces[reversibleMove.target.index];
@@ -307,32 +319,32 @@ public class V7BoardState : BoardStateInterface
     // Castling
     if (sourcePieceType.IsKing() && Math.Abs(reversibleMove.target.col - reversibleMove.source.col) == 2)
     {
-      var newRookPosition = new BoardPosition(0, 0);
-      var oldRookPosition = new BoardPosition(0, 0);
+      var newRookPosition = 0;
+      var oldRookPosition = 0;
 
-      if (reversibleMove.source.Equals(new BoardPosition(4, 0)) && reversibleMove.target.Equals(new BoardPosition(6, 0)))
+      if (reversibleMove.source.index == V8BoardPosition.fromColRow(4, 0) && reversibleMove.target.index == V8BoardPosition.fromColRow(6, 0))
       {
-        oldRookPosition = new BoardPosition(7, 0);
-        newRookPosition = new BoardPosition(5, 0);
+        oldRookPosition = V8BoardPosition.fromColRow(7, 0);
+        newRookPosition = V8BoardPosition.fromColRow(5, 0);
       }
-      else if (reversibleMove.source.Equals(new BoardPosition(4, 0)) && reversibleMove.target.Equals(new BoardPosition(2, 0)))
+      else if (reversibleMove.source.index == V8BoardPosition.fromColRow(4, 0) && reversibleMove.target.index == V8BoardPosition.fromColRow(2, 0))
       {
-        oldRookPosition = new BoardPosition(0, 0);
-        newRookPosition = new BoardPosition(3, 0);
+        oldRookPosition = V8BoardPosition.fromColRow(0, 0);
+        newRookPosition = V8BoardPosition.fromColRow(3, 0);
       }
-      else if (reversibleMove.source.Equals(new BoardPosition(4, 7)) && reversibleMove.target.Equals(new BoardPosition(6, 7)))
+      else if (reversibleMove.source.index == V8BoardPosition.fromColRow(4, 7) && reversibleMove.target.index == V8BoardPosition.fromColRow(6, 7))
       {
-        oldRookPosition = new BoardPosition(7, 7);
-        newRookPosition = new BoardPosition(5, 7);
+        oldRookPosition = V8BoardPosition.fromColRow(7, 7);
+        newRookPosition = V8BoardPosition.fromColRow(5, 7);
       }
-      else if (reversibleMove.source.Equals(new BoardPosition(4, 7)) && reversibleMove.target.Equals(new BoardPosition(2, 7)))
+      else if (reversibleMove.source.index == V8BoardPosition.fromColRow(4, 7) && reversibleMove.target.index == V8BoardPosition.fromColRow(2, 7))
       {
-        oldRookPosition = new BoardPosition(0, 7);
-        newRookPosition = new BoardPosition(3, 7);
+        oldRookPosition = V8BoardPosition.fromColRow(0, 7);
+        newRookPosition = V8BoardPosition.fromColRow(3, 7);
       }
 
-      newBoardPieces[oldRookPosition.index] = newBoardPieces[newRookPosition.index];
-      newBoardPieces[newRookPosition.index] = PieceType.Nothing;
+      newBoardPieces[oldRookPosition] = newBoardPieces[newRookPosition];
+      newBoardPieces[newRookPosition] = PieceType.Nothing;
     }
 
     var whiteKingPosition = this.whiteKingPosition;
@@ -350,7 +362,7 @@ public class V7BoardState : BoardStateInterface
       }
     }
 
-    return new V7BoardState(
+    return new V8BoardState(
       newBoardPieces,
       whiteCastleKingSide,
       whiteCastleQueenSide,
@@ -362,14 +374,14 @@ public class V7BoardState : BoardStateInterface
     );
   }
 
-  public PieceType GetPieceTypeAtPosition(BoardPosition boardPosition)
+  public PieceType GetPieceTypeAtPosition(int boardPosition)
   {
-    return boardPieces[boardPosition.index];
+    return boardPieces[boardPosition];
   }
 
   public override bool Equals(object obj)
   {
-    var other = (V7BoardState)obj;
+    var other = (V8BoardState)obj;
     if (whiteCastleKingSide != other.whiteCastleKingSide
     || whiteCastleQueenSide != other.whiteCastleQueenSide
     || blackCastleKingSide != other.blackCastleKingSide

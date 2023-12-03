@@ -86,29 +86,38 @@ public static class V5LegalMoveGenerator
       moves.Add(new Move(piecePosition.position, oneUpPosition, PieceType.Nothing));
     }
 
-    var twoUpPosition = new BoardPosition(piecePosition.position.col, piecePosition.position.row + increment * 2);
-    if (piecePosition.position.row == ownPawnStartingY && !oneUpPieceExists && !canKillKingOnly && boardState.GetPieceTypeAtPosition(twoUpPosition) == PieceType.Nothing)
+    if (piecePosition.position.row == ownPawnStartingY)
     {
-      moves.Add(new Move(piecePosition.position, twoUpPosition, PieceType.Nothing));
-    }
-
-    var captureLeftPosition = new BoardPosition(piecePosition.position.col - 1, piecePosition.position.row + increment);
-    var captureLeft = boardState.GetPieceTypeAtPosition(captureLeftPosition);
-    if (piecePosition.position.col != 0 && captureLeft != PieceType.Nothing && captureLeft.IsWhite() != piecePosition.pieceType.IsWhite())
-    {
-      if (captureLeft.IsKing() || !canKillKingOnly)
+      var twoUpPosition = new BoardPosition(piecePosition.position.col, piecePosition.position.row + increment * 2);
+      if (!oneUpPieceExists && !canKillKingOnly && boardState.GetPieceTypeAtPosition(twoUpPosition) == PieceType.Nothing)
       {
-        moves.Add(new Move(piecePosition.position, captureLeftPosition, PieceType.Nothing));
+        moves.Add(new Move(piecePosition.position, twoUpPosition, PieceType.Nothing));
       }
     }
 
-    var captureRightPosition = new BoardPosition(piecePosition.position.col + 1, piecePosition.position.row + increment);
-    var captureRight = boardState.GetPieceTypeAtPosition(captureRightPosition);
-    if (piecePosition.position.col != 7 && captureRight != PieceType.Nothing && captureRight.IsWhite() != piecePosition.pieceType.IsWhite())
+    if (piecePosition.position.col != 0)
     {
-      if (captureRight.IsKing() || !canKillKingOnly)
+      var captureLeftPosition = new BoardPosition(piecePosition.position.col - 1, piecePosition.position.row + increment);
+      var captureLeft = boardState.GetPieceTypeAtPosition(captureLeftPosition);
+      if (captureLeft != PieceType.Nothing && captureLeft.IsWhite() != piecePosition.pieceType.IsWhite())
       {
-        moves.Add(new Move(piecePosition.position, captureRightPosition, PieceType.Nothing));
+        if (captureLeft.IsKing() || !canKillKingOnly)
+        {
+          moves.Add(new Move(piecePosition.position, captureLeftPosition, PieceType.Nothing));
+        }
+      }
+    }
+
+    if (piecePosition.position.col != 7)
+    {
+      var captureRightPosition = new BoardPosition(piecePosition.position.col + 1, piecePosition.position.row + increment);
+      var captureRight = boardState.GetPieceTypeAtPosition(captureRightPosition);
+      if (captureRight != PieceType.Nothing && captureRight.IsWhite() != piecePosition.pieceType.IsWhite())
+      {
+        if (captureRight.IsKing() || !canKillKingOnly)
+        {
+          moves.Add(new Move(piecePosition.position, captureRightPosition, PieceType.Nothing));
+        }
       }
     }
 
@@ -116,18 +125,26 @@ public static class V5LegalMoveGenerator
     var enemyFourthRow = piecePosition.pieceType.IsWhite() ? 4 : 3;
     if (piecePosition.position.row == enemyFourthRow)
     {
-      var neighbourLeftPosition = new BoardPosition(piecePosition.position.col - 1, piecePosition.position.row);
-      var neighbourLeft = boardState.GetPieceTypeAtPosition(neighbourLeftPosition);
-      if (piecePosition.position.col != 0 && boardState.enPassantColumn == neighbourLeftPosition.col && !canKillKingOnly && neighbourLeft.IsWhite() != piecePosition.pieceType.IsWhite() && neighbourLeft.IsPawn())
+      if (piecePosition.position.col != 0)
       {
-        moves.Add(new Move(piecePosition.position, captureLeftPosition, PieceType.Nothing));
+        var captureLeftPosition = new BoardPosition(piecePosition.position.col - 1, piecePosition.position.row + increment);
+        var neighbourLeftPosition = new BoardPosition(piecePosition.position.col - 1, piecePosition.position.row);
+        var neighbourLeft = boardState.GetPieceTypeAtPosition(neighbourLeftPosition);
+        if (piecePosition.position.col != 0 && boardState.enPassantColumn == neighbourLeftPosition.col && !canKillKingOnly && neighbourLeft.IsWhite() != piecePosition.pieceType.IsWhite() && neighbourLeft.IsPawn())
+        {
+          moves.Add(new Move(piecePosition.position, captureLeftPosition, PieceType.Nothing));
+        }
       }
 
-      var neighbourRightPosition = new BoardPosition(piecePosition.position.col + 1, piecePosition.position.row);
-      var neighbourRight = boardState.GetPieceTypeAtPosition(neighbourRightPosition);
-      if (piecePosition.position.col != 7 && boardState.enPassantColumn == neighbourRightPosition.col && !canKillKingOnly && neighbourRight.IsWhite() != piecePosition.pieceType.IsWhite() && neighbourRight.IsPawn())
+      if (piecePosition.position.col != 7)
       {
-        moves.Add(new Move(piecePosition.position, captureRightPosition, PieceType.Nothing));
+        var captureRightPosition = new BoardPosition(piecePosition.position.col + 1, piecePosition.position.row + increment);
+        var neighbourRightPosition = new BoardPosition(piecePosition.position.col + 1, piecePosition.position.row);
+        var neighbourRight = boardState.GetPieceTypeAtPosition(neighbourRightPosition);
+        if (piecePosition.position.col != 7 && boardState.enPassantColumn == neighbourRightPosition.col && !canKillKingOnly && neighbourRight.IsWhite() != piecePosition.pieceType.IsWhite() && neighbourRight.IsPawn())
+        {
+          moves.Add(new Move(piecePosition.position, captureRightPosition, PieceType.Nothing));
+        }
       }
     }
 

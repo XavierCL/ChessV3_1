@@ -9197,7 +9197,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2bb880a5046e2804d91d2271715fec9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PrintFen: 0
+  PrintFen: 1
   gameType: 0
   gameEndState: 0
 --- !u!1 &1564330818

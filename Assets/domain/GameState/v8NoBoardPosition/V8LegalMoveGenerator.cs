@@ -2,12 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public static class V7LegalMoveGenerator
+public static class V8LegalMoveGenerator
 {
   /// <summary>
   /// Doesn't take end game draws in consideration (three-fold nor 50 moves)
   /// </summary>
-  public static List<Move> GenerateLegalMoves(this V7GameState gameState)
+  public static List<Move> GenerateLegalMoves(this V8GameState gameState)
   {
     if (gameState.staleTurns >= 100) return new List<Move>();
     if (gameState.snapshots.GetValueOrDefault(gameState.boardState) >= 2) return new List<Move>();
@@ -26,20 +26,22 @@ public static class V7LegalMoveGenerator
     return legalMoves;
   }
 
-  public static bool CanOwnKingDie(V7GameState gameState)
+  public static bool CanOwnKingDie(V8GameState gameState)
   {
     return CanKingDie(gameState.boardState, gameState.whiteTurn);
   }
 
-  private static bool CanKingDieAfterMove(V7BoardState boardState, Move ownMove, bool whiteKing)
+  private static bool CanKingDieAfterMove(V8BoardState boardState, Move ownMove, bool whiteKing)
   {
     var kingMightBeInCheckState = boardState.PlayMove(ownMove).boardState;
     return CanKingDie(kingMightBeInCheckState, whiteKing);
   }
 
-  private static bool CanKingDie(V7BoardState boardState, bool whiteKing)
+  private static bool CanKingDie(V8BoardState boardState, bool whiteKing)
   {
     var kingPosition = whiteKing ? boardState.whiteKingPosition : boardState.blackKingPosition;
+    var kingCol = kingPosition.col;
+    var kingRow = kingPosition.row;
     for (var rowIncrement = -1; rowIncrement < 2; ++rowIncrement)
     {
       for (var colIncrement = -1; colIncrement < 2; ++colIncrement)
@@ -48,10 +50,11 @@ public static class V7LegalMoveGenerator
 
         var pieceAtRay = GetRayNextPiece(boardState, kingPosition, colIncrement, rowIncrement);
         if (pieceAtRay == null || pieceAtRay.pieceType.IsWhite() == whiteKing) continue;
+        var pieceAtRayRow = pieceAtRay.position.getRow();
 
         if (pieceAtRay.pieceType.IsQueen()) return true;
 
-        var distance = Math.Max(Math.Abs(pieceAtRay.position.col - kingPosition.col), Math.Abs(pieceAtRay.position.row - kingPosition.row));
+        var distance = Math.Max(Math.Abs(pieceAtRay.position.getCol() - kingCol), Math.Abs(pieceAtRayRow - kingRow));
 
         if (distance <= 1 && pieceAtRay.pieceType.IsKing()) return true;
 
@@ -65,36 +68,24 @@ public static class V7LegalMoveGenerator
         {
           if (pieceAtRay.pieceType.IsBishop()) return true;
           if (distance > 1) continue;
-          if (pieceAtRay.pieceType.IsPawn() && (whiteKing ? (pieceAtRay.position.row == kingPosition.row + 1) : (pieceAtRay.position.row == kingPosition.row - 1))) return true;
+          if (pieceAtRay.pieceType.IsPawn() && (whiteKing ? (pieceAtRayRow == kingRow + 1) : (pieceAtRayRow == kingRow - 1))) return true;
         }
       }
     }
 
-    var jumps = new[]{
-      new { col = kingPosition.col - 2, row = kingPosition.row - 1},
-      new { col = kingPosition.col - 2, row = kingPosition.row + 1},
-      new { col = kingPosition.col - 1, row = kingPosition.row + 2},
-      new { col = kingPosition.col + 1, row = kingPosition.row + 2},
-      new { col = kingPosition.col + 2, row = kingPosition.row + 1},
-      new { col = kingPosition.col + 2, row = kingPosition.row - 1},
-      new { col = kingPosition.col - 1, row = kingPosition.row - 2},
-      new { col = kingPosition.col + 1, row = kingPosition.row - 2},
-    };
+    var jumps = V8Precomputed.knightJumps[kingPosition.index];
 
     for (var index = 0; index < jumps.Length; ++index)
     {
       var jump = jumps[index];
-      if (!BoardPosition.IsInBoard(jump.col, jump.row)) continue;
-
-      var targetPieceType = boardState.boardPieces[new BoardPosition(jump.col, jump.row).index];
-
+      var targetPieceType = boardState.boardPieces[jump];
       if (targetPieceType.IsWhite() != whiteKing && targetPieceType.IsKnight()) return true;
     }
 
     return false;
   }
 
-  private static List<Move> GeneratePseudoLegalMoves(V7BoardState boardState, bool white)
+  private static List<Move> GeneratePseudoLegalMoves(V8BoardState boardState, bool white)
   {
     var pseudoLegalMoves = new List<Move>();
 
@@ -110,7 +101,7 @@ public static class V7LegalMoveGenerator
     return pseudoLegalMoves;
   }
 
-  private static List<Move> GetPseudoLegalMoves(V7BoardState boardState, PiecePosition piecePosition)
+  private static List<Move> GetPseudoLegalMoves(V8BoardState boardState, PiecePosition piecePosition)
   {
     switch (piecePosition.pieceType)
     {
@@ -137,7 +128,7 @@ public static class V7LegalMoveGenerator
     }
   }
 
-  private static List<Move> GetPseudoLegalPawnMoves(V7BoardState boardState, PiecePosition piecePosition)
+  private static List<Move> GetPseudoLegalPawnMoves(V8BoardState boardState, PiecePosition piecePosition)
   {
     var ownPawnStartingY = piecePosition.pieceType.IsWhite() ? 1 : 6;
     var increment = piecePosition.pieceType.IsWhite() ? 1 : -1;
@@ -145,39 +136,39 @@ public static class V7LegalMoveGenerator
 
     var moves = new List<Move>(4);
 
-    var oneUpPosition = new BoardPosition(piecePosition.position.col, piecePosition.position.row + increment);
+    var oneUpPosition = V8BoardPosition.fromColRow(piecePosition.position.col, piecePosition.position.row + increment);
     var oneUpPieceExists = boardState.GetPieceTypeAtPosition(oneUpPosition) != PieceType.Nothing;
     if (!oneUpPieceExists)
     {
-      moves.Add(new Move(piecePosition.position, oneUpPosition, PieceType.Nothing));
+      moves.Add(new Move(piecePosition.position, oneUpPosition.toBoardPosition(), PieceType.Nothing));
     }
 
     if (piecePosition.position.row == ownPawnStartingY)
     {
-      var twoUpPosition = new BoardPosition(piecePosition.position.col, piecePosition.position.row + increment * 2);
+      var twoUpPosition = V8BoardPosition.fromColRow(piecePosition.position.col, piecePosition.position.row + increment * 2);
       if (!oneUpPieceExists && boardState.GetPieceTypeAtPosition(twoUpPosition) == PieceType.Nothing)
       {
-        moves.Add(new Move(piecePosition.position, twoUpPosition, PieceType.Nothing));
+        moves.Add(new Move(piecePosition.position, twoUpPosition.toBoardPosition(), PieceType.Nothing));
       }
     }
 
     if (piecePosition.position.col != 0)
     {
-      var captureLeftPosition = new BoardPosition(piecePosition.position.col - 1, piecePosition.position.row + increment);
+      var captureLeftPosition = V8BoardPosition.fromColRow(piecePosition.position.col - 1, piecePosition.position.row + increment);
       var captureLeft = boardState.GetPieceTypeAtPosition(captureLeftPosition);
       if (captureLeft != PieceType.Nothing && captureLeft.IsWhite() != piecePosition.pieceType.IsWhite())
       {
-        moves.Add(new Move(piecePosition.position, captureLeftPosition, PieceType.Nothing));
+        moves.Add(new Move(piecePosition.position, captureLeftPosition.toBoardPosition(), PieceType.Nothing));
       }
     }
 
     if (piecePosition.position.col != 7)
     {
-      var captureRightPosition = new BoardPosition(piecePosition.position.col + 1, piecePosition.position.row + increment);
+      var captureRightPosition = V8BoardPosition.fromColRow(piecePosition.position.col + 1, piecePosition.position.row + increment);
       var captureRight = boardState.GetPieceTypeAtPosition(captureRightPosition);
       if (captureRight != PieceType.Nothing && captureRight.IsWhite() != piecePosition.pieceType.IsWhite())
       {
-        moves.Add(new Move(piecePosition.position, captureRightPosition, PieceType.Nothing));
+        moves.Add(new Move(piecePosition.position, captureRightPosition.toBoardPosition(), PieceType.Nothing));
       }
     }
 
@@ -188,9 +179,9 @@ public static class V7LegalMoveGenerator
       if (piecePosition.position.col != 0)
       {
         var captureLeftPosition = new BoardPosition(piecePosition.position.col - 1, piecePosition.position.row + increment);
-        var neighbourLeftPosition = new BoardPosition(piecePosition.position.col - 1, piecePosition.position.row);
+        var neighbourLeftPosition = V8BoardPosition.fromColRow(piecePosition.position.col - 1, piecePosition.position.row);
         var neighbourLeft = boardState.GetPieceTypeAtPosition(neighbourLeftPosition);
-        if (boardState.enPassantColumn == neighbourLeftPosition.col && neighbourLeft.IsWhite() != piecePosition.pieceType.IsWhite() && neighbourLeft.IsPawn())
+        if (boardState.enPassantColumn == neighbourLeftPosition.getCol() && neighbourLeft.IsWhite() != piecePosition.pieceType.IsWhite() && neighbourLeft.IsPawn())
         {
           moves.Add(new Move(piecePosition.position, captureLeftPosition, PieceType.Nothing));
         }
@@ -199,9 +190,9 @@ public static class V7LegalMoveGenerator
       if (piecePosition.position.col != 7)
       {
         var captureRightPosition = new BoardPosition(piecePosition.position.col + 1, piecePosition.position.row + increment);
-        var neighbourRightPosition = new BoardPosition(piecePosition.position.col + 1, piecePosition.position.row);
+        var neighbourRightPosition = V8BoardPosition.fromColRow(piecePosition.position.col + 1, piecePosition.position.row);
         var neighbourRight = boardState.GetPieceTypeAtPosition(neighbourRightPosition);
-        if (piecePosition.position.col != 7 && boardState.enPassantColumn == neighbourRightPosition.col && neighbourRight.IsWhite() != piecePosition.pieceType.IsWhite() && neighbourRight.IsPawn())
+        if (boardState.enPassantColumn == neighbourRightPosition.getCol() && neighbourRight.IsWhite() != piecePosition.pieceType.IsWhite() && neighbourRight.IsPawn())
         {
           moves.Add(new Move(piecePosition.position, captureRightPosition, PieceType.Nothing));
         }
@@ -230,7 +221,7 @@ public static class V7LegalMoveGenerator
     return promotionMoves;
   }
 
-  private static List<Move> GetPseudoLegalRookMoves(V7BoardState boardState, PiecePosition piecePosition)
+  private static List<Move> GetPseudoLegalRookMoves(V8BoardState boardState, PiecePosition piecePosition)
   {
     return GetPseudoRayMoves(boardState, piecePosition.position, 1, 0, piecePosition.pieceType.IsWhite())
       .Concat(GetPseudoRayMoves(boardState, piecePosition.position, -1, 0, piecePosition.pieceType.IsWhite()))
@@ -238,33 +229,23 @@ public static class V7LegalMoveGenerator
       .Concat(GetPseudoRayMoves(boardState, piecePosition.position, 0, -1, piecePosition.pieceType.IsWhite())).ToList();
   }
 
-  private static List<Move> GetPseudoLegalKnightMoves(V7BoardState boardState, PiecePosition piecePosition)
+  private static List<Move> GetPseudoLegalKnightMoves(V8BoardState boardState, PiecePosition piecePosition)
   {
-    var jumps = new[]{
-      new { col = piecePosition.position.col - 2, row = piecePosition.position.row - 1},
-      new { col = piecePosition.position.col - 2, row = piecePosition.position.row + 1},
-      new { col = piecePosition.position.col - 1, row = piecePosition.position.row + 2},
-      new { col = piecePosition.position.col + 1, row = piecePosition.position.row + 2},
-      new { col = piecePosition.position.col + 2, row = piecePosition.position.row + 1},
-      new { col = piecePosition.position.col + 2, row = piecePosition.position.row - 1},
-      new { col = piecePosition.position.col - 1, row = piecePosition.position.row - 2},
-      new { col = piecePosition.position.col + 1, row = piecePosition.position.row - 2},
-    };
+    var validMoves = new List<Move>(8);
+    var jumps = V8Precomputed.knightJumps[piecePosition.position.index];
 
-    return jumps.Where(jump =>
+    for (var jumpIndex = 0; jumpIndex < jumps.Length; ++jumpIndex)
     {
-      if (!BoardPosition.IsInBoard(jump.col, jump.row)) return false;
+      var jump = jumps[jumpIndex];
+      var collision = boardState.GetPieceTypeAtPosition(jump);
+      if (collision != PieceType.Nothing && collision.IsWhite() == piecePosition.pieceType.IsWhite()) continue;
+      validMoves.Add(new Move(piecePosition.position, jump.toBoardPosition(), PieceType.Nothing));
+    }
 
-      var collision = boardState.GetPieceTypeAtPosition(new BoardPosition(jump.col, jump.row));
-
-      if (collision == PieceType.Nothing) return true;
-
-      return collision.IsWhite() != piecePosition.pieceType.IsWhite();
-    }).Select(jump => new Move(piecePosition.position, new BoardPosition(jump.col, jump.row), PieceType.Nothing))
-    .ToList();
+    return validMoves;
   }
 
-  private static List<Move> GetPseudoLegalBishopMoves(V7BoardState boardState, PiecePosition piecePosition)
+  private static List<Move> GetPseudoLegalBishopMoves(V8BoardState boardState, PiecePosition piecePosition)
   {
     return GetPseudoRayMoves(boardState, piecePosition.position, 1, 1, piecePosition.pieceType.IsWhite())
       .Concat(GetPseudoRayMoves(boardState, piecePosition.position, -1, 1, piecePosition.pieceType.IsWhite()))
@@ -272,7 +253,7 @@ public static class V7LegalMoveGenerator
       .Concat(GetPseudoRayMoves(boardState, piecePosition.position, 1, -1, piecePosition.pieceType.IsWhite())).ToList();
   }
 
-  private static List<Move> GetPseudoLegalQueenMoves(V7BoardState boardState, PiecePosition piecePosition)
+  private static List<Move> GetPseudoLegalQueenMoves(V8BoardState boardState, PiecePosition piecePosition)
   {
     return GetPseudoRayMoves(boardState, piecePosition.position, 1, 0, piecePosition.pieceType.IsWhite())
       .Concat(GetPseudoRayMoves(boardState, piecePosition.position, -1, 0, piecePosition.pieceType.IsWhite()))
@@ -284,7 +265,7 @@ public static class V7LegalMoveGenerator
       .Concat(GetPseudoRayMoves(boardState, piecePosition.position, 1, -1, piecePosition.pieceType.IsWhite())).ToList();
   }
 
-  private static List<Move> GetPseudoLegalKingMoves(V7BoardState boardState, PiecePosition piecePosition)
+  private static List<Move> GetPseudoLegalKingMoves(V8BoardState boardState, PiecePosition piecePosition)
   {
     var landings = new[]{
       new { col = piecePosition.position.col - 1, row = piecePosition.position.row - 1},
@@ -301,7 +282,7 @@ public static class V7LegalMoveGenerator
     {
       if (!BoardPosition.IsInBoard(landing.col, landing.row)) return false;
 
-      var collision = boardState.GetPieceTypeAtPosition(new BoardPosition(landing.col, landing.row));
+      var collision = boardState.GetPieceTypeAtPosition(V8BoardPosition.fromColRow(landing.col, landing.row));
 
       if (collision == PieceType.Nothing) return true;
 
@@ -310,10 +291,10 @@ public static class V7LegalMoveGenerator
     .ToList();
 
     var castles = new[] {
-      new { isWhite = true, canCastle = boardState.whiteCastleKingSide, emptyPositions = new List<BoardPosition>{ new BoardPosition(5, 0), new BoardPosition(6, 0) }, noCheckPositions = new List<BoardPosition>{ new BoardPosition(5, 0), new BoardPosition(6, 0) } },
-      new { isWhite = true, canCastle = boardState.whiteCastleQueenSide, emptyPositions = new List<BoardPosition>{ new BoardPosition(3, 0), new BoardPosition(2, 0), new BoardPosition(1, 0) }, noCheckPositions = new List<BoardPosition>{ new BoardPosition(3, 0), new BoardPosition(2, 0) } },
-      new { isWhite = false, canCastle = boardState.blackCastleKingSide, emptyPositions = new List<BoardPosition>{ new BoardPosition(5, 7), new BoardPosition(6, 7) }, noCheckPositions = new List<BoardPosition>{ new BoardPosition(5, 7), new BoardPosition(6, 7) } },
-      new { isWhite = false, canCastle = boardState.blackCastleQueenSide, emptyPositions = new List<BoardPosition>{ new BoardPosition(3, 7), new BoardPosition(2, 7), new BoardPosition(1, 7) }, noCheckPositions = new List<BoardPosition>{ new BoardPosition(3, 7), new BoardPosition(2, 7) } },
+      new { isWhite = true, canCastle = boardState.whiteCastleKingSide, emptyPositions = new List<int>{ V8BoardPosition.fromColRow(5, 0), V8BoardPosition.fromColRow(6, 0) }, noCheckPositions = new List<BoardPosition>{ new BoardPosition(5, 0), new BoardPosition(6, 0) } },
+      new { isWhite = true, canCastle = boardState.whiteCastleQueenSide, emptyPositions = new List<int>{ V8BoardPosition.fromColRow(3, 0), V8BoardPosition.fromColRow(2, 0), V8BoardPosition.fromColRow(1, 0) }, noCheckPositions = new List<BoardPosition>{ new BoardPosition(3, 0), new BoardPosition(2, 0) } },
+      new { isWhite = false, canCastle = boardState.blackCastleKingSide, emptyPositions = new List<int>{ V8BoardPosition.fromColRow(5, 7), V8BoardPosition.fromColRow(6, 7) }, noCheckPositions = new List<BoardPosition>{ new BoardPosition(5, 7), new BoardPosition(6, 7) } },
+      new { isWhite = false, canCastle = boardState.blackCastleQueenSide, emptyPositions = new List<int>{ V8BoardPosition.fromColRow(3, 7), V8BoardPosition.fromColRow(2, 7), V8BoardPosition.fromColRow(1, 7) }, noCheckPositions = new List<BoardPosition>{ new BoardPosition(3, 7), new BoardPosition(2, 7) } },
     };
 
     var rockMoves = castles.Where(rock =>
@@ -345,18 +326,19 @@ public static class V7LegalMoveGenerator
     return normalMoves.Concat(rockMoves).ToList();
   }
 
-  private static List<Move> GetPseudoRayMoves(V7BoardState boardState, BoardPosition position, int colIncrement, int rowIncrement, bool isWhite)
+  private static List<Move> GetPseudoRayMoves(V8BoardState boardState, BoardPosition position, int colIncrement, int rowIncrement, bool isWhite)
   {
     var moves = new List<Move>();
     var col = position.col + colIncrement;
     var row = position.row + rowIncrement;
     while (col <= 7 && col >= 0 && row <= 7 && row >= 0)
     {
-      var foundCollision = boardState.GetPieceTypeAtPosition(new BoardPosition(col, row));
+      var currentPosition = V8BoardPosition.fromColRow(col, row);
+      var foundCollision = boardState.GetPieceTypeAtPosition(currentPosition);
 
       if (foundCollision != PieceType.Nothing && foundCollision.IsWhite() == isWhite) return moves;
 
-      moves.Add(new Move(position, new BoardPosition(col, row), PieceType.Nothing));
+      moves.Add(new Move(position, currentPosition.toBoardPosition(), PieceType.Nothing));
 
       if (foundCollision != PieceType.Nothing) return moves;
 
@@ -367,15 +349,16 @@ public static class V7LegalMoveGenerator
     return moves;
   }
 
-  private static PiecePosition GetRayNextPiece(V7BoardState boardState, BoardPosition position, int colIncrement, int rowIncrement)
+  private static V8PiecePosition GetRayNextPiece(V8BoardState boardState, BoardPosition position, int colIncrement, int rowIncrement)
   {
     var col = position.col + colIncrement;
     var row = position.row + rowIncrement;
     while (col <= 7 && col >= 0 && row <= 7 && row >= 0)
     {
-      var foundCollision = boardState.GetPieceTypeAtPosition(new BoardPosition(col, row));
+      var currentPosition = V8BoardPosition.fromColRow(col, row);
+      var foundCollision = boardState.GetPieceTypeAtPosition(currentPosition);
 
-      if (foundCollision != PieceType.Nothing) return new PiecePosition("", foundCollision, new BoardPosition(col, row));
+      if (foundCollision != PieceType.Nothing) return new V8PiecePosition(foundCollision, currentPosition);
 
       col += colIncrement;
       row += rowIncrement;

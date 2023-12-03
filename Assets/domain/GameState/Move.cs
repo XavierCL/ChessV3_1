@@ -3,9 +3,9 @@ using System.Diagnostics;
 [DebuggerDisplay("{source.pretty}{target.pretty}")]
 public class Move
 {
-    public BoardPosition source { get; }
-    public BoardPosition target { get; }
-    public PieceType promotion { get; }
+    public readonly BoardPosition source;
+    public readonly BoardPosition target;
+    public readonly PieceType promotion;
 
     public Move(BoardPosition source, BoardPosition target, PieceType promotion)
     {

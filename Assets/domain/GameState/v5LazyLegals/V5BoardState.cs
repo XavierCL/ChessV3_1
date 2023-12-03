@@ -201,10 +201,10 @@ public class V5BoardState : BoardStateInterface
       newBoardPieces[killedPiece.position.index] = PieceType.Nothing;
     }
 
-    var lostWhiteKingCastleRight = this.whiteCastleKingSide && (sourcePiece.pieceType == PieceType.WhiteKing || sourcePiece.position.Equals(new BoardPosition(7, 0)));
-    var lostWhiteQueenCastleRight = this.whiteCastleQueenSide && (sourcePiece.pieceType == PieceType.WhiteKing || sourcePiece.position.Equals(new BoardPosition(0, 0)));
-    var lostBlackKingCastleRight = this.blackCastleKingSide && (sourcePiece.pieceType == PieceType.BlackKing || sourcePiece.position.Equals(new BoardPosition(7, 7)));
-    var lostBlackQueenCastleRight = this.blackCastleQueenSide && (sourcePiece.pieceType == PieceType.BlackKing || sourcePiece.position.Equals(new BoardPosition(0, 7)));
+    var lostWhiteKingCastleRight = this.whiteCastleKingSide && (sourcePiece.pieceType == PieceType.WhiteKing || move.source.Equals(new BoardPosition(7, 0)) || move.target.Equals(new BoardPosition(7, 0)));
+    var lostWhiteQueenCastleRight = this.whiteCastleQueenSide && (sourcePiece.pieceType == PieceType.WhiteKing || move.source.Equals(new BoardPosition(0, 0)) || move.target.Equals(new BoardPosition(0, 0)));
+    var lostBlackKingCastleRight = this.blackCastleKingSide && (sourcePiece.pieceType == PieceType.BlackKing || move.source.Equals(new BoardPosition(7, 7)) || move.target.Equals(new BoardPosition(7, 7)));
+    var lostBlackQueenCastleRight = this.blackCastleQueenSide && (sourcePiece.pieceType == PieceType.BlackKing || move.source.Equals(new BoardPosition(0, 7)) || move.target.Equals(new BoardPosition(0, 7)));
 
     var whiteCastleKingSide = this.whiteCastleKingSide && !lostWhiteKingCastleRight;
     var whiteCastleQueenSide = this.whiteCastleQueenSide && !lostWhiteQueenCastleRight;
