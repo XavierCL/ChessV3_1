@@ -24,6 +24,8 @@ public struct BoardPosition
         return row >= 0 && row <= 7 && col >= 0 && col <= 7;
     }
 
+    public static int fromColRow(int col, int row) => row * 8 + col;
+
     public override int GetHashCode()
     {
         return index;
@@ -34,4 +36,11 @@ public struct BoardPosition
         var other = (BoardPosition)obj;
         return index == other.index;
     }
+}
+
+public static class BoardPositionExtensions
+{
+    public static int getCol(this int index) => index % 8;
+    public static int getRow(this int index) => index / 8;
+    public static BoardPosition toBoardPosition(this int index) => new BoardPosition(index);
 }

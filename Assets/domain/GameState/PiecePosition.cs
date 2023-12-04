@@ -1,7 +1,7 @@
 
 using System.Diagnostics;
 
-[DebuggerDisplay("{pieceType} ({position.col}, {position.row})")]
+[DebuggerDisplay("{pieceType} {position.pretty}")]
 public class PiecePosition
 {
   public readonly string id;
