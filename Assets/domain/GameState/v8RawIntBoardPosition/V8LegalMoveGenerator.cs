@@ -136,7 +136,7 @@ public static class V8LegalMoveGenerator
 
     var moves = new List<Move>(4);
 
-    var oneUpPosition = V8BoardPosition.fromColRow(piecePosition.position.col, piecePosition.position.row + increment);
+    var oneUpPosition = BoardPosition.fromColRow(piecePosition.position.col, piecePosition.position.row + increment);
     var oneUpPieceExists = boardState.GetPieceTypeAtPosition(oneUpPosition) != PieceType.Nothing;
     if (!oneUpPieceExists)
     {
@@ -145,7 +145,7 @@ public static class V8LegalMoveGenerator
 
     if (piecePosition.position.row == ownPawnStartingY)
     {
-      var twoUpPosition = V8BoardPosition.fromColRow(piecePosition.position.col, piecePosition.position.row + increment * 2);
+      var twoUpPosition = BoardPosition.fromColRow(piecePosition.position.col, piecePosition.position.row + increment * 2);
       if (!oneUpPieceExists && boardState.GetPieceTypeAtPosition(twoUpPosition) == PieceType.Nothing)
       {
         moves.Add(new Move(piecePosition.position, twoUpPosition.toBoardPosition(), PieceType.Nothing));
@@ -154,7 +154,7 @@ public static class V8LegalMoveGenerator
 
     if (piecePosition.position.col != 0)
     {
-      var captureLeftPosition = V8BoardPosition.fromColRow(piecePosition.position.col - 1, piecePosition.position.row + increment);
+      var captureLeftPosition = BoardPosition.fromColRow(piecePosition.position.col - 1, piecePosition.position.row + increment);
       var captureLeft = boardState.GetPieceTypeAtPosition(captureLeftPosition);
       if (captureLeft != PieceType.Nothing && captureLeft.IsWhite() != piecePosition.pieceType.IsWhite())
       {
@@ -164,7 +164,7 @@ public static class V8LegalMoveGenerator
 
     if (piecePosition.position.col != 7)
     {
-      var captureRightPosition = V8BoardPosition.fromColRow(piecePosition.position.col + 1, piecePosition.position.row + increment);
+      var captureRightPosition = BoardPosition.fromColRow(piecePosition.position.col + 1, piecePosition.position.row + increment);
       var captureRight = boardState.GetPieceTypeAtPosition(captureRightPosition);
       if (captureRight != PieceType.Nothing && captureRight.IsWhite() != piecePosition.pieceType.IsWhite())
       {
@@ -179,7 +179,7 @@ public static class V8LegalMoveGenerator
       if (piecePosition.position.col != 0)
       {
         var captureLeftPosition = new BoardPosition(piecePosition.position.col - 1, piecePosition.position.row + increment);
-        var neighbourLeftPosition = V8BoardPosition.fromColRow(piecePosition.position.col - 1, piecePosition.position.row);
+        var neighbourLeftPosition = BoardPosition.fromColRow(piecePosition.position.col - 1, piecePosition.position.row);
         var neighbourLeft = boardState.GetPieceTypeAtPosition(neighbourLeftPosition);
         if (boardState.enPassantColumn == neighbourLeftPosition.getCol() && neighbourLeft.IsWhite() != piecePosition.pieceType.IsWhite() && neighbourLeft.IsPawn())
         {
@@ -190,7 +190,7 @@ public static class V8LegalMoveGenerator
       if (piecePosition.position.col != 7)
       {
         var captureRightPosition = new BoardPosition(piecePosition.position.col + 1, piecePosition.position.row + increment);
-        var neighbourRightPosition = V8BoardPosition.fromColRow(piecePosition.position.col + 1, piecePosition.position.row);
+        var neighbourRightPosition = BoardPosition.fromColRow(piecePosition.position.col + 1, piecePosition.position.row);
         var neighbourRight = boardState.GetPieceTypeAtPosition(neighbourRightPosition);
         if (boardState.enPassantColumn == neighbourRightPosition.getCol() && neighbourRight.IsWhite() != piecePosition.pieceType.IsWhite() && neighbourRight.IsPawn())
         {
@@ -282,7 +282,7 @@ public static class V8LegalMoveGenerator
     {
       if (!BoardPosition.IsInBoard(landing.col, landing.row)) return false;
 
-      var collision = boardState.GetPieceTypeAtPosition(V8BoardPosition.fromColRow(landing.col, landing.row));
+      var collision = boardState.GetPieceTypeAtPosition(BoardPosition.fromColRow(landing.col, landing.row));
 
       if (collision == PieceType.Nothing) return true;
 
@@ -291,10 +291,10 @@ public static class V8LegalMoveGenerator
     .ToList();
 
     var castles = new[] {
-      new { isWhite = true, canCastle = boardState.whiteCastleKingSide, emptyPositions = new List<int>{ V8BoardPosition.fromColRow(5, 0), V8BoardPosition.fromColRow(6, 0) }, noCheckPositions = new List<BoardPosition>{ new BoardPosition(5, 0), new BoardPosition(6, 0) } },
-      new { isWhite = true, canCastle = boardState.whiteCastleQueenSide, emptyPositions = new List<int>{ V8BoardPosition.fromColRow(3, 0), V8BoardPosition.fromColRow(2, 0), V8BoardPosition.fromColRow(1, 0) }, noCheckPositions = new List<BoardPosition>{ new BoardPosition(3, 0), new BoardPosition(2, 0) } },
-      new { isWhite = false, canCastle = boardState.blackCastleKingSide, emptyPositions = new List<int>{ V8BoardPosition.fromColRow(5, 7), V8BoardPosition.fromColRow(6, 7) }, noCheckPositions = new List<BoardPosition>{ new BoardPosition(5, 7), new BoardPosition(6, 7) } },
-      new { isWhite = false, canCastle = boardState.blackCastleQueenSide, emptyPositions = new List<int>{ V8BoardPosition.fromColRow(3, 7), V8BoardPosition.fromColRow(2, 7), V8BoardPosition.fromColRow(1, 7) }, noCheckPositions = new List<BoardPosition>{ new BoardPosition(3, 7), new BoardPosition(2, 7) } },
+      new { isWhite = true, canCastle = boardState.whiteCastleKingSide, emptyPositions = new List<int>{ BoardPosition.fromColRow(5, 0), BoardPosition.fromColRow(6, 0) }, noCheckPositions = new List<BoardPosition>{ new BoardPosition(5, 0), new BoardPosition(6, 0) } },
+      new { isWhite = true, canCastle = boardState.whiteCastleQueenSide, emptyPositions = new List<int>{ BoardPosition.fromColRow(3, 0), BoardPosition.fromColRow(2, 0), BoardPosition.fromColRow(1, 0) }, noCheckPositions = new List<BoardPosition>{ new BoardPosition(3, 0), new BoardPosition(2, 0) } },
+      new { isWhite = false, canCastle = boardState.blackCastleKingSide, emptyPositions = new List<int>{ BoardPosition.fromColRow(5, 7), BoardPosition.fromColRow(6, 7) }, noCheckPositions = new List<BoardPosition>{ new BoardPosition(5, 7), new BoardPosition(6, 7) } },
+      new { isWhite = false, canCastle = boardState.blackCastleQueenSide, emptyPositions = new List<int>{ BoardPosition.fromColRow(3, 7), BoardPosition.fromColRow(2, 7), BoardPosition.fromColRow(1, 7) }, noCheckPositions = new List<BoardPosition>{ new BoardPosition(3, 7), new BoardPosition(2, 7) } },
     };
 
     var rockMoves = castles.Where(rock =>
@@ -333,7 +333,7 @@ public static class V8LegalMoveGenerator
     var row = position.row + rowIncrement;
     while (col <= 7 && col >= 0 && row <= 7 && row >= 0)
     {
-      var currentPosition = V8BoardPosition.fromColRow(col, row);
+      var currentPosition = BoardPosition.fromColRow(col, row);
       var foundCollision = boardState.GetPieceTypeAtPosition(currentPosition);
 
       if (foundCollision != PieceType.Nothing && foundCollision.IsWhite() == isWhite) return moves;
@@ -355,7 +355,7 @@ public static class V8LegalMoveGenerator
     var row = position.row + rowIncrement;
     while (col <= 7 && col >= 0 && row <= 7 && row >= 0)
     {
-      var currentPosition = V8BoardPosition.fromColRow(col, row);
+      var currentPosition = BoardPosition.fromColRow(col, row);
       var foundCollision = boardState.GetPieceTypeAtPosition(currentPosition);
 
       if (foundCollision != PieceType.Nothing) return new V8PiecePosition(foundCollision, currentPosition);

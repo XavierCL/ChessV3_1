@@ -15,27 +15,27 @@ public class V9BoardState : BoardStateInterface
 
       _piecePositions = new List<PiecePosition>(40);
 
-      for (var index = 0; index < boardPieces.Length; ++index)
+      var currentBitBoard = allBitBoard;
+      while (currentBitBoard != 0)
       {
-        var pieceType = boardPieces[index];
-        if (pieceType != PieceType.Nothing)
-        {
-          _piecePositions.Add(new PiecePosition("", pieceType, new BoardPosition(index)));
-        }
+        var nextPiece = currentBitBoard.lsb();
+        currentBitBoard ^= 1ul << nextPiece;
+        _piecePositions.Add(new PiecePosition("", boardPieces[nextPiece], new BoardPosition(nextPiece)));
       }
 
       return _piecePositions;
     }
   }
 
+  public readonly ulong allBitBoard;
   public readonly PieceType[] boardPieces;
   public bool whiteCastleKingSide { get; }
   public bool whiteCastleQueenSide { get; }
   public bool blackCastleKingSide { get; }
   public bool blackCastleQueenSide { get; }
   public int enPassantColumn { get; }
-  public BoardPosition whiteKingPosition { get; }
-  public BoardPosition blackKingPosition { get; }
+  public readonly int whiteKingPosition;
+  public readonly int blackKingPosition;
 
   public V9BoardState()
   {
@@ -44,6 +44,7 @@ public class V9BoardState : BoardStateInterface
     blackCastleKingSide = true;
     blackCastleQueenSide = true;
     enPassantColumn = -1;
+    allBitBoard = 0;
 
     var piecePositions = new List<PiecePosition> {
       new PiecePosition("a1", PieceType.WhiteRook, new BoardPosition(0, 0)),
@@ -84,15 +85,16 @@ public class V9BoardState : BoardStateInterface
     foreach (var piecePosition in piecePositions)
     {
       boardPieces[piecePosition.position.index] = piecePosition.pieceType;
+      allBitBoard ^= 1ul << piecePosition.position.index;
       if (piecePosition.pieceType.IsKing())
       {
         if (piecePosition.pieceType.IsWhite())
         {
-          whiteKingPosition = piecePosition.position;
+          whiteKingPosition = piecePosition.position.index;
         }
         else
         {
-          blackKingPosition = piecePosition.position;
+          blackKingPosition = piecePosition.position.index;
         }
       }
     }
@@ -106,28 +108,31 @@ public class V9BoardState : BoardStateInterface
     blackCastleKingSide = other.blackCastleKingSide;
     blackCastleQueenSide = other.blackCastleQueenSide;
     enPassantColumn = other.enPassantColumn;
+    allBitBoard = 0;
 
     boardPieces = new PieceType[64];
     foreach (var piecePosition in other.piecePositions)
     {
       boardPieces[piecePosition.position.index] = piecePosition.pieceType;
+      allBitBoard ^= 1ul << piecePosition.position.index;
       if (piecePosition.pieceType.IsKing())
       {
         if (piecePosition.pieceType.IsWhite())
         {
-          whiteKingPosition = piecePosition.position;
+          whiteKingPosition = piecePosition.position.index;
         }
         else
         {
-          blackKingPosition = piecePosition.position;
+          blackKingPosition = piecePosition.position.index;
         }
       }
     }
   }
 
-  public V9BoardState(PieceType[] boardPieces, bool whiteCastleKingSide, bool whiteCastleQueenSide, bool blackCastleKingSide, bool blackCastleQueenSide, int enPassantColumn, BoardPosition whiteKingPosition, BoardPosition blackKingPosition)
+  public V9BoardState(PieceType[] boardPieces, ulong allBitBoard, bool whiteCastleKingSide, bool whiteCastleQueenSide, bool blackCastleKingSide, bool blackCastleQueenSide, int enPassantColumn, int whiteKingPosition, int blackKingPosition)
   {
     this.boardPieces = boardPieces;
+    this.allBitBoard = allBitBoard;
     this.whiteCastleKingSide = whiteCastleKingSide;
     this.whiteCastleQueenSide = whiteCastleQueenSide;
     this.blackCastleKingSide = blackCastleKingSide;
@@ -144,20 +149,22 @@ public class V9BoardState : BoardStateInterface
     this.blackCastleKingSide = blackCastleKingSide;
     this.blackCastleQueenSide = blackCastleQueenSide;
     enPassantColumn = -1;
+    allBitBoard = 0;
 
     boardPieces = new PieceType[64];
     foreach (var piecePosition in piecePositions)
     {
       boardPieces[piecePosition.position.index] = piecePosition.pieceType;
+      allBitBoard ^= 1ul << piecePosition.position.index;
       if (piecePosition.pieceType.IsKing())
       {
         if (piecePosition.pieceType.IsWhite())
         {
-          whiteKingPosition = piecePosition.position;
+          whiteKingPosition = piecePosition.position.index;
         }
         else
         {
-          blackKingPosition = piecePosition.position;
+          blackKingPosition = piecePosition.position.index;
         }
       }
     }
@@ -180,6 +187,7 @@ public class V9BoardState : BoardStateInterface
   public BoardStatePlay PlayMove(Move move)
   {
     var newBoardPieces = new PieceType[64];
+    var newAllBitBoard = allBitBoard;
     Array.Copy(boardPieces, newBoardPieces, 64);
     PiecePosition killedPiece = null;
 
@@ -188,6 +196,7 @@ public class V9BoardState : BoardStateInterface
     {
       killedPiece = new PiecePosition("0", killedPieceType, move.target);
       newBoardPieces[killedPiece.position.index] = PieceType.Nothing;
+      newAllBitBoard ^= 1ul << killedPiece.position.index;
     }
 
     var sourcePieceType = newBoardPieces[move.source.index];
@@ -201,6 +210,8 @@ public class V9BoardState : BoardStateInterface
 
     newBoardPieces[move.target.index] = move.promotion == PieceType.Nothing ? newBoardPieces[sourcePiece.position.index] : move.promotion;
     newBoardPieces[move.source.index] = PieceType.Nothing;
+    newAllBitBoard ^= 1ul << move.target.index;
+    newAllBitBoard ^= 1ul << move.source.index;
 
     // En passant
     if (sourcePieceType.IsPawn() && move.source.col != move.target.col && killedPiece == null)
@@ -208,12 +219,13 @@ public class V9BoardState : BoardStateInterface
       var killedPiecePosition = new BoardPosition(move.target.col, move.source.row);
       killedPiece = new PiecePosition("0", boardPieces[killedPiecePosition.index], killedPiecePosition);
       newBoardPieces[killedPiece.position.index] = PieceType.Nothing;
+      newAllBitBoard ^= 1ul << killedPiece.position.index;
     }
 
-    var whiteKingRookPosition = V9BoardPosition.fromColRow(7, 0);
-    var whiteQueenRookPosition = V9BoardPosition.fromColRow(0, 0);
-    var blackKingRookPosition = V9BoardPosition.fromColRow(7, 7);
-    var blackQueenRookPosition = V9BoardPosition.fromColRow(0, 7);
+    var whiteKingRookPosition = BoardPosition.fromColRow(7, 0);
+    var whiteQueenRookPosition = BoardPosition.fromColRow(0, 0);
+    var blackKingRookPosition = BoardPosition.fromColRow(7, 7);
+    var blackQueenRookPosition = BoardPosition.fromColRow(0, 7);
 
     var lostWhiteKingCastleRight = this.whiteCastleKingSide && (sourcePiece.pieceType == PieceType.WhiteKing || move.source.index == whiteKingRookPosition || move.target.index == whiteKingRookPosition);
     var lostWhiteQueenCastleRight = this.whiteCastleQueenSide && (sourcePiece.pieceType == PieceType.WhiteKing || move.source.index == whiteQueenRookPosition || move.target.index == whiteQueenRookPosition);
@@ -230,29 +242,31 @@ public class V9BoardState : BoardStateInterface
     {
       var oldRookPosition = 0;
       var newRookPosition = 0;
-      if (move.source.index == V9BoardPosition.fromColRow(4, 0) && move.target.index == V9BoardPosition.fromColRow(6, 0))
+      if (move.source.index == BoardPosition.fromColRow(4, 0) && move.target.index == BoardPosition.fromColRow(6, 0))
       {
-        oldRookPosition = V9BoardPosition.fromColRow(7, 0);
-        newRookPosition = V9BoardPosition.fromColRow(5, 0);
+        oldRookPosition = BoardPosition.fromColRow(7, 0);
+        newRookPosition = BoardPosition.fromColRow(5, 0);
       }
-      else if (move.source.index == V9BoardPosition.fromColRow(4, 0) && move.target.index == V9BoardPosition.fromColRow(2, 0))
+      else if (move.source.index == BoardPosition.fromColRow(4, 0) && move.target.index == BoardPosition.fromColRow(2, 0))
       {
-        oldRookPosition = V9BoardPosition.fromColRow(0, 0);
-        newRookPosition = V9BoardPosition.fromColRow(3, 0);
+        oldRookPosition = BoardPosition.fromColRow(0, 0);
+        newRookPosition = BoardPosition.fromColRow(3, 0);
       }
-      else if (move.source.index == V9BoardPosition.fromColRow(4, 7) && move.target.index == V9BoardPosition.fromColRow(6, 7))
+      else if (move.source.index == BoardPosition.fromColRow(4, 7) && move.target.index == BoardPosition.fromColRow(6, 7))
       {
-        oldRookPosition = V9BoardPosition.fromColRow(7, 7);
-        newRookPosition = V9BoardPosition.fromColRow(5, 7);
+        oldRookPosition = BoardPosition.fromColRow(7, 7);
+        newRookPosition = BoardPosition.fromColRow(5, 7);
       }
-      else if (move.source.index == V9BoardPosition.fromColRow(4, 7) && move.target.index == V9BoardPosition.fromColRow(2, 7))
+      else if (move.source.index == BoardPosition.fromColRow(4, 7) && move.target.index == BoardPosition.fromColRow(2, 7))
       {
-        oldRookPosition = V9BoardPosition.fromColRow(0, 7);
-        newRookPosition = V9BoardPosition.fromColRow(3, 7);
+        oldRookPosition = BoardPosition.fromColRow(0, 7);
+        newRookPosition = BoardPosition.fromColRow(3, 7);
       }
 
       newBoardPieces[newRookPosition] = newBoardPieces[oldRookPosition];
       newBoardPieces[oldRookPosition] = PieceType.Nothing;
+      newAllBitBoard ^= 1ul << newRookPosition;
+      newAllBitBoard ^= 1ul << oldRookPosition;
     }
 
     var enPassantColumn = sourcePiece.pieceType.IsPawn() && Math.Abs(move.source.row - move.target.row) == 2 ? move.source.col : -1;
@@ -263,17 +277,18 @@ public class V9BoardState : BoardStateInterface
     {
       if (sourcePiece.pieceType.IsWhite())
       {
-        whiteKingPosition = move.target;
+        whiteKingPosition = move.target.index;
       }
       else
       {
-        blackKingPosition = move.target;
+        blackKingPosition = move.target.index;
       }
     }
 
     return new BoardStatePlay(
       new V9BoardState(
         newBoardPieces,
+        newAllBitBoard,
         whiteCastleKingSide,
         whiteCastleQueenSide,
         blackCastleKingSide,
@@ -290,6 +305,7 @@ public class V9BoardState : BoardStateInterface
   public V9BoardState UndoMove(ReversibleMove reversibleMove)
   {
     var newBoardPieces = (PieceType[])boardPieces.Clone();
+    var newAllBitBoard = allBitBoard;
     var sourcePieceType = newBoardPieces[reversibleMove.target.index];
 
     if (sourcePieceType == PieceType.Nothing)
@@ -300,10 +316,13 @@ public class V9BoardState : BoardStateInterface
     var oldSourcePieceType = reversibleMove.pawnPromoted ? sourcePieceType.IsWhite() ? PieceType.WhitePawn : PieceType.BlackPawn : sourcePieceType;
     newBoardPieces[reversibleMove.target.index] = PieceType.Nothing;
     newBoardPieces[reversibleMove.source.index] = oldSourcePieceType;
+    newAllBitBoard ^= 1ul << reversibleMove.target.index;
+    newAllBitBoard ^= 1ul << reversibleMove.source.index;
 
     if (reversibleMove.killed != null)
     {
       newBoardPieces[reversibleMove.killed.position.index] = reversibleMove.killed.pieceType;
+      newAllBitBoard ^= 1ul << reversibleMove.killed.position.index;
     }
 
     var whiteCastleKingSide = this.whiteCastleKingSide;
@@ -322,29 +341,31 @@ public class V9BoardState : BoardStateInterface
       var newRookPosition = 0;
       var oldRookPosition = 0;
 
-      if (reversibleMove.source.index == V9BoardPosition.fromColRow(4, 0) && reversibleMove.target.index == V9BoardPosition.fromColRow(6, 0))
+      if (reversibleMove.source.index == BoardPosition.fromColRow(4, 0) && reversibleMove.target.index == BoardPosition.fromColRow(6, 0))
       {
-        oldRookPosition = V9BoardPosition.fromColRow(7, 0);
-        newRookPosition = V9BoardPosition.fromColRow(5, 0);
+        oldRookPosition = BoardPosition.fromColRow(7, 0);
+        newRookPosition = BoardPosition.fromColRow(5, 0);
       }
-      else if (reversibleMove.source.index == V9BoardPosition.fromColRow(4, 0) && reversibleMove.target.index == V9BoardPosition.fromColRow(2, 0))
+      else if (reversibleMove.source.index == BoardPosition.fromColRow(4, 0) && reversibleMove.target.index == BoardPosition.fromColRow(2, 0))
       {
-        oldRookPosition = V9BoardPosition.fromColRow(0, 0);
-        newRookPosition = V9BoardPosition.fromColRow(3, 0);
+        oldRookPosition = BoardPosition.fromColRow(0, 0);
+        newRookPosition = BoardPosition.fromColRow(3, 0);
       }
-      else if (reversibleMove.source.index == V9BoardPosition.fromColRow(4, 7) && reversibleMove.target.index == V9BoardPosition.fromColRow(6, 7))
+      else if (reversibleMove.source.index == BoardPosition.fromColRow(4, 7) && reversibleMove.target.index == BoardPosition.fromColRow(6, 7))
       {
-        oldRookPosition = V9BoardPosition.fromColRow(7, 7);
-        newRookPosition = V9BoardPosition.fromColRow(5, 7);
+        oldRookPosition = BoardPosition.fromColRow(7, 7);
+        newRookPosition = BoardPosition.fromColRow(5, 7);
       }
-      else if (reversibleMove.source.index == V9BoardPosition.fromColRow(4, 7) && reversibleMove.target.index == V9BoardPosition.fromColRow(2, 7))
+      else if (reversibleMove.source.index == BoardPosition.fromColRow(4, 7) && reversibleMove.target.index == BoardPosition.fromColRow(2, 7))
       {
-        oldRookPosition = V9BoardPosition.fromColRow(0, 7);
-        newRookPosition = V9BoardPosition.fromColRow(3, 7);
+        oldRookPosition = BoardPosition.fromColRow(0, 7);
+        newRookPosition = BoardPosition.fromColRow(3, 7);
       }
 
       newBoardPieces[oldRookPosition] = newBoardPieces[newRookPosition];
       newBoardPieces[newRookPosition] = PieceType.Nothing;
+      newAllBitBoard ^= 1ul << oldRookPosition;
+      newAllBitBoard ^= 1ul << newRookPosition;
     }
 
     var whiteKingPosition = this.whiteKingPosition;
@@ -354,16 +375,17 @@ public class V9BoardState : BoardStateInterface
     {
       if (sourcePieceType.IsWhite())
       {
-        whiteKingPosition = reversibleMove.source;
+        whiteKingPosition = reversibleMove.source.index;
       }
       else
       {
-        blackKingPosition = reversibleMove.source;
+        blackKingPosition = reversibleMove.source.index;
       }
     }
 
     return new V9BoardState(
       newBoardPieces,
+      newAllBitBoard,
       whiteCastleKingSide,
       whiteCastleQueenSide,
       blackCastleKingSide,
@@ -386,7 +408,8 @@ public class V9BoardState : BoardStateInterface
     || whiteCastleQueenSide != other.whiteCastleQueenSide
     || blackCastleKingSide != other.blackCastleKingSide
     || blackCastleQueenSide != other.blackCastleQueenSide
-    || enPassantColumn != other.enPassantColumn) return false;
+    || enPassantColumn != other.enPassantColumn
+    || allBitBoard != other.allBitBoard) return false;
 
     for (var index = 0; index < boardPieces.Length; ++index)
     {

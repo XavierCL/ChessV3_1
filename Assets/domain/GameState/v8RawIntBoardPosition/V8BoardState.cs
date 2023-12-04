@@ -210,10 +210,10 @@ public class V8BoardState : BoardStateInterface
       newBoardPieces[killedPiece.position.index] = PieceType.Nothing;
     }
 
-    var whiteKingRookPosition = V8BoardPosition.fromColRow(7, 0);
-    var whiteQueenRookPosition = V8BoardPosition.fromColRow(0, 0);
-    var blackKingRookPosition = V8BoardPosition.fromColRow(7, 7);
-    var blackQueenRookPosition = V8BoardPosition.fromColRow(0, 7);
+    var whiteKingRookPosition = BoardPosition.fromColRow(7, 0);
+    var whiteQueenRookPosition = BoardPosition.fromColRow(0, 0);
+    var blackKingRookPosition = BoardPosition.fromColRow(7, 7);
+    var blackQueenRookPosition = BoardPosition.fromColRow(0, 7);
 
     var lostWhiteKingCastleRight = this.whiteCastleKingSide && (sourcePiece.pieceType == PieceType.WhiteKing || move.source.index == whiteKingRookPosition || move.target.index == whiteKingRookPosition);
     var lostWhiteQueenCastleRight = this.whiteCastleQueenSide && (sourcePiece.pieceType == PieceType.WhiteKing || move.source.index == whiteQueenRookPosition || move.target.index == whiteQueenRookPosition);
@@ -230,25 +230,25 @@ public class V8BoardState : BoardStateInterface
     {
       var oldRookPosition = 0;
       var newRookPosition = 0;
-      if (move.source.index == V8BoardPosition.fromColRow(4, 0) && move.target.index == V8BoardPosition.fromColRow(6, 0))
+      if (move.source.index == BoardPosition.fromColRow(4, 0) && move.target.index == BoardPosition.fromColRow(6, 0))
       {
-        oldRookPosition = V8BoardPosition.fromColRow(7, 0);
-        newRookPosition = V8BoardPosition.fromColRow(5, 0);
+        oldRookPosition = BoardPosition.fromColRow(7, 0);
+        newRookPosition = BoardPosition.fromColRow(5, 0);
       }
-      else if (move.source.index == V8BoardPosition.fromColRow(4, 0) && move.target.index == V8BoardPosition.fromColRow(2, 0))
+      else if (move.source.index == BoardPosition.fromColRow(4, 0) && move.target.index == BoardPosition.fromColRow(2, 0))
       {
-        oldRookPosition = V8BoardPosition.fromColRow(0, 0);
-        newRookPosition = V8BoardPosition.fromColRow(3, 0);
+        oldRookPosition = BoardPosition.fromColRow(0, 0);
+        newRookPosition = BoardPosition.fromColRow(3, 0);
       }
-      else if (move.source.index == V8BoardPosition.fromColRow(4, 7) && move.target.index == V8BoardPosition.fromColRow(6, 7))
+      else if (move.source.index == BoardPosition.fromColRow(4, 7) && move.target.index == BoardPosition.fromColRow(6, 7))
       {
-        oldRookPosition = V8BoardPosition.fromColRow(7, 7);
-        newRookPosition = V8BoardPosition.fromColRow(5, 7);
+        oldRookPosition = BoardPosition.fromColRow(7, 7);
+        newRookPosition = BoardPosition.fromColRow(5, 7);
       }
-      else if (move.source.index == V8BoardPosition.fromColRow(4, 7) && move.target.index == V8BoardPosition.fromColRow(2, 7))
+      else if (move.source.index == BoardPosition.fromColRow(4, 7) && move.target.index == BoardPosition.fromColRow(2, 7))
       {
-        oldRookPosition = V8BoardPosition.fromColRow(0, 7);
-        newRookPosition = V8BoardPosition.fromColRow(3, 7);
+        oldRookPosition = BoardPosition.fromColRow(0, 7);
+        newRookPosition = BoardPosition.fromColRow(3, 7);
       }
 
       newBoardPieces[newRookPosition] = newBoardPieces[oldRookPosition];
@@ -322,25 +322,25 @@ public class V8BoardState : BoardStateInterface
       var newRookPosition = 0;
       var oldRookPosition = 0;
 
-      if (reversibleMove.source.index == V8BoardPosition.fromColRow(4, 0) && reversibleMove.target.index == V8BoardPosition.fromColRow(6, 0))
+      if (reversibleMove.source.index == BoardPosition.fromColRow(4, 0) && reversibleMove.target.index == BoardPosition.fromColRow(6, 0))
       {
-        oldRookPosition = V8BoardPosition.fromColRow(7, 0);
-        newRookPosition = V8BoardPosition.fromColRow(5, 0);
+        oldRookPosition = BoardPosition.fromColRow(7, 0);
+        newRookPosition = BoardPosition.fromColRow(5, 0);
       }
-      else if (reversibleMove.source.index == V8BoardPosition.fromColRow(4, 0) && reversibleMove.target.index == V8BoardPosition.fromColRow(2, 0))
+      else if (reversibleMove.source.index == BoardPosition.fromColRow(4, 0) && reversibleMove.target.index == BoardPosition.fromColRow(2, 0))
       {
-        oldRookPosition = V8BoardPosition.fromColRow(0, 0);
-        newRookPosition = V8BoardPosition.fromColRow(3, 0);
+        oldRookPosition = BoardPosition.fromColRow(0, 0);
+        newRookPosition = BoardPosition.fromColRow(3, 0);
       }
-      else if (reversibleMove.source.index == V8BoardPosition.fromColRow(4, 7) && reversibleMove.target.index == V8BoardPosition.fromColRow(6, 7))
+      else if (reversibleMove.source.index == BoardPosition.fromColRow(4, 7) && reversibleMove.target.index == BoardPosition.fromColRow(6, 7))
       {
-        oldRookPosition = V8BoardPosition.fromColRow(7, 7);
-        newRookPosition = V8BoardPosition.fromColRow(5, 7);
+        oldRookPosition = BoardPosition.fromColRow(7, 7);
+        newRookPosition = BoardPosition.fromColRow(5, 7);
       }
-      else if (reversibleMove.source.index == V8BoardPosition.fromColRow(4, 7) && reversibleMove.target.index == V8BoardPosition.fromColRow(2, 7))
+      else if (reversibleMove.source.index == BoardPosition.fromColRow(4, 7) && reversibleMove.target.index == BoardPosition.fromColRow(2, 7))
       {
-        oldRookPosition = V8BoardPosition.fromColRow(0, 7);
-        newRookPosition = V8BoardPosition.fromColRow(3, 7);
+        oldRookPosition = BoardPosition.fromColRow(0, 7);
+        newRookPosition = BoardPosition.fromColRow(3, 7);
       }
 
       newBoardPieces[oldRookPosition] = newBoardPieces[newRookPosition];
