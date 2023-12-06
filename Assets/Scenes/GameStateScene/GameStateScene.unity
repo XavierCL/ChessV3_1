@@ -170,4 +170,4 @@ MonoBehaviour:
   Ply: 4
   showFirstPly: 0
   OnlyLastPosition: 1
-  OnlyFirstGameState: 1
+  OnlyFirstGameState: 0

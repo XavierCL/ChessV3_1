@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+
 public static class BitBoard
 {
   private static int[] lsb_64_table = new[]{
@@ -22,6 +24,7 @@ public static class BitBoard
     13, 18,  8, 12,  7,  6,  5, 63
   };
 
+  [MethodImpl(MethodImplOptions.AggressiveInlining)]
   public static int lsb(this ulong bitBoard)
   {
     unchecked
@@ -34,6 +37,7 @@ public static class BitBoard
     }
   }
 
+  [MethodImpl(MethodImplOptions.AggressiveInlining)]
   public static int msb(this ulong bitBoard)
   {
     unchecked
@@ -48,5 +52,17 @@ public static class BitBoard
       bitBoard |= bitBoard >> 32;
       return msb_64_table[(bitBoard * 0x03f79d71b4cb0a89ul) >> 58];
     }
+  }
+
+  [MethodImpl(MethodImplOptions.AggressiveInlining)]
+  public static int bitCount(this ulong bitBoard)
+  {
+    int count = 0;
+    while (bitBoard != 0)
+    {
+      count++;
+      bitBoard &= bitBoard - 1;
+    }
+    return count;
   }
 }

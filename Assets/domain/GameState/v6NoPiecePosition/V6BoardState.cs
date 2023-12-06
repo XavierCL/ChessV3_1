@@ -14,7 +14,7 @@ public class V6BoardState : BoardStateInterface
     {
       if (_piecePositions != null) return _piecePositions;
 
-      _piecePositions = new List<PiecePosition>(40);
+      _piecePositions = new List<PiecePosition>(32);
 
       for (var index = 0; index < boardPieces.Length; ++index)
       {

@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 [DebuggerDisplay("{pretty}")]
 public struct BoardPosition
@@ -19,11 +20,13 @@ public struct BoardPosition
         this.index = index;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsInBoard(int col, int row)
     {
         return row >= 0 && row <= 7 && col >= 0 && col <= 7;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int fromColRow(int col, int row) => row * 8 + col;
 
     public override int GetHashCode()
@@ -40,7 +43,10 @@ public struct BoardPosition
 
 public static class BoardPositionExtensions
 {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int getCol(this int index) => index % 8;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int getRow(this int index) => index / 8;
     public static BoardPosition toBoardPosition(this int index) => new BoardPosition(index);
 }

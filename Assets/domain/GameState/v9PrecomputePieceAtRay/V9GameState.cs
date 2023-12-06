@@ -7,11 +7,11 @@ public class V9GameState : GameStateInterface
     public override int turn { get; protected set; }
     public override int staleTurns { get; protected set; }
     public override BoardStateInterface BoardState { get => boardState; }
-    public V9BoardState boardState { get; private set; }
+    public V9BoardState boardState;
     public override List<ReversibleMove> history { get; }
     public override Dictionary<BoardStateInterface, ushort> Snapshots { get => snapshots.ToDictionary(tuple => (BoardStateInterface)tuple.Key, tuple => tuple.Value); }
     public Dictionary<V9BoardState, ushort> snapshots { get; }
-    private List<Move> legalMoves { get; set; } = null;
+    private List<Move> legalMoves = null;
 
     public V9GameState()
     {

@@ -1,29 +1,35 @@
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using System.Runtime.CompilerServices;
 
 [DebuggerDisplay("{piecePositions.Count} pieces")]
 public class V9BoardState : BoardStateInterface
 {
-  private List<PiecePosition> _piecePositions;
   public List<PiecePosition> piecePositions
+  {
+    get => pieceIndices.Select(index => new PiecePosition("", boardPieces[index], index.toBoardPosition())).ToList();
+  }
+
+  private int[] _pieceIndices;
+  public int[] pieceIndices
   {
     get
     {
-      if (_piecePositions != null) return _piecePositions;
+      if (_pieceIndices != null) return _pieceIndices;
 
-      _piecePositions = new List<PiecePosition>(40);
-
+      var bitCount = allBitBoard.bitCount();
+      _pieceIndices = new int[bitCount];
       var currentBitBoard = allBitBoard;
-      while (currentBitBoard != 0)
+      for (var index = 0; index < bitCount; ++index)
       {
         var nextPiece = currentBitBoard.lsb();
         currentBitBoard ^= 1ul << nextPiece;
-        _piecePositions.Add(new PiecePosition("", boardPieces[nextPiece], new BoardPosition(nextPiece)));
+        _pieceIndices[index] = nextPiece;
       }
 
-      return _piecePositions;
+      return _pieceIndices;
     }
   }
 
@@ -396,6 +402,7 @@ public class V9BoardState : BoardStateInterface
     );
   }
 
+  [MethodImpl(MethodImplOptions.AggressiveInlining)]
   public PieceType GetPieceTypeAtPosition(int boardPosition)
   {
     return boardPieces[boardPosition];
@@ -411,9 +418,12 @@ public class V9BoardState : BoardStateInterface
     || enPassantColumn != other.enPassantColumn
     || allBitBoard != other.allBitBoard) return false;
 
-    for (var index = 0; index < boardPieces.Length; ++index)
+    for (var index = 0; index < pieceIndices.Length; ++index)
     {
-      if (boardPieces[index] != other.boardPieces[index]) return false;
+      if (boardPieces[pieceIndices[index]] != other.boardPieces[pieceIndices[index]])
+      {
+        return false;
+      }
     }
 
     return true;
@@ -429,9 +439,9 @@ public class V9BoardState : BoardStateInterface
       hashCode = hashCode * 2 + (blackCastleKingSide ? 1 : 0);
       hashCode = hashCode * 2 + (blackCastleQueenSide ? 1 : 0);
 
-      for (var index = 0; index < boardPieces.Length; ++index)
+      for (var index = 0; index < pieceIndices.Length; ++index)
       {
-        hashCode = hashCode * 0x1971987 + (int)(boardPieces[index] + 1);
+        hashCode = hashCode * 0x1971987 + pieceIndices[index] * 257 + (int)(boardPieces[pieceIndices[index]] + 1);
       }
 
       return hashCode;
