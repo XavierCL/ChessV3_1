@@ -14,7 +14,7 @@ public class SingleClock : MonoBehaviour
 
     private TimeSpan remainingTimeSinceLastTickDown = TimeSpan.Zero;
     private float lastTickDownDateTime = 0;
-    private Regex stringToTimeSpanRegex = new Regex(@"(?:(\d+):)?(\d{1,2})", RegexOptions.Compiled);
+    private static Regex stringToTimeSpanRegex = new Regex(@"(?:(\d+):)?(\d{1,2})", RegexOptions.Compiled);
     private GameController gameController;
 
     public bool TickingDown { get; private set; }
@@ -77,7 +77,7 @@ public class SingleClock : MonoBehaviour
         gameObject.GetComponent<TextMeshProUGUI>().SetText(timeSpanToString(timeLeft));
     }
 
-    private TimeSpan stringToTimeSpan(string duration)
+    public static TimeSpan stringToTimeSpan(string duration)
     {
         var matches = stringToTimeSpanRegex.Match(duration);
         var minutes = matches.Groups[1].Value;

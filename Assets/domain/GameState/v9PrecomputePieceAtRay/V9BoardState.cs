@@ -7,9 +7,17 @@ using System.Runtime.CompilerServices;
 [DebuggerDisplay("{piecePositions.Count} pieces")]
 public class V9BoardState : BoardStateInterface
 {
+  private List<PiecePosition> _piecePositions;
   public List<PiecePosition> piecePositions
   {
-    get => pieceIndices.Select(index => new PiecePosition("", boardPieces[index], index.toBoardPosition())).ToList();
+    get
+    {
+      if (_piecePositions != null) return _piecePositions;
+
+      _piecePositions = pieceIndices.Select(index => new PiecePosition("", boardPieces[index], index.toBoardPosition())).ToList();
+
+      return _piecePositions;
+    }
   }
 
   private int[] _pieceIndices;
