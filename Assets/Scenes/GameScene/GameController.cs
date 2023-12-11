@@ -52,10 +52,10 @@ public class GameController : MonoBehaviour
                 gameVisual = new HumanAiGameVisual(false);
                 break;
             case GameType.Ai1WhiteAi2Black:
-                gameVisual = new AiOnlyGameVisual(true);
+                gameVisual = new AiOnlyGameVisual(false);
                 break;
             case GameType.Ai1BlackAi2White:
-                gameVisual = new AiOnlyGameVisual(false);
+                gameVisual = new AiOnlyGameVisual(true);
                 break;
         }
 
