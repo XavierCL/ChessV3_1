@@ -273,7 +273,7 @@ public class V1BoardState : BoardStateInterface
       }
     }
 
-    return new V1BoardState(newPiecePositions, !whiteTurn, whiteCastleKingSide, whiteCastleQueenSide, blackCastleKingSide, blackCastleQueenSide, reversibleMove.oldPassantColumn);
+    return new V1BoardState(newPiecePositions, !whiteTurn, whiteCastleKingSide, whiteCastleQueenSide, blackCastleKingSide, blackCastleQueenSide, reversibleMove.oldEnPassantColumn);
   }
 
   public bool HasKing(bool white)

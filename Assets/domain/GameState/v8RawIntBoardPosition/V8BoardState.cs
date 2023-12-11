@@ -375,7 +375,7 @@ public class V8BoardState : BoardStateInterface
       whiteCastleQueenSide,
       blackCastleKingSide,
       blackCastleQueenSide,
-      reversibleMove.oldPassantColumn,
+      reversibleMove.oldEnPassantColumn,
       whiteKingPosition,
       blackKingPosition
     );

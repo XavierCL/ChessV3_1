@@ -383,7 +383,7 @@ public class V3BoardState : BoardStateInterface
       whiteCastleQueenSide,
       blackCastleKingSide,
       blackCastleQueenSide,
-      reversibleMove.oldPassantColumn,
+      reversibleMove.oldEnPassantColumn,
       hasWhiteKing || (reversibleMove.killed != null && reversibleMove.killed.pieceType.IsKing() && reversibleMove.killed.pieceType.IsWhite()),
       hasBlackKing || (reversibleMove.killed != null && reversibleMove.killed.pieceType.IsKing() && !reversibleMove.killed.pieceType.IsWhite())
     );

@@ -5,12 +5,14 @@ using UnityEngine.InputSystem;
 public abstract class HumanGameVisual : GameVisual
 {
     protected PromotionHandler promotionHandler { get; private set; }
+    protected HistoryHandler historyHandler { get; private set; }
     protected GameObject selectedPiece { get; private set; }
     protected BoardPosition startPosition { get; private set; }
 
     public HumanGameVisual()
     {
         promotionHandler = StaticReferences.promotionHandler.Value;
+        historyHandler = StaticReferences.historyHandler.Value;
     }
 
     protected GameObject GetPointerCollision()
@@ -65,6 +67,12 @@ public abstract class HumanGameVisual : GameVisual
         // If the AI ends the game, we want the piece being dragged to return to the game state position, not the start position
         startPosition = finalSelectedPiecePosition.position;
         CancelDrawPieceToPointer();
+    }
+
+    public override void HistoryBack()
+    {
+        base.HistoryBack();
+        ForceStopDrawPieceToPointer();
     }
 
     public override void Update()

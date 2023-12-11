@@ -197,6 +197,13 @@ public class BoardController : MonoBehaviour
         AnimatePiece(pieceGameObject.gameObject, move.target, move.promotion, animated);
     }
 
+    public void AnimateUndoMove(ReversibleMove reversibleMove)
+    {
+        var pieceGameObject = GetPieceGameObjects().Find(pieceGameObject => Equals(pieceGameObject.position, reversibleMove.target));
+
+        todo
+    }
+
     public PiecePosition GetPieceAtGameObject(GameObject gameObject)
     {
         var foundPieceGameObject = GetPieceGameObjects().FirstOrDefault(pieceGameObject => Equals(pieceGameObject.gameObject, gameObject));

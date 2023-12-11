@@ -24,6 +24,7 @@ public class HumanOnlyGameVisual : HumanGameVisual
     public override void BoardMousePress()
     {
         if (gameController.gameEndState != GameEndState.Ongoing) return;
+        if (historyHandler.ShowsHistory) return;
 
         var collision = GetPointerCollision();
 
@@ -82,6 +83,20 @@ public class HumanOnlyGameVisual : HumanGameVisual
         }
 
         ForceStopDrawPieceToPointer();
+    }
+
+    public override void HistoryBack()
+    {
+        base.HistoryBack();
+        boardController.RotateBoard();
+        clocks.Swap();
+    }
+
+    public override void HistoryForward()
+    {
+        base.HistoryForward();
+        boardController.RotateBoard();
+        clocks.Swap();
     }
 
     protected override void UpdateSelectedHover()

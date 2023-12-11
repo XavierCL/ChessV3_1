@@ -298,7 +298,7 @@ public class V2BoardState : BoardStateInterface
       }
     }
 
-    return new V2BoardState(!whiteTurn, newPiecePositions, whiteCastleKingSide, whiteCastleQueenSide, blackCastleKingSide, blackCastleQueenSide, reversibleMove.oldPassantColumn);
+    return new V2BoardState(!whiteTurn, newPiecePositions, whiteCastleKingSide, whiteCastleQueenSide, blackCastleKingSide, blackCastleQueenSide, reversibleMove.oldEnPassantColumn);
   }
 
   public PieceType GetPieceTypeAtPosition(BoardPosition boardPosition)

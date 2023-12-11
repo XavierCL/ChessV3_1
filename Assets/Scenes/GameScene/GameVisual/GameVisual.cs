@@ -43,5 +43,8 @@ public abstract class GameVisual
         clocks.MovePlayed();
     }
 
+    public virtual void HistoryBack() { }
+    public virtual void HistoryForward() { }
+
     public virtual void Update() { }
 }

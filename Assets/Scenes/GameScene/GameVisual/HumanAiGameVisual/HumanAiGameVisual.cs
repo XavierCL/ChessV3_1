@@ -10,7 +10,7 @@ public class HumanAiGameVisual : HumanGameVisual
     public HumanAiGameVisual(bool humanWhite)
     {
         this.humanWhite = humanWhite;
-        premoveHandler = GameObject.Find(nameof(PremoveHandler)).GetComponent<PremoveHandler>();
+        premoveHandler = StaticReferences.premoveHandler.Value;
     }
 
     public override void StartGame(GameStateInterface gameState)
@@ -41,6 +41,7 @@ public class HumanAiGameVisual : HumanGameVisual
     public override void BoardMousePress()
     {
         if (gameController.gameEndState != GameEndState.Ongoing) return;
+        if (historyHandler.ShowsHistory) return;
 
         var collision = GetPointerCollision();
 

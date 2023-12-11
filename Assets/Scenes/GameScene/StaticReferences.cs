@@ -12,4 +12,6 @@ public static class StaticReferences
     public static Lazy<GameObject> topClock { get; } = new Lazy<GameObject>(() => GameObject.Find("TopTime"));
     public static Lazy<GameObject> bottomClock { get; } = new Lazy<GameObject>(() => GameObject.Find("BottomTime"));
     public static Lazy<EndStateText> endStateText { get; } = new Lazy<EndStateText>(() => GameObject.Find(nameof(EndStateText)).GetComponent<EndStateText>());
+    public static Lazy<HistoryHandler> historyHandler { get; } = new Lazy<HistoryHandler>(() => GameObject.Find(nameof(HistoryHandler)).GetComponent<HistoryHandler>());
+    public static Lazy<PremoveHandler> premoveHandler { get; } = new Lazy<PremoveHandler>(() => GameObject.Find(nameof(PremoveHandler)).GetComponent<PremoveHandler>());
 }

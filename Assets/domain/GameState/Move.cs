@@ -14,6 +14,13 @@ public class Move
         this.promotion = promotion;
     }
 
+    public Move(ReversibleMove move)
+    {
+        source = move.source;
+        target = move.target;
+        promotion = move.promotion;
+    }
+
     public bool Equals(Move otherMove)
     {
         return Equals(source, otherMove.source) && Equals(target, otherMove.target) && Equals(promotion, otherMove.promotion);

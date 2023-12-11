@@ -8,7 +8,7 @@ public class ReversibleMove
     public bool lostWhiteQueenCastleRight { get; }
     public bool lostBlackKingCastleRight { get; }
     public bool lostBlackQueenCastleRight { get; }
-    public int oldPassantColumn { get; }
+    public int oldEnPassantColumn { get; }
     public PiecePosition killed { get; }
 
     public ReversibleMove(
@@ -32,7 +32,7 @@ public class ReversibleMove
         this.lostWhiteQueenCastleRight = lostWhiteQueenCastleRight;
         this.lostBlackKingCastleRight = lostBlackKingCastleRight;
         this.lostBlackQueenCastleRight = lostBlackQueenCastleRight;
-        this.oldPassantColumn = oldEnPassantColumn;
+        this.oldEnPassantColumn = oldEnPassantColumn;
         this.killed = killed;
     }
 }
