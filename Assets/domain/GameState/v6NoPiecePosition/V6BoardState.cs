@@ -292,7 +292,7 @@ public class V6BoardState : BoardStateInterface
       throw new System.Exception("Invalid undo, no piece at target position");
     }
 
-    var oldSourcePieceType = reversibleMove.pawnPromoted ? sourcePieceType.IsWhite() ? PieceType.WhitePawn : PieceType.BlackPawn : sourcePieceType;
+    var oldSourcePieceType = reversibleMove.promotion != 0 ? sourcePieceType.IsWhite() ? PieceType.WhitePawn : PieceType.BlackPawn : sourcePieceType;
     newBoardPieces[reversibleMove.target.index] = PieceType.Nothing;
     newBoardPieces[reversibleMove.source.index] = oldSourcePieceType;
 

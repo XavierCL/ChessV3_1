@@ -297,8 +297,8 @@ public class V3BoardState : BoardStateInterface
     }
 
     var sourcePiece = newPiecePositions[sourcePieceIndex];
-    var oldSourcePieceType = reversibleMove.pawnPromoted ? sourcePiece.pieceType.IsWhite() ? PieceType.WhitePawn : PieceType.BlackPawn : sourcePiece.pieceType;
-    newPiecePositions[sourcePieceIndex] = sourcePiece.PlayMove(reversibleMove.source, reversibleMove.pawnPromoted ? sourcePiece.pieceType.IsWhite() ? PieceType.WhitePawn : PieceType.BlackPawn : PieceType.Nothing);
+    var oldSourcePieceType = reversibleMove.promotion != 0 ? sourcePiece.pieceType.IsWhite() ? PieceType.WhitePawn : PieceType.BlackPawn : sourcePiece.pieceType;
+    newPiecePositions[sourcePieceIndex] = sourcePiece.PlayMove(reversibleMove.source, reversibleMove.promotion != 0 ? sourcePiece.pieceType.IsWhite() ? PieceType.WhitePawn : PieceType.BlackPawn : PieceType.Nothing);
     newBoardPieces[reversibleMove.target.index] = PieceType.Nothing;
     newBoardPieces[reversibleMove.source.index] = oldSourcePieceType;
 

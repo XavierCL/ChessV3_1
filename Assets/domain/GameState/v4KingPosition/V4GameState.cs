@@ -63,7 +63,7 @@ public class V4GameState : GameStateInterface
             move.source,
             move.target,
             staleTurns,
-            nextBoardPlay.sourcePiece.pieceType.IsPawn() && move.promotion != PieceType.Nothing,
+            move.promotion,
             lostWhiteKingCastleRight,
             lostWhiteQueenCastleRight,
             lostBlackKingCastleRight,

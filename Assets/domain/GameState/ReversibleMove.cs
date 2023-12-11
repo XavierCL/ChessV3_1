@@ -3,7 +3,7 @@ public class ReversibleMove
     public BoardPosition source { get; }
     public BoardPosition target { get; }
     public int oldStaleTurns { get; }
-    public bool pawnPromoted { get; }
+    public PieceType promotion { get; }
     public bool lostWhiteKingCastleRight { get; }
     public bool lostWhiteQueenCastleRight { get; }
     public bool lostBlackKingCastleRight { get; }
@@ -15,7 +15,7 @@ public class ReversibleMove
         BoardPosition source,
         BoardPosition target,
         int oldStaleTurns,
-        bool pawnPromoted,
+        PieceType promotion,
         bool lostWhiteKingCastleRight,
         bool lostWhiteQueenCastleRight,
         bool lostBlackKingCastleRight,
@@ -27,7 +27,7 @@ public class ReversibleMove
         this.source = source;
         this.target = target;
         this.oldStaleTurns = oldStaleTurns;
-        this.pawnPromoted = pawnPromoted;
+        this.promotion = promotion;
         this.lostWhiteKingCastleRight = lostWhiteKingCastleRight;
         this.lostWhiteQueenCastleRight = lostWhiteQueenCastleRight;
         this.lostBlackKingCastleRight = lostBlackKingCastleRight;

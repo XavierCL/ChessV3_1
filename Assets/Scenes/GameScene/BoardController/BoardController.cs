@@ -169,6 +169,7 @@ public class BoardController : MonoBehaviour
                 killedTarget.position = null;
             }
 
+            // Castling
             if (pieceType.IsKing() && Math.Abs(move.source.col - move.target.col) == 2)
             {
                 var swappedRook = GetPieceGameObjects().Find(possibleRook => Equals(possibleRook.position, new BoardPosition(move.target.col == 6 ? 7 : 0, move.target.row)));
@@ -201,7 +202,35 @@ public class BoardController : MonoBehaviour
     {
         var pieceGameObject = GetPieceGameObjects().Find(pieceGameObject => Equals(pieceGameObject.position, reversibleMove.target));
 
-        todo
+        if (pieceGameObject == null) return;
+
+        var sourcePieceIsWhite = pieceGameObject.pieceType.IsWhite();
+        pieceGameObject.pieceType = reversibleMove.promotion != 0 ? sourcePieceIsWhite ? PieceType.WhitePawn : PieceType.BlackPawn : PieceType.Nothing;
+        pieceGameObject.gameObject.GetComponent<SpriteRenderer>().sprite = pieceSprites.GetSpriteFor(pieceGameObject.pieceType);
+        AnimatePiece(pieceGameObject.gameObject, reversibleMove.source, PieceType.Nothing, true);
+
+        // Revive killed
+        if (reversibleMove.killed != null) {
+            var killedTarget = GetPieceGameObjects().Find(pieceGameObject => Equals(pieceGameObject.id, reversibleMove.killed.id));
+            killedTarget.gameObject.GetComponent<SpriteRenderer>().sortingLayerName = "Pieces";
+            killedTarget.gameObject.GetComponent<SpriteRenderer>().enabled = true;
+            killedTarget.gameObject.GetComponent<BoxCollider2D>().enabled = true;
+        }
+
+        // Castling
+        if (pieceGameObject.pieceType.IsKing() && Math.Abs(reversibleMove.source.col - reversibleMove.target.col) == 2)
+        {
+            var swappedRook = GetPieceGameObjects().Find(possibleRook => Equals(possibleRook.position, new BoardPosition((reversibleMove.target.col + reversibleMove.source.col) / 2, reversibleMove.target.row)));
+
+            if (swappedRook == null)
+            {
+                throw new Exception("Couldn't find visual castle rook");
+            }
+
+            var newRookPosition = new BoardPosition(reversibleMove.target.col == 6 ? 7 : 0, reversibleMove.target.row);
+            swappedRook.position = newRookPosition;
+            AnimatePiece(swappedRook.gameObject, newRookPosition, PieceType.Nothing, true);
+        }
     }
 
     public PiecePosition GetPieceAtGameObject(GameObject gameObject)

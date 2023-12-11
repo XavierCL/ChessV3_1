@@ -207,7 +207,7 @@ public class V1BoardState : BoardStateInterface
     }
 
     var sourcePiece = newPiecePositions[sourcePieceIndex];
-    newPiecePositions[sourcePieceIndex] = sourcePiece.PlayMove(reversibleMove.source, reversibleMove.pawnPromoted ? sourcePiece.pieceType.IsWhite() ? PieceType.WhitePawn : PieceType.BlackPawn : PieceType.Nothing);
+    newPiecePositions[sourcePieceIndex] = sourcePiece.PlayMove(reversibleMove.source, reversibleMove.promotion != 0 ? sourcePiece.pieceType.IsWhite() ? PieceType.WhitePawn : PieceType.BlackPawn : PieceType.Nothing);
 
     if (reversibleMove.killed != null)
     {
