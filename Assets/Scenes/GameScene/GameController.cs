@@ -92,8 +92,8 @@ public class GameController : MonoBehaviour
 
     public bool IsPremoveMode()
     {
-        if (gameType == GameType.HumanWhiteAiBlack && !gameState.whiteTurn) return true;
-        if (gameType == GameType.HumanBlackAiWhite && gameState.whiteTurn) return true;
+        if (gameType == GameType.HumanWhiteAiBlack && !gameState.BoardState.whiteTurn) return true;
+        if (gameType == GameType.HumanBlackAiWhite && gameState.BoardState.whiteTurn) return true;
         return false;
     }
 
@@ -123,12 +123,12 @@ public class GameController : MonoBehaviour
 
         if (gameType == GameType.Ai1WhiteAi2Black
         || gameType == GameType.Ai1BlackAi2White
-        || (gameType == GameType.HumanWhiteAiBlack && !gameState.whiteTurn)
-        || (gameType == GameType.HumanBlackAiWhite && gameState.whiteTurn))
+        || (gameType == GameType.HumanWhiteAiBlack && !gameState.BoardState.whiteTurn)
+        || (gameType == GameType.HumanBlackAiWhite && gameState.BoardState.whiteTurn))
         {
             var aiMove = await GetAiController().GetMove(gameState,
-                (gameType == GameType.Ai1WhiteAi2Black) && gameState.whiteTurn ||
-                (gameType == GameType.Ai1BlackAi2White) && !gameState.whiteTurn ||
+                (gameType == GameType.Ai1WhiteAi2Black) && gameState.BoardState.whiteTurn ||
+                (gameType == GameType.Ai1BlackAi2White) && !gameState.BoardState.whiteTurn ||
                 gameType == GameType.HumanWhiteAiBlack ||
                 gameType == GameType.HumanBlackAiWhite
             );

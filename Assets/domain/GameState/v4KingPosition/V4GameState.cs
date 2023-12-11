@@ -3,7 +3,6 @@ using System.Linq;
 
 public class V4GameState : GameStateInterface
 {
-    public override int turn { get; protected set; }
     public override int staleTurns { get; protected set; }
     public override BoardStateInterface BoardState { get => boardState; }
     public V4BoardState boardState { get; private set; }
@@ -13,7 +12,6 @@ public class V4GameState : GameStateInterface
 
     public V4GameState()
     {
-        turn = 0;
         staleTurns = 0;
         history = new List<ReversibleMove>();
         boardState = new V4BoardState();
@@ -22,7 +20,6 @@ public class V4GameState : GameStateInterface
 
     public V4GameState(GameStateInterface gameState)
     {
-        turn = gameState.turn;
         staleTurns = gameState.staleTurns;
         history = new List<ReversibleMove>(gameState.history);
         boardState = new V4BoardState(gameState.BoardState);
@@ -31,10 +28,10 @@ public class V4GameState : GameStateInterface
 
     public V4GameState(List<PiecePosition> piecePositions, bool whiteStarts, Castling castling)
     {
-        turn = whiteStarts ? 0 : 1;
         staleTurns = 0;
         history = new List<ReversibleMove>();
         boardState = new V4BoardState(
+            whiteStarts,
             piecePositions,
             (castling & Castling.WhiteKing) == Castling.WhiteKing,
             (castling & Castling.WhiteQueen) == Castling.WhiteQueen,
@@ -76,8 +73,6 @@ public class V4GameState : GameStateInterface
         ));
 
         staleTurns = nextBoardPlay.sourcePiece.pieceType.IsPawn() || nextBoardPlay.killedPiece != null ? 0 : staleTurns + 1;
-
-        ++turn;
     }
 
     public override void UndoMove()
@@ -101,7 +96,6 @@ public class V4GameState : GameStateInterface
         }
 
         staleTurns = reversibleMove.oldStaleTurns;
-        --turn;
     }
 
     public override GameEndState GetGameEndState()
@@ -111,6 +105,6 @@ public class V4GameState : GameStateInterface
         if (getLegalMoves().Count > 0) return GameEndState.Ongoing;
         var canOwnKingDie = V4LegalMoveGenerator.CanOwnKingDie(this);
         if (!canOwnKingDie) return GameEndState.Draw;
-        return whiteTurn ? GameEndState.BlackWin : GameEndState.WhiteWin;
+        return boardState.whiteTurn ? GameEndState.BlackWin : GameEndState.WhiteWin;
     }
 }

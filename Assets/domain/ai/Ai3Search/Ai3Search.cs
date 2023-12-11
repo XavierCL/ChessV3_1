@@ -1,9 +1,9 @@
 public static class Ai3Search
 {
-  // Depths are decreasing. A depth of 0 means evaluation
+  // Depths are decreasing. A depth of 1 means evaluation
   public static double Search(V9GameState gameState, int depth)
   {
-    if (depth == 0) return Ai3Evaluate.Evaluate(gameState);
+    if (depth == 1) return Ai3Evaluate.Evaluate(gameState);
 
     var endGameState = gameState.GetGameEndState();
 
@@ -21,7 +21,7 @@ public static class Ai3Search
     }
 
     var legalMoves = gameState.getLegalMoves();
-    var bestValue = gameState.whiteTurn ? double.MinValue : double.MaxValue;
+    var bestValue = gameState.boardState.whiteTurn ? double.MinValue : double.MaxValue;
 
     for (var legalMoveIndex = 0; legalMoveIndex < legalMoves.Count; ++legalMoveIndex)
     {
@@ -29,9 +29,15 @@ public static class Ai3Search
       var value = Search(gameState, depth - 1);
       gameState.UndoMove();
 
-      if (value > bestValue && gameState.whiteTurn || value < bestValue && !gameState.whiteTurn)
+      if (value > bestValue && gameState.boardState.whiteTurn || value < bestValue && !gameState.boardState.whiteTurn)
       {
         bestValue = value;
+      }
+
+      // Return early if the best outcome can be achieved
+      if (bestValue == double.MaxValue && gameState.boardState.whiteTurn || bestValue == double.MinValue && !gameState.boardState.whiteTurn)
+      {
+        return bestValue;
       }
     }
 

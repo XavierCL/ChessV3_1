@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 [DebuggerDisplay("{piecePositions.Count} pieces")]
 public class V9BoardState : BoardStateInterface
 {
+  public bool whiteTurn { get; }
   private List<PiecePosition> _piecePositions;
   public List<PiecePosition> piecePositions
   {
@@ -53,6 +54,7 @@ public class V9BoardState : BoardStateInterface
 
   public V9BoardState()
   {
+    whiteTurn = true;
     whiteCastleKingSide = true;
     whiteCastleQueenSide = true;
     blackCastleKingSide = true;
@@ -117,6 +119,7 @@ public class V9BoardState : BoardStateInterface
 
   public V9BoardState(BoardStateInterface other)
   {
+    whiteTurn = other.whiteTurn;
     whiteCastleKingSide = other.whiteCastleKingSide;
     whiteCastleQueenSide = other.whiteCastleQueenSide;
     blackCastleKingSide = other.blackCastleKingSide;
@@ -143,8 +146,9 @@ public class V9BoardState : BoardStateInterface
     }
   }
 
-  public V9BoardState(PieceType[] boardPieces, ulong allBitBoard, bool whiteCastleKingSide, bool whiteCastleQueenSide, bool blackCastleKingSide, bool blackCastleQueenSide, int enPassantColumn, int whiteKingPosition, int blackKingPosition)
+  public V9BoardState(bool whiteTurn, PieceType[] boardPieces, ulong allBitBoard, bool whiteCastleKingSide, bool whiteCastleQueenSide, bool blackCastleKingSide, bool blackCastleQueenSide, int enPassantColumn, int whiteKingPosition, int blackKingPosition)
   {
+    this.whiteTurn = whiteTurn;
     this.boardPieces = boardPieces;
     this.allBitBoard = allBitBoard;
     this.whiteCastleKingSide = whiteCastleKingSide;
@@ -156,8 +160,9 @@ public class V9BoardState : BoardStateInterface
     this.blackKingPosition = blackKingPosition;
   }
 
-  public V9BoardState(List<PiecePosition> piecePositions, bool whiteCastleKingSide, bool whiteCastleQueenSide, bool blackCastleKingSide, bool blackCastleQueenSide)
+  public V9BoardState(bool whiteTurn, List<PiecePosition> piecePositions, bool whiteCastleKingSide, bool whiteCastleQueenSide, bool blackCastleKingSide, bool blackCastleQueenSide)
   {
+    this.whiteTurn = whiteTurn;
     this.whiteCastleKingSide = whiteCastleKingSide;
     this.whiteCastleQueenSide = whiteCastleQueenSide;
     this.blackCastleKingSide = blackCastleKingSide;
@@ -301,6 +306,7 @@ public class V9BoardState : BoardStateInterface
 
     return new BoardStatePlay(
       new V9BoardState(
+        !whiteTurn,
         newBoardPieces,
         newAllBitBoard,
         whiteCastleKingSide,
@@ -398,6 +404,7 @@ public class V9BoardState : BoardStateInterface
     }
 
     return new V9BoardState(
+      !whiteTurn,
       newBoardPieces,
       newAllBitBoard,
       whiteCastleKingSide,
@@ -424,7 +431,8 @@ public class V9BoardState : BoardStateInterface
     || blackCastleKingSide != other.blackCastleKingSide
     || blackCastleQueenSide != other.blackCastleQueenSide
     || enPassantColumn != other.enPassantColumn
-    || allBitBoard != other.allBitBoard) return false;
+    || allBitBoard != other.allBitBoard
+    || whiteTurn != other.whiteTurn) return false;
 
     for (var index = 0; index < pieceIndices.Length; ++index)
     {
@@ -446,6 +454,7 @@ public class V9BoardState : BoardStateInterface
       hashCode = hashCode * 2 + (whiteCastleQueenSide ? 1 : 0);
       hashCode = hashCode * 2 + (blackCastleKingSide ? 1 : 0);
       hashCode = hashCode * 2 + (blackCastleQueenSide ? 1 : 0);
+      hashCode = hashCode * 2 + (whiteTurn ? 1 : 0);
 
       for (var index = 0; index < pieceIndices.Length; ++index)
       {

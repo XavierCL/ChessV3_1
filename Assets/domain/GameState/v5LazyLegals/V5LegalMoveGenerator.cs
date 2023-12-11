@@ -10,13 +10,13 @@ public static class V5LegalMoveGenerator
   {
     if (gameState.staleTurns >= 100) return new List<Move>();
     if (gameState.snapshots.GetValueOrDefault(gameState.boardState) >= 2) return new List<Move>();
-    var pseudoLegalMoves = GeneratePseudoLegalMoves(gameState.boardState, gameState.whiteTurn);
-    return pseudoLegalMoves.Where(move => !CanKingDieAfterMove(gameState.boardState, move, gameState.whiteTurn)).ToList();
+    var pseudoLegalMoves = GeneratePseudoLegalMoves(gameState.boardState, gameState.BoardState.whiteTurn);
+    return pseudoLegalMoves.Where(move => !CanKingDieAfterMove(gameState.boardState, move, gameState.BoardState.whiteTurn)).ToList();
   }
 
   public static bool CanOwnKingDie(V5GameState gameState)
   {
-    return CanKingDie(gameState.boardState, gameState.whiteTurn);
+    return CanKingDie(gameState.boardState, gameState.BoardState.whiteTurn);
   }
 
   private static bool CanKingDieAfterMove(V5BoardState boardState, Move ownMove, bool whiteKing)

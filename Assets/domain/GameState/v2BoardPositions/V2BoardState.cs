@@ -7,6 +7,7 @@ using System.Linq;
 [DebuggerDisplay("{piecePositions.Count} pieces")]
 public class V2BoardState : BoardStateInterface
 {
+  public bool whiteTurn { get; }
   public List<PiecePosition> piecePositions { get; }
   private PieceType[] boardPieces { get; }
   public bool whiteCastleKingSide { get; }
@@ -17,6 +18,7 @@ public class V2BoardState : BoardStateInterface
 
   public V2BoardState()
   {
+    whiteTurn = true;
     whiteCastleKingSide = true;
     whiteCastleQueenSide = true;
     blackCastleKingSide = true;
@@ -68,6 +70,7 @@ public class V2BoardState : BoardStateInterface
 
   public V2BoardState(BoardStateInterface other)
   {
+    whiteTurn = other.whiteTurn;
     piecePositions = new List<PiecePosition>(other.piecePositions);
     whiteCastleKingSide = other.whiteCastleKingSide;
     whiteCastleQueenSide = other.whiteCastleQueenSide;
@@ -82,8 +85,9 @@ public class V2BoardState : BoardStateInterface
     }
   }
 
-  public V2BoardState(List<PiecePosition> piecePositions, bool whiteCastleKingSide, bool whiteCastleQueenSide, bool blackCastleKingSide, bool blackCastleQueenSide, int enPassantColumn)
+  public V2BoardState(bool whiteTurn, List<PiecePosition> piecePositions, bool whiteCastleKingSide, bool whiteCastleQueenSide, bool blackCastleKingSide, bool blackCastleQueenSide, int enPassantColumn)
   {
+    this.whiteTurn = whiteTurn;
     this.piecePositions = piecePositions;
     this.whiteCastleKingSide = whiteCastleKingSide;
     this.whiteCastleQueenSide = whiteCastleQueenSide;
@@ -211,7 +215,7 @@ public class V2BoardState : BoardStateInterface
 
     return new BoardStatePlay()
     {
-      boardState = new V2BoardState(newPiecePositions, whiteCastleKingSide, whiteCastleQueenSide, blackCastleKingSide, blackCastleQueenSide, enPassantColumn),
+      boardState = new V2BoardState(!whiteTurn, newPiecePositions, whiteCastleKingSide, whiteCastleQueenSide, blackCastleKingSide, blackCastleQueenSide, enPassantColumn),
       sourcePiece = sourcePiece,
       killedPiece = killedPiece
     };
@@ -294,7 +298,7 @@ public class V2BoardState : BoardStateInterface
       }
     }
 
-    return new V2BoardState(newPiecePositions, whiteCastleKingSide, whiteCastleQueenSide, blackCastleKingSide, blackCastleQueenSide, reversibleMove.oldPassantColumn);
+    return new V2BoardState(!whiteTurn, newPiecePositions, whiteCastleKingSide, whiteCastleQueenSide, blackCastleKingSide, blackCastleQueenSide, reversibleMove.oldPassantColumn);
   }
 
   public PieceType GetPieceTypeAtPosition(BoardPosition boardPosition)
@@ -314,7 +318,8 @@ public class V2BoardState : BoardStateInterface
     || whiteCastleQueenSide != other.whiteCastleQueenSide
     || blackCastleKingSide != other.blackCastleKingSide
     || blackCastleQueenSide != other.blackCastleQueenSide
-    || enPassantColumn != other.enPassantColumn) return false;
+    || enPassantColumn != other.enPassantColumn
+    || whiteTurn != other.whiteTurn) return false;
 
     if (!new HashSet<PiecePosition>(piecePositions).SetEquals(other.piecePositions)) return false;
 
@@ -330,6 +335,7 @@ public class V2BoardState : BoardStateInterface
       hashCode = hashCode * 2 + (whiteCastleQueenSide ? 1 : 0);
       hashCode = hashCode * 2 + (blackCastleKingSide ? 1 : 0);
       hashCode = hashCode * 2 + (blackCastleQueenSide ? 1 : 0);
+      hashCode = hashCode * 2 + (whiteTurn ? 1 : 0);
       hashCode *= 0x1971987;
       hashCode = piecePositions.Select(piece => piece.GetHashCode()).Aggregate(hashCode, (cum, cur) => cum + cur);
       return hashCode;

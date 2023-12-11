@@ -7,6 +7,7 @@ using System.Linq;
 [DebuggerDisplay("{piecePositions.Count} pieces")]
 public class V3BoardState : BoardStateInterface
 {
+  public bool whiteTurn { get; }
   public List<PiecePosition> piecePositions { get; }
   private PieceType[] boardPieces { get; }
   public bool whiteCastleKingSide { get; }
@@ -19,6 +20,7 @@ public class V3BoardState : BoardStateInterface
 
   public V3BoardState()
   {
+    whiteTurn = true;
     whiteCastleKingSide = true;
     whiteCastleQueenSide = true;
     blackCastleKingSide = true;
@@ -72,6 +74,7 @@ public class V3BoardState : BoardStateInterface
 
   public V3BoardState(BoardStateInterface other)
   {
+    whiteTurn = other.whiteTurn;
     piecePositions = new List<PiecePosition>(other.piecePositions);
     whiteCastleKingSide = other.whiteCastleKingSide;
     whiteCastleQueenSide = other.whiteCastleQueenSide;
@@ -97,8 +100,9 @@ public class V3BoardState : BoardStateInterface
     }
   }
 
-  public V3BoardState(List<PiecePosition> piecePositions, PieceType[] boardPieces, bool whiteCastleKingSide, bool whiteCastleQueenSide, bool blackCastleKingSide, bool blackCastleQueenSide, int enPassantColumn, bool hasWhiteKing, bool hasBlackKing)
+  public V3BoardState(bool whiteTurn, List<PiecePosition> piecePositions, PieceType[] boardPieces, bool whiteCastleKingSide, bool whiteCastleQueenSide, bool blackCastleKingSide, bool blackCastleQueenSide, int enPassantColumn, bool hasWhiteKing, bool hasBlackKing)
   {
+    this.whiteTurn = whiteTurn;
     this.piecePositions = piecePositions;
     this.boardPieces = boardPieces;
     this.whiteCastleKingSide = whiteCastleKingSide;
@@ -110,8 +114,9 @@ public class V3BoardState : BoardStateInterface
     this.hasBlackKing = hasBlackKing;
   }
 
-  public V3BoardState(List<PiecePosition> piecePositions, bool whiteCastleKingSide, bool whiteCastleQueenSide, bool blackCastleKingSide, bool blackCastleQueenSide)
+  public V3BoardState(bool whiteTurn, List<PiecePosition> piecePositions, bool whiteCastleKingSide, bool whiteCastleQueenSide, bool blackCastleKingSide, bool blackCastleQueenSide)
   {
+    this.whiteTurn = whiteTurn;
     this.piecePositions = piecePositions;
     this.whiteCastleKingSide = whiteCastleKingSide;
     this.whiteCastleQueenSide = whiteCastleQueenSide;
@@ -264,6 +269,7 @@ public class V3BoardState : BoardStateInterface
     return new BoardStatePlay()
     {
       boardState = new V3BoardState(
+        !whiteTurn,
         newPiecePositions,
         newBoardPieces,
         whiteCastleKingSide,
@@ -370,6 +376,7 @@ public class V3BoardState : BoardStateInterface
     }
 
     return new V3BoardState(
+      !whiteTurn,
       newPiecePositions,
       newBoardPieces,
       whiteCastleKingSide,
@@ -399,7 +406,8 @@ public class V3BoardState : BoardStateInterface
     || whiteCastleQueenSide != other.whiteCastleQueenSide
     || blackCastleKingSide != other.blackCastleKingSide
     || blackCastleQueenSide != other.blackCastleQueenSide
-    || enPassantColumn != other.enPassantColumn) return false;
+    || enPassantColumn != other.enPassantColumn
+    || whiteTurn != other.whiteTurn) return false;
 
     if (!new HashSet<PiecePosition>(piecePositions).SetEquals(other.piecePositions)) return false;
 
@@ -415,6 +423,7 @@ public class V3BoardState : BoardStateInterface
       hashCode = hashCode * 2 + (whiteCastleQueenSide ? 1 : 0);
       hashCode = hashCode * 2 + (blackCastleKingSide ? 1 : 0);
       hashCode = hashCode * 2 + (blackCastleQueenSide ? 1 : 0);
+      hashCode = hashCode * 2 + (whiteTurn ? 1 : 0);
       hashCode *= 0x1971987;
       hashCode = piecePositions.Select(piece => piece.GetHashCode()).Aggregate(hashCode, (cum, cur) => cum + cur);
       return hashCode;

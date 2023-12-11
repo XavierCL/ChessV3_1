@@ -11,13 +11,13 @@ public static class V8LegalMoveGenerator
   {
     if (gameState.staleTurns >= 100) return new List<Move>();
     if (gameState.snapshots.GetValueOrDefault(gameState.boardState) >= 2) return new List<Move>();
-    var pseudoLegalMoves = GeneratePseudoLegalMoves(gameState.boardState, gameState.whiteTurn);
+    var pseudoLegalMoves = GeneratePseudoLegalMoves(gameState.boardState, gameState.BoardState.whiteTurn);
     var legalMoves = new List<Move>(pseudoLegalMoves.Count);
 
     for (var index = 0; index < pseudoLegalMoves.Count; ++index)
     {
       var move = pseudoLegalMoves[index];
-      if (!CanKingDieAfterMove(gameState.boardState, move, gameState.whiteTurn))
+      if (!CanKingDieAfterMove(gameState.boardState, move, gameState.BoardState.whiteTurn))
       {
         legalMoves.Add(move);
       }
@@ -28,7 +28,7 @@ public static class V8LegalMoveGenerator
 
   public static bool CanOwnKingDie(V8GameState gameState)
   {
-    return CanKingDie(gameState.boardState, gameState.whiteTurn);
+    return CanKingDie(gameState.boardState, gameState.BoardState.whiteTurn);
   }
 
   private static bool CanKingDieAfterMove(V8BoardState boardState, Move ownMove, bool whiteKing)

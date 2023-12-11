@@ -6,6 +6,7 @@ using System.Diagnostics;
 [DebuggerDisplay("{piecePositions.Count} pieces")]
 public class V7BoardState : BoardStateInterface
 {
+  public bool whiteTurn { get; }
   private List<PiecePosition> _piecePositions;
   public List<PiecePosition> piecePositions
   {
@@ -39,6 +40,7 @@ public class V7BoardState : BoardStateInterface
 
   public V7BoardState()
   {
+    whiteTurn = true;
     whiteCastleKingSide = true;
     whiteCastleQueenSide = true;
     blackCastleKingSide = true;
@@ -101,6 +103,7 @@ public class V7BoardState : BoardStateInterface
 
   public V7BoardState(BoardStateInterface other)
   {
+    whiteTurn = other.whiteTurn;
     whiteCastleKingSide = other.whiteCastleKingSide;
     whiteCastleQueenSide = other.whiteCastleQueenSide;
     blackCastleKingSide = other.blackCastleKingSide;
@@ -125,8 +128,9 @@ public class V7BoardState : BoardStateInterface
     }
   }
 
-  public V7BoardState(PieceType[] boardPieces, bool whiteCastleKingSide, bool whiteCastleQueenSide, bool blackCastleKingSide, bool blackCastleQueenSide, int enPassantColumn, BoardPosition whiteKingPosition, BoardPosition blackKingPosition)
+  public V7BoardState(bool whiteTurn, PieceType[] boardPieces, bool whiteCastleKingSide, bool whiteCastleQueenSide, bool blackCastleKingSide, bool blackCastleQueenSide, int enPassantColumn, BoardPosition whiteKingPosition, BoardPosition blackKingPosition)
   {
+    this.whiteTurn = whiteTurn;
     this.boardPieces = boardPieces;
     this.whiteCastleKingSide = whiteCastleKingSide;
     this.whiteCastleQueenSide = whiteCastleQueenSide;
@@ -137,8 +141,9 @@ public class V7BoardState : BoardStateInterface
     this.blackKingPosition = blackKingPosition;
   }
 
-  public V7BoardState(List<PiecePosition> piecePositions, bool whiteCastleKingSide, bool whiteCastleQueenSide, bool blackCastleKingSide, bool blackCastleQueenSide)
+  public V7BoardState(bool whiteTurn, List<PiecePosition> piecePositions, bool whiteCastleKingSide, bool whiteCastleQueenSide, bool blackCastleKingSide, bool blackCastleQueenSide)
   {
+    this.whiteTurn = whiteTurn;
     this.whiteCastleKingSide = whiteCastleKingSide;
     this.whiteCastleQueenSide = whiteCastleQueenSide;
     this.blackCastleKingSide = blackCastleKingSide;
@@ -261,6 +266,7 @@ public class V7BoardState : BoardStateInterface
     return new BoardStatePlay()
     {
       boardState = new V7BoardState(
+        !whiteTurn,
         newBoardPieces,
         whiteCastleKingSide,
         whiteCastleQueenSide,
@@ -351,6 +357,7 @@ public class V7BoardState : BoardStateInterface
     }
 
     return new V7BoardState(
+      !whiteTurn,
       newBoardPieces,
       whiteCastleKingSide,
       whiteCastleQueenSide,
@@ -374,7 +381,8 @@ public class V7BoardState : BoardStateInterface
     || whiteCastleQueenSide != other.whiteCastleQueenSide
     || blackCastleKingSide != other.blackCastleKingSide
     || blackCastleQueenSide != other.blackCastleQueenSide
-    || enPassantColumn != other.enPassantColumn) return false;
+    || enPassantColumn != other.enPassantColumn
+    || whiteTurn != other.whiteTurn) return false;
 
     for (var index = 0; index < boardPieces.Length; ++index)
     {
@@ -393,6 +401,7 @@ public class V7BoardState : BoardStateInterface
       hashCode = hashCode * 2 + (whiteCastleQueenSide ? 1 : 0);
       hashCode = hashCode * 2 + (blackCastleKingSide ? 1 : 0);
       hashCode = hashCode * 2 + (blackCastleQueenSide ? 1 : 0);
+      hashCode = hashCode * 2 + (whiteTurn ? 1 : 0);
 
       for (var index = 0; index < boardPieces.Length; ++index)
       {

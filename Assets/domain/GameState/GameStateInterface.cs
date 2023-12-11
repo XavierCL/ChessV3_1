@@ -3,8 +3,6 @@ using System.Collections.Generic;
 
 public abstract class GameStateInterface
 {
-    public abstract int turn { get; protected set; }
-    public bool whiteTurn { get => turn % 2 == 0; }
     public abstract int staleTurns { get; protected set; }
     public abstract List<ReversibleMove> history { get; }
     public abstract BoardStateInterface BoardState { get; }
@@ -87,7 +85,7 @@ public abstract class GameStateInterface
             if (row > 0) fen += "/";
         }
 
-        var startingColor = whiteTurn ? "w" : "b";
+        var startingColor = BoardState.whiteTurn ? "w" : "b";
         return $"{fen} {startingColor}";
     }
 }

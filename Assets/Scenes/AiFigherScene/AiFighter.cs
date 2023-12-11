@@ -30,6 +30,7 @@ public class AiFighter : MonoBehaviour
         var ai2Time = TimeSpan.Zero;
         var startingPositions = StartingPositions();
         var movePlayed = 0;
+        var gameStateFactory = new V9GameStateFactory();
 
         if (OnlyFirstPosition)
         {
@@ -38,14 +39,14 @@ public class AiFighter : MonoBehaviour
 
         for (var gameStateIndex = 0; gameStateIndex < startingPositions.Count; ++gameStateIndex)
         {
-            var gameState = startingPositions[gameStateIndex];
-            var copy = new V9GameState(gameState);
-            while (gameState.GetGameEndState() == GameEndState.Ongoing)
+            var originalGameState = startingPositions[gameStateIndex];
+            GameStateInterface ai1WhiteGameState = gameStateFactory.FromGameState(originalGameState);
+            while (ai1WhiteGameState.GetGameEndState() == GameEndState.Ongoing)
             {
                 var startTime = DateTime.UtcNow;
-                var move = await aiController.GetMoveSync(gameState, gameState.whiteTurn);
+                var move = await aiController.GetMoveSync(ai1WhiteGameState, ai1WhiteGameState.BoardState.whiteTurn);
                 ++movePlayed;
-                if (gameState.whiteTurn)
+                if (ai1WhiteGameState.BoardState.whiteTurn)
                 {
                     ai1Time += DateTime.UtcNow - startTime;
                 }
@@ -53,14 +54,14 @@ public class AiFighter : MonoBehaviour
                 {
                     ai2Time += DateTime.UtcNow - startTime;
                 }
-                gameState.PlayMove(move);
+                ai1WhiteGameState.PlayMove(move);
             }
 
-            if (gameState.GetGameEndState() == GameEndState.Draw)
+            if (ai1WhiteGameState.GetGameEndState() == GameEndState.Draw)
             {
                 ++draws;
             }
-            else if (gameState.GetGameEndState() == GameEndState.WhiteWin)
+            else if (ai1WhiteGameState.GetGameEndState() == GameEndState.WhiteWin)
             {
                 ++ai1Wins;
             }
@@ -77,12 +78,14 @@ public class AiFighter : MonoBehaviour
 
             Debug.Log($"{gameStateIndex * 2 + 1}/{startingPositions.Count * 2}");
 
-            while (copy.GetGameEndState() == GameEndState.Ongoing)
+            GameStateInterface ai2WhiteGameState = gameStateFactory.FromGameState(ai1WhiteGameState);
+
+            while (ai2WhiteGameState.GetGameEndState() == GameEndState.Ongoing)
             {
                 var startTime = DateTime.UtcNow;
-                var move = await aiController.GetMoveSync(copy, !copy.whiteTurn);
+                var move = await aiController.GetMoveSync(ai2WhiteGameState, !ai2WhiteGameState.BoardState.whiteTurn);
                 ++movePlayed;
-                if (gameState.whiteTurn)
+                if (ai1WhiteGameState.BoardState.whiteTurn)
                 {
                     ai2Time += DateTime.UtcNow - startTime;
                 }
@@ -90,16 +93,16 @@ public class AiFighter : MonoBehaviour
                 {
                     ai1Time += DateTime.UtcNow - startTime;
                 }
-                copy.PlayMove(move);
+                ai2WhiteGameState.PlayMove(move);
             }
 
             Debug.Log($"{gameStateIndex * 2 + 2}/{startingPositions.Count * 2}");
 
-            if (copy.GetGameEndState() == GameEndState.Draw)
+            if (ai2WhiteGameState.GetGameEndState() == GameEndState.Draw)
             {
                 ++draws;
             }
-            else if (copy.GetGameEndState() == GameEndState.WhiteWin)
+            else if (ai2WhiteGameState.GetGameEndState() == GameEndState.WhiteWin)
             {
                 ++ai2Wins;
             }

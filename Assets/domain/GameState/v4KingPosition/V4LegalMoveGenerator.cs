@@ -8,13 +8,13 @@ public static class V4LegalMoveGenerator
   /// </summary>
   public static List<Move> GenerateLegalMoves(this V4GameState gameState)
   {
-    var pseudoLegalMoves = GeneratePseudoLegalMoves(gameState.boardState, gameState.whiteTurn);
-    return pseudoLegalMoves.Where(move => !CanKingDieAfterMove(gameState.boardState, move, gameState.whiteTurn)).ToList();
+    var pseudoLegalMoves = GeneratePseudoLegalMoves(gameState.boardState, gameState.BoardState.whiteTurn);
+    return pseudoLegalMoves.Where(move => !CanKingDieAfterMove(gameState.boardState, move, gameState.BoardState.whiteTurn)).ToList();
   }
 
   public static bool CanOwnKingDie(V4GameState gameState)
   {
-    return CanKingDie(gameState.boardState, gameState.whiteTurn);
+    return CanKingDie(gameState.boardState, gameState.BoardState.whiteTurn);
   }
 
   private static bool CanKingDieAfterMove(V4BoardState boardState, Move ownMove, bool whiteKing)

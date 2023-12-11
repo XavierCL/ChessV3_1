@@ -4,7 +4,6 @@ using System.Linq;
 // This game state drops support for piece position id. Don't use this in the UI.
 public class V6GameState : GameStateInterface
 {
-    public override int turn { get; protected set; }
     public override int staleTurns { get; protected set; }
     public override BoardStateInterface BoardState { get => boardState; }
     public V6BoardState boardState { get; private set; }
@@ -15,7 +14,6 @@ public class V6GameState : GameStateInterface
 
     public V6GameState()
     {
-        turn = 0;
         staleTurns = 0;
         history = new List<ReversibleMove>();
         boardState = new V6BoardState();
@@ -24,7 +22,6 @@ public class V6GameState : GameStateInterface
 
     public V6GameState(GameStateInterface gameState)
     {
-        turn = gameState.turn;
         staleTurns = gameState.staleTurns;
         history = new List<ReversibleMove>(gameState.history);
         boardState = new V6BoardState(gameState.BoardState);
@@ -33,10 +30,10 @@ public class V6GameState : GameStateInterface
 
     public V6GameState(List<PiecePosition> piecePositions, bool whiteStarts, Castling castling)
     {
-        turn = whiteStarts ? 0 : 1;
         staleTurns = 0;
         history = new List<ReversibleMove>();
         boardState = new V6BoardState(
+            whiteStarts,
             piecePositions,
             (castling & Castling.WhiteKing) == Castling.WhiteKing,
             (castling & Castling.WhiteQueen) == Castling.WhiteQueen,
@@ -81,8 +78,6 @@ public class V6GameState : GameStateInterface
 
         staleTurns = nextBoardPlay.sourcePiece.pieceType.IsPawn() || nextBoardPlay.killedPiece != null ? 0 : staleTurns + 1;
         legalMoves = null;
-
-        ++turn;
     }
 
     public override void UndoMove()
@@ -107,7 +102,6 @@ public class V6GameState : GameStateInterface
 
         staleTurns = reversibleMove.oldStaleTurns;
         legalMoves = null;
-        --turn;
     }
 
     public override GameEndState GetGameEndState()
@@ -115,6 +109,6 @@ public class V6GameState : GameStateInterface
         if (getLegalMoves().Count > 0) return GameEndState.Ongoing;
         var canOwnKingDie = V6LegalMoveGenerator.CanOwnKingDie(this);
         if (!canOwnKingDie) return GameEndState.Draw;
-        return whiteTurn ? GameEndState.BlackWin : GameEndState.WhiteWin;
+        return boardState.whiteTurn ? GameEndState.BlackWin : GameEndState.WhiteWin;
     }
 }
