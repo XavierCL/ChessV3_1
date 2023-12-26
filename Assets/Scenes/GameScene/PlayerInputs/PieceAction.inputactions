@@ -2,13 +2,31 @@
     "name": "PieceAction",
     "maps": [
         {
-            "name": "Move piece",
+            "name": "Gameplay",
             "id": "0251a31c-8291-4955-9237-d942f1fcf2bf",
             "actions": [
                 {
-                    "name": "press/release",
+                    "name": "MovePiece",
                     "type": "Button",
                     "id": "3557285f-c081-4482-8337-680df6aa546f",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "NavigateBack",
+                    "type": "Button",
+                    "id": "3891947b-c080-439e-80c4-14691e92657a",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "NavigateForth",
+                    "type": "Button",
+                    "id": "c51905d9-5646-4d0b-b82f-01b46e2197a2",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -22,69 +40,52 @@
                     "path": "<Pointer>/press",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
-                    "action": "press/release",
+                    "groups": "Keyboard & mouse",
+                    "action": "MovePiece",
                     "isComposite": false,
                     "isPartOfComposite": false
-                }
-            ]
-        },
-        {
-            "name": "NavigateHistoryBack",
-            "id": "e16d66f7-a59a-498a-ba09-cdb964cae911",
-            "actions": [
-                {
-                    "name": "press",
-                    "type": "Button",
-                    "id": "94c394fc-b954-4444-b090-de06b8de7cd9",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                }
-            ],
-            "bindings": [
+                },
                 {
                     "name": "",
-                    "id": "1eca1130-4517-4fec-8e07-42ffd65a459a",
+                    "id": "a1a649cb-396d-45c9-84d8-4f694970437d",
                     "path": "<Keyboard>/leftArrow",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
-                    "action": "press",
+                    "groups": "Keyboard & mouse",
+                    "action": "NavigateBack",
                     "isComposite": false,
                     "isPartOfComposite": false
-                }
-            ]
-        },
-        {
-            "name": "NavigateHistoryForward",
-            "id": "8a6cdc19-edf6-46ca-9683-c76efde9c444",
-            "actions": [
-                {
-                    "name": "press",
-                    "type": "Button",
-                    "id": "4801930f-318c-4d62-b6f8-14dc523a6ce7",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                }
-            ],
-            "bindings": [
+                },
                 {
                     "name": "",
-                    "id": "f7ea2871-c573-4942-ac00-b966591f09d5",
+                    "id": "b8907922-2f95-4134-864b-48d8d3d12d52",
                     "path": "<Keyboard>/rightArrow",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
-                    "action": "press",
+                    "groups": "Keyboard & mouse",
+                    "action": "NavigateForth",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
             ]
         }
     ],
-    "controlSchemes": []
+    "controlSchemes": [
+        {
+            "name": "Keyboard & mouse",
+            "bindingGroup": "Keyboard & mouse",
+            "devices": [
+                {
+                    "devicePath": "<Keyboard>",
+                    "isOptional": true,
+                    "isOR": false
+                },
+                {
+                    "devicePath": "<Mouse>",
+                    "isOptional": true,
+                    "isOR": false
+                }
+            ]
+        }
+    ]
 }

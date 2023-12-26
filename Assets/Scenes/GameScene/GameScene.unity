@@ -7670,8 +7670,8 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-    m_ActionId: 94c394fc-b954-4444-b090-de06b8de7cd9
-    m_ActionName: NavigateHistoryBack/press[/Keyboard/leftArrow]
+    m_ActionId: 3891947b-c080-439e-80c4-14691e92657a
+    m_ActionName: Gameplay/NavigateBack[/Keyboard/leftArrow,/Keyboard/g]
   - m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1368304049}
@@ -7686,11 +7686,11 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-    m_ActionId: 4801930f-318c-4d62-b6f8-14dc523a6ce7
-    m_ActionName: NavigateHistoryForward/press[/Keyboard/rightArrow]
+    m_ActionId: c51905d9-5646-4d0b-b82f-01b46e2197a2
+    m_ActionName: Gameplay/NavigateForth[/Keyboard/rightArrow]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
-  m_DefaultActionMap: Move piece
+  m_DefaultActionMap: Gameplay
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
 --- !u!4 &1368304048

@@ -26,7 +26,7 @@ public class PlayerInputHandler : MonoBehaviour
 
     public void OnNavigateBack(InputAction.CallbackContext context)
     {
-        if (context.phase == InputActionPhase.Performed)
+        if (context.phase == InputActionPhase.Started)
         {
             historyHandler.Backward();
         }
@@ -34,7 +34,7 @@ public class PlayerInputHandler : MonoBehaviour
 
     public void OnNavigateForward(InputAction.CallbackContext context)
     {
-        if (context.phase == InputActionPhase.Performed)
+        if (context.phase == InputActionPhase.Started)
         {
             historyHandler.Forward();
         }

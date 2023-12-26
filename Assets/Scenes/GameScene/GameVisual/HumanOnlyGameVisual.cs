@@ -85,20 +85,6 @@ public class HumanOnlyGameVisual : HumanGameVisual
         ForceStopDrawPieceToPointer();
     }
 
-    public override void HistoryBack()
-    {
-        base.HistoryBack();
-        boardController.RotateBoard();
-        clocks.Swap();
-    }
-
-    public override void HistoryForward()
-    {
-        base.HistoryForward();
-        boardController.RotateBoard();
-        clocks.Swap();
-    }
-
     protected override void UpdateSelectedHover()
     {
         base.UpdateSelectedHover();

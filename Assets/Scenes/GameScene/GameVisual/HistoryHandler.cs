@@ -51,7 +51,5 @@ public class HistoryHandler : MonoBehaviour
         {
             historyIndex = -1;
         }
-
-        gameController.gameVisual.HistoryForward();
     }
 }

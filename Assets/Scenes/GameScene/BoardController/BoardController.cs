@@ -205,16 +205,19 @@ public class BoardController : MonoBehaviour
         if (pieceGameObject == null) return;
 
         var sourcePieceIsWhite = pieceGameObject.pieceType.IsWhite();
-        pieceGameObject.pieceType = reversibleMove.promotion != 0 ? sourcePieceIsWhite ? PieceType.WhitePawn : PieceType.BlackPawn : PieceType.Nothing;
+        pieceGameObject.pieceType = reversibleMove.promotion != PieceType.Nothing ? sourcePieceIsWhite ? PieceType.WhitePawn : PieceType.BlackPawn : pieceGameObject.pieceType;
+        pieceGameObject.position = reversibleMove.source;
         pieceGameObject.gameObject.GetComponent<SpriteRenderer>().sprite = pieceSprites.GetSpriteFor(pieceGameObject.pieceType);
         AnimatePiece(pieceGameObject.gameObject, reversibleMove.source, PieceType.Nothing, true);
 
         // Revive killed
-        if (reversibleMove.killed != null) {
+        if (reversibleMove.killed != null)
+        {
             var killedTarget = GetPieceGameObjects().Find(pieceGameObject => Equals(pieceGameObject.id, reversibleMove.killed.id));
             killedTarget.gameObject.GetComponent<SpriteRenderer>().sortingLayerName = "Pieces";
             killedTarget.gameObject.GetComponent<SpriteRenderer>().enabled = true;
             killedTarget.gameObject.GetComponent<BoxCollider2D>().enabled = true;
+            killedTarget.position = reversibleMove.killed.position;
         }
 
         // Castling

@@ -44,7 +44,6 @@ public abstract class GameVisual
     }
 
     public virtual void HistoryBack() { }
-    public virtual void HistoryForward() { }
 
     public virtual void Update() { }
 }
