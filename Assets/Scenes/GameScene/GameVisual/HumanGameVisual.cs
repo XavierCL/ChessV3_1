@@ -5,14 +5,12 @@ using UnityEngine.InputSystem;
 public abstract class HumanGameVisual : GameVisual
 {
     protected PromotionHandler promotionHandler { get; private set; }
-    protected HistoryHandler historyHandler { get; private set; }
     protected GameObject selectedPiece { get; private set; }
     protected BoardPosition startPosition { get; private set; }
 
     public HumanGameVisual()
     {
         promotionHandler = StaticReferences.promotionHandler.Value;
-        historyHandler = StaticReferences.historyHandler.Value;
     }
 
     protected GameObject GetPointerCollision()

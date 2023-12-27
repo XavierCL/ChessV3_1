@@ -117,6 +117,14 @@ public class GameController : MonoBehaviour
         gameVisual.GameOver(gameState);
     }
 
+    public bool IsAi1Turn(GameStateInterface gameState)
+    {
+        return (gameType == GameType.Ai1WhiteAi2Black) && gameState.BoardState.whiteTurn ||
+            (gameType == GameType.Ai1BlackAi2White) && !gameState.BoardState.whiteTurn ||
+            gameType == GameType.HumanWhiteAiBlack ||
+            gameType == GameType.HumanBlackAiWhite;
+    }
+
     private async void TriggerAiMoveIfNeeded()
     {
         if (gameState.getLegalMoves().Count == 0) return;
@@ -126,12 +134,7 @@ public class GameController : MonoBehaviour
         || (gameType == GameType.HumanWhiteAiBlack && !gameState.BoardState.whiteTurn)
         || (gameType == GameType.HumanBlackAiWhite && gameState.BoardState.whiteTurn))
         {
-            var aiMove = await GetAiController().GetMove(gameState,
-                (gameType == GameType.Ai1WhiteAi2Black) && gameState.BoardState.whiteTurn ||
-                (gameType == GameType.Ai1BlackAi2White) && !gameState.BoardState.whiteTurn ||
-                gameType == GameType.HumanWhiteAiBlack ||
-                gameType == GameType.HumanBlackAiWhite
-            );
+            var aiMove = await GetAiController().GetMove(gameState, IsAi1Turn(gameState));
 
             // Coming back on another thread. If there's no move, then unity has stopped.
             if (aiMove == null) return;
@@ -144,7 +147,7 @@ public class GameController : MonoBehaviour
     {
         if (aiController != null) return aiController;
 
-        aiController = GameObject.Find(nameof(AiController)).GetComponent<AiController>();
+        aiController = StaticReferences.aiController.Value;
 
         return aiController;
     }

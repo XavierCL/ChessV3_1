@@ -4,6 +4,7 @@ public abstract class GameVisual
 {
     protected GameController gameController;
     protected BoardController boardController;
+    protected HistoryHandler historyHandler;
     protected Clocks clocks;
     protected EndStateText endStateText;
 
@@ -13,10 +14,12 @@ public abstract class GameVisual
         boardController = StaticReferences.boardController.Value;
         clocks = StaticReferences.clocks.Value;
         endStateText = StaticReferences.endStateText.Value;
+        historyHandler = StaticReferences.historyHandler.Value;
     }
 
     public virtual void StartGame(GameStateInterface gameState)
     {
+        historyHandler.Start();
         boardController.ResetPieces(gameState.BoardState);
         endStateText.SetEndState(gameState.GetGameEndState());
     }
@@ -39,6 +42,7 @@ public abstract class GameVisual
 
     public virtual void PlayAnimatedMove(Move move, bool animated = true)
     {
+        historyHandler.ResetHistory();
         boardController.AnimateMove(move, false, animated);
         clocks.MovePlayed();
     }

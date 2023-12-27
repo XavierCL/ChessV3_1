@@ -5,11 +5,13 @@ public class PlayerInputHandler : MonoBehaviour
 {
     private GameController gameController;
     private HistoryHandler historyHandler;
+    private AiController aiController;
 
     void Awake()
     {
         gameController = StaticReferences.gameController.Value;
         historyHandler = StaticReferences.historyHandler.Value;
+        aiController = StaticReferences.aiController.Value;
     }
 
     public void OnPressPointerEvent(InputAction.CallbackContext context)
@@ -37,6 +39,15 @@ public class PlayerInputHandler : MonoBehaviour
         if (context.phase == InputActionPhase.Started)
         {
             historyHandler.Forward();
+        }
+    }
+
+    public async void OnAiRethink(InputAction.CallbackContext context)
+    {
+        if (context.phase == InputActionPhase.Started)
+        {
+            var historicGame = historyHandler.GetGameAtHistory();
+            await aiController.GetMove(historicGame, gameController.IsAi1Turn(historicGame));
         }
     }
 }

@@ -31,6 +31,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "AiRethink",
+                    "type": "Button",
+                    "id": "0f36b4b2-6cdc-4d68-8065-73a4d8ab6a28",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -64,6 +73,17 @@
                     "processors": "",
                     "groups": "Keyboard & mouse",
                     "action": "NavigateForth",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "124d6122-f2e9-4783-b1fd-fcba18b05a8c",
+                    "path": "<Keyboard>/g",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard & mouse",
+                    "action": "AiRethink",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

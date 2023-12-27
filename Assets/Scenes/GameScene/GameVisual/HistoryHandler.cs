@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 
 public class HistoryHandler : MonoBehaviour
@@ -14,6 +15,7 @@ public class HistoryHandler : MonoBehaviour
         premoveHandler = StaticReferences.premoveHandler.Value;
         boardController = StaticReferences.boardController.Value;
     }
+
 
     public void Start()
     {
@@ -51,5 +53,25 @@ public class HistoryHandler : MonoBehaviour
         {
             historyIndex = -1;
         }
+    }
+
+    public void ResetHistory()
+    {
+        if (!ShowsHistory) return;
+        boardController.ResetPieces(gameController.gameState.BoardState);
+        historyIndex = -1;
+    }
+
+    public GameStateInterface GetGameAtHistory()
+    {
+        var historyGame = gameController.gameStateFactory.FromGameState(gameController.gameState);
+        if (!ShowsHistory) return historyGame;
+
+        for (var moveIndex = historyGame.history.Count; moveIndex > historyIndex; --moveIndex)
+        {
+            historyGame.UndoMove();
+        }
+
+        return historyGame;
     }
 }
