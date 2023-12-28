@@ -3,13 +3,13 @@ using System.Collections.Generic;
 
 public abstract class GameStateInterface
 {
-    public abstract int staleTurns { get; protected set; }
+    public abstract int StaleTurns { get; }
     public abstract List<ReversibleMove> history { get; }
     public abstract BoardStateInterface BoardState { get; }
     public abstract Dictionary<BoardStateInterface, ushort> Snapshots { get; }
 
     public abstract List<Move> getLegalMoves();
-    public abstract void PlayMove(Move move);
+    public abstract ReversibleMove PlayMove(Move move);
     public abstract GameEndState GetGameEndState();
     public abstract void UndoMove();
     public string GetFen()

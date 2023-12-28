@@ -8,7 +8,7 @@ public static class V5LegalMoveGenerator
   /// </summary>
   public static List<Move> GenerateLegalMoves(this V5GameState gameState)
   {
-    if (gameState.staleTurns >= 100) return new List<Move>();
+    if (gameState.StaleTurns >= 100) return new List<Move>();
     if (gameState.snapshots.GetValueOrDefault(gameState.boardState) >= 2) return new List<Move>();
     var pseudoLegalMoves = GeneratePseudoLegalMoves(gameState.boardState, gameState.BoardState.whiteTurn);
     return pseudoLegalMoves.Where(move => !CanKingDieAfterMove(gameState.boardState, move, gameState.BoardState.whiteTurn)).ToList();

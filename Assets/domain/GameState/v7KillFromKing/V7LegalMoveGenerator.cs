@@ -9,7 +9,7 @@ public static class V7LegalMoveGenerator
   /// </summary>
   public static List<Move> GenerateLegalMoves(this V7GameState gameState)
   {
-    if (gameState.staleTurns >= 100) return new List<Move>();
+    if (gameState.StaleTurns >= 100) return new List<Move>();
     if (gameState.snapshots.GetValueOrDefault(gameState.boardState) >= 2) return new List<Move>();
     var pseudoLegalMoves = GeneratePseudoLegalMoves(gameState.boardState, gameState.BoardState.whiteTurn);
     var legalMoves = new List<Move>(pseudoLegalMoves.Count);

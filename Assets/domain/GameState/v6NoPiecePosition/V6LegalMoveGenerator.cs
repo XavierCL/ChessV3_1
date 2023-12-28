@@ -5,7 +5,7 @@ public static class V6LegalMoveGenerator
 {
   public static List<Move> GenerateLegalMoves(this V6GameState gameState)
   {
-    if (gameState.staleTurns >= 100) return new List<Move>();
+    if (gameState.StaleTurns >= 100) return new List<Move>();
     if (gameState.snapshots.GetValueOrDefault(gameState.boardState) >= 2) return new List<Move>();
     var pseudoLegalMoves = GeneratePseudoLegalMoves(gameState.boardState, gameState.BoardState.whiteTurn);
     var legalMoves = new List<Move>(pseudoLegalMoves.Count);

@@ -3,7 +3,8 @@ using System.Linq;
 
 public class V3GameState : GameStateInterface
 {
-    public override int staleTurns { get; protected set; }
+    private int staleTurns;
+    public override int StaleTurns { get => staleTurns; }
     public override BoardStateInterface BoardState { get => boardState; }
     public V3BoardState boardState { get; private set; }
     public override List<ReversibleMove> history { get; }
@@ -20,7 +21,7 @@ public class V3GameState : GameStateInterface
 
     public V3GameState(GameStateInterface gameState)
     {
-        staleTurns = gameState.staleTurns;
+        staleTurns = gameState.StaleTurns;
         history = new List<ReversibleMove>(gameState.history);
         boardState = new V3BoardState(gameState.BoardState);
         snapshots = gameState.Snapshots.ToDictionary(tuple => new V3BoardState(tuple.Key), tuple => tuple.Value);
@@ -46,7 +47,7 @@ public class V3GameState : GameStateInterface
         return this.GenerateLegalMoves();
     }
 
-    public override void PlayMove(Move move)
+    public override ReversibleMove PlayMove(Move move)
     {
         var oldBoardState = boardState;
         var nextBoardPlay = oldBoardState.PlayMove(move);
@@ -59,10 +60,10 @@ public class V3GameState : GameStateInterface
         var lostBlackKingCastleRight = oldBoardState.blackCastleKingSide != nextBoardPlay.boardState.blackCastleKingSide;
         var lostBlackQueenCastleRight = oldBoardState.blackCastleQueenSide != nextBoardPlay.boardState.blackCastleQueenSide;
 
-        history.Add(new ReversibleMove(
+        var reversibleMove = new ReversibleMove(
             move.source,
             move.target,
-            staleTurns,
+            StaleTurns,
             move.promotion,
             lostWhiteKingCastleRight,
             lostWhiteQueenCastleRight,
@@ -70,9 +71,12 @@ public class V3GameState : GameStateInterface
             lostBlackQueenCastleRight,
             oldBoardState.enPassantColumn,
             nextBoardPlay.killedPiece
-        ));
+        );
 
-        staleTurns = nextBoardPlay.sourcePiece.pieceType.IsPawn() || nextBoardPlay.killedPiece != null ? 0 : staleTurns + 1;
+        history.Add(reversibleMove);
+
+        staleTurns = nextBoardPlay.sourcePiece.pieceType.IsPawn() || nextBoardPlay.killedPiece != null ? 0 : StaleTurns + 1;
+        return reversibleMove;
     }
 
     public override void UndoMove()
@@ -100,7 +104,7 @@ public class V3GameState : GameStateInterface
 
     public override GameEndState GetGameEndState()
     {
-        if (staleTurns >= 100) return GameEndState.Draw;
+        if (StaleTurns >= 100) return GameEndState.Draw;
         if (snapshots.GetValueOrDefault(boardState) >= 2) return GameEndState.Draw;
         if (getLegalMoves().Count > 0) return GameEndState.Ongoing;
         var canOwnKingDie = V3LegalMoveGenerator.CanOwnKingDie(this);
