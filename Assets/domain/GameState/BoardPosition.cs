@@ -20,6 +20,11 @@ public struct BoardPosition
         this.index = index;
     }
 
+    public bool IsWhiteSquare()
+    {
+        return index % 2 == 1;
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsInBoard(int col, int row)
     {

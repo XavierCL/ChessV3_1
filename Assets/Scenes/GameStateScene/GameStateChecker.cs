@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Profiling;
 
 public class GameStateChecker : MonoBehaviour
 {
@@ -17,8 +16,8 @@ public class GameStateChecker : MonoBehaviour
         var version2Counts = new List<long>();
         var version1Time = 0.0;
         var version2Time = 0.0;
-        var factory1 = new V9GameStateFactory();
-        var factory2 = new V8GameStateFactory();
+        var factory1 = new V10GameStateFactory();
+        var factory2 = new V9GameStateFactory();
 
         var startingPositions = StartingPositions();
         if (OnlyLastPosition)
