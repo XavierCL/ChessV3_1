@@ -47,10 +47,7 @@ public class PieceIdGameStateAdapter : GameStateInterface
       reversibleMove.target,
       reversibleMove.oldStaleTurns,
       reversibleMove.promotion,
-      reversibleMove.lostWhiteKingCastleRight,
-      reversibleMove.lostWhiteQueenCastleRight,
-      reversibleMove.lostBlackKingCastleRight,
-      reversibleMove.lostBlackQueenCastleRight,
+      reversibleMove.lostCastleRights,
       reversibleMove.oldEnPassantColumn,
       boardPlay.killedPiece
     );

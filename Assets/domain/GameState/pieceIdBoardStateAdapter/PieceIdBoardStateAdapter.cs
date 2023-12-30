@@ -69,13 +69,7 @@ public class PieceIdBoardStateAdapter : BoardStateInterface
 
   public bool whiteTurn => underlying.BoardState.whiteTurn;
 
-  public bool whiteCastleKingSide => underlying.BoardState.whiteCastleKingSide;
-
-  public bool whiteCastleQueenSide => underlying.BoardState.whiteCastleQueenSide;
-
-  public bool blackCastleKingSide => underlying.BoardState.blackCastleKingSide;
-
-  public bool blackCastleQueenSide => underlying.BoardState.blackCastleQueenSide;
+  public CastleFlags castleFlags => underlying.BoardState.castleFlags;
 
   public int enPassantColumn => underlying.BoardState.enPassantColumn;
 

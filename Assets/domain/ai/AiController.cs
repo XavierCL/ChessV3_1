@@ -27,24 +27,24 @@ public class AiController : MonoBehaviour
         ai2Interface.ResetAi();
     }
 
-    public async Task<Move> GetMove(GameStateInterface gameState, bool ai1)
+    public async Task<Move> GetMove(GameStateInterface gameState, bool ai1, TimeSpan remainingTime, TimeSpan increment)
     {
         var currentGuid = gameId;
         var moveOrEmpty = await Task.Run(async () =>
         {
             if (ai1Interface == null || ai2Interface == null) return null;
-            if (ai1) return await ai1Interface.GetMove(gameState);
-            return await ai2Interface.GetMove(gameState);
+            if (ai1) return await ai1Interface.GetMove(gameState, remainingTime, increment);
+            return await ai2Interface.GetMove(gameState, remainingTime, increment);
         });
 
         if (currentGuid != gameId) return null;
         return moveOrEmpty;
     }
 
-    public async Task<Move> GetMoveSync(GameStateInterface gameState, bool ai1)
+    public async Task<Move> GetMoveSync(GameStateInterface gameState, bool ai1, TimeSpan remainingTime, TimeSpan increment)
     {
         if (ai1Interface == null || ai2Interface == null) return null;
-        if (ai1) return await ai1Interface.GetMove(gameState);
-        return await ai2Interface.GetMove(gameState);
+        if (ai1) return await ai1Interface.GetMove(gameState, remainingTime, increment);
+        return await ai2Interface.GetMove(gameState, remainingTime, increment);
     }
 }

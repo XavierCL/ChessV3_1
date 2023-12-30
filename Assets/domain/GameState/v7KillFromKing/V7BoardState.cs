@@ -30,10 +30,7 @@ public class V7BoardState : BoardStateInterface
   }
 
   public readonly PieceType[] boardPieces;
-  public bool whiteCastleKingSide { get; }
-  public bool whiteCastleQueenSide { get; }
-  public bool blackCastleKingSide { get; }
-  public bool blackCastleQueenSide { get; }
+  public CastleFlags castleFlags { get; }
   public int enPassantColumn { get; }
   public BoardPosition whiteKingPosition { get; }
   public BoardPosition blackKingPosition { get; }
@@ -41,10 +38,7 @@ public class V7BoardState : BoardStateInterface
   public V7BoardState()
   {
     whiteTurn = true;
-    whiteCastleKingSide = true;
-    whiteCastleQueenSide = true;
-    blackCastleKingSide = true;
-    blackCastleQueenSide = true;
+    castleFlags = CastleFlags.All;
     enPassantColumn = -1;
 
     var piecePositions = new List<PiecePosition> {
@@ -104,10 +98,7 @@ public class V7BoardState : BoardStateInterface
   public V7BoardState(BoardStateInterface other)
   {
     whiteTurn = other.whiteTurn;
-    whiteCastleKingSide = other.whiteCastleKingSide;
-    whiteCastleQueenSide = other.whiteCastleQueenSide;
-    blackCastleKingSide = other.blackCastleKingSide;
-    blackCastleQueenSide = other.blackCastleQueenSide;
+    castleFlags = other.castleFlags;
     enPassantColumn = other.enPassantColumn;
 
     boardPieces = new PieceType[64];
@@ -128,26 +119,20 @@ public class V7BoardState : BoardStateInterface
     }
   }
 
-  public V7BoardState(bool whiteTurn, PieceType[] boardPieces, bool whiteCastleKingSide, bool whiteCastleQueenSide, bool blackCastleKingSide, bool blackCastleQueenSide, int enPassantColumn, BoardPosition whiteKingPosition, BoardPosition blackKingPosition)
+  public V7BoardState(bool whiteTurn, PieceType[] boardPieces, CastleFlags castleFlags, int enPassantColumn, BoardPosition whiteKingPosition, BoardPosition blackKingPosition)
   {
     this.whiteTurn = whiteTurn;
     this.boardPieces = boardPieces;
-    this.whiteCastleKingSide = whiteCastleKingSide;
-    this.whiteCastleQueenSide = whiteCastleQueenSide;
-    this.blackCastleKingSide = blackCastleKingSide;
-    this.blackCastleQueenSide = blackCastleQueenSide;
+    this.castleFlags = castleFlags;
     this.enPassantColumn = enPassantColumn;
     this.whiteKingPosition = whiteKingPosition;
     this.blackKingPosition = blackKingPosition;
   }
 
-  public V7BoardState(bool whiteTurn, List<PiecePosition> piecePositions, bool whiteCastleKingSide, bool whiteCastleQueenSide, bool blackCastleKingSide, bool blackCastleQueenSide)
+  public V7BoardState(bool whiteTurn, List<PiecePosition> piecePositions, CastleFlags castleFlags)
   {
     this.whiteTurn = whiteTurn;
-    this.whiteCastleKingSide = whiteCastleKingSide;
-    this.whiteCastleQueenSide = whiteCastleQueenSide;
-    this.blackCastleKingSide = blackCastleKingSide;
-    this.blackCastleQueenSide = blackCastleQueenSide;
+    this.castleFlags = castleFlags;
     enPassantColumn = -1;
 
     boardPieces = new PieceType[64];
@@ -207,15 +192,13 @@ public class V7BoardState : BoardStateInterface
       newBoardPieces[killedPiece.position.index] = PieceType.Nothing;
     }
 
-    var lostWhiteKingCastleRight = this.whiteCastleKingSide && (sourcePiece.pieceType == PieceType.WhiteKing || move.source.Equals(new BoardPosition(7, 0)) || move.target.Equals(new BoardPosition(7, 0)));
-    var lostWhiteQueenCastleRight = this.whiteCastleQueenSide && (sourcePiece.pieceType == PieceType.WhiteKing || move.source.Equals(new BoardPosition(0, 0)) || move.target.Equals(new BoardPosition(0, 0)));
-    var lostBlackKingCastleRight = this.blackCastleKingSide && (sourcePiece.pieceType == PieceType.BlackKing || move.source.Equals(new BoardPosition(7, 7)) || move.target.Equals(new BoardPosition(7, 7)));
-    var lostBlackQueenCastleRight = this.blackCastleQueenSide && (sourcePiece.pieceType == PieceType.BlackKing || move.source.Equals(new BoardPosition(0, 7)) || move.target.Equals(new BoardPosition(0, 7)));
+    var lostCastleRights = CastleFlags.Nothing;
+    if (sourcePiece.pieceType == PieceType.WhiteKing || sourcePiece.position.Equals(new BoardPosition(7, 0))) lostCastleRights |= CastleFlags.WhiteKing;
+    if (sourcePiece.pieceType == PieceType.WhiteKing || sourcePiece.position.Equals(new BoardPosition(0, 0))) lostCastleRights |= CastleFlags.WhiteQueen;
+    if (sourcePiece.pieceType == PieceType.BlackKing || sourcePiece.position.Equals(new BoardPosition(7, 7))) lostCastleRights |= CastleFlags.BlackKing;
+    if (sourcePiece.pieceType == PieceType.BlackKing || sourcePiece.position.Equals(new BoardPosition(0, 7))) lostCastleRights |= CastleFlags.BlackQueen;
 
-    var whiteCastleKingSide = this.whiteCastleKingSide && !lostWhiteKingCastleRight;
-    var whiteCastleQueenSide = this.whiteCastleQueenSide && !lostWhiteQueenCastleRight;
-    var blackCastleKingSide = this.blackCastleKingSide && !lostBlackKingCastleRight;
-    var blackCastleQueenSide = this.blackCastleQueenSide && !lostBlackQueenCastleRight;
+    var castleFlags = this.castleFlags & ~lostCastleRights;
 
     // Castling
     if (sourcePieceType.IsKing() && Math.Abs(move.target.col - move.source.col) == 2)
@@ -268,10 +251,7 @@ public class V7BoardState : BoardStateInterface
       boardState = new V7BoardState(
         !whiteTurn,
         newBoardPieces,
-        whiteCastleKingSide,
-        whiteCastleQueenSide,
-        blackCastleKingSide,
-        blackCastleQueenSide,
+        castleFlags,
         enPassantColumn,
         whiteKingPosition,
         blackKingPosition
@@ -300,15 +280,7 @@ public class V7BoardState : BoardStateInterface
       newBoardPieces[reversibleMove.killed.position.index] = reversibleMove.killed.pieceType;
     }
 
-    var whiteCastleKingSide = this.whiteCastleKingSide;
-    var whiteCastleQueenSide = this.whiteCastleQueenSide;
-    var blackCastleKingSide = this.blackCastleKingSide;
-    var blackCastleQueenSide = this.blackCastleQueenSide;
-
-    if (reversibleMove.lostWhiteKingCastleRight) whiteCastleKingSide = true;
-    if (reversibleMove.lostWhiteQueenCastleRight) whiteCastleQueenSide = true;
-    if (reversibleMove.lostBlackKingCastleRight) blackCastleKingSide = true;
-    if (reversibleMove.lostBlackQueenCastleRight) blackCastleQueenSide = true;
+    var castleFlags = this.castleFlags | reversibleMove.lostCastleRights;
 
     // Castling
     if (sourcePieceType.IsKing() && Math.Abs(reversibleMove.target.col - reversibleMove.source.col) == 2)
@@ -359,10 +331,7 @@ public class V7BoardState : BoardStateInterface
     return new V7BoardState(
       !whiteTurn,
       newBoardPieces,
-      whiteCastleKingSide,
-      whiteCastleQueenSide,
-      blackCastleKingSide,
-      blackCastleQueenSide,
+      castleFlags,
       reversibleMove.oldEnPassantColumn,
       whiteKingPosition,
       blackKingPosition
@@ -377,10 +346,7 @@ public class V7BoardState : BoardStateInterface
   public override bool Equals(object obj)
   {
     var other = (V7BoardState)obj;
-    if (whiteCastleKingSide != other.whiteCastleKingSide
-    || whiteCastleQueenSide != other.whiteCastleQueenSide
-    || blackCastleKingSide != other.blackCastleKingSide
-    || blackCastleQueenSide != other.blackCastleQueenSide
+    if (castleFlags != other.castleFlags
     || enPassantColumn != other.enPassantColumn
     || whiteTurn != other.whiteTurn) return false;
 
@@ -397,10 +363,7 @@ public class V7BoardState : BoardStateInterface
     unchecked
     {
       var hashCode = enPassantColumn + 2;
-      hashCode = hashCode * 2 + (whiteCastleKingSide ? 1 : 0);
-      hashCode = hashCode * 2 + (whiteCastleQueenSide ? 1 : 0);
-      hashCode = hashCode * 2 + (blackCastleKingSide ? 1 : 0);
-      hashCode = hashCode * 2 + (blackCastleQueenSide ? 1 : 0);
+      hashCode = hashCode * 17 + (int)castleFlags + 1;
       hashCode = hashCode * 2 + (whiteTurn ? 1 : 0);
 
       for (var index = 0; index < boardPieces.Length; ++index)

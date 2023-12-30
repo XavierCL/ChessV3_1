@@ -10,11 +10,12 @@ public class SingleClock : MonoBehaviour
     public Color NoMoreTimeColor = Color.green;
     public bool IsTop = false;
     public string initialTime = "";
-    public string increment = "";
+    public string initialIncrement = "";
 
     private TimeSpan remainingTimeSinceLastTickDown = TimeSpan.Zero;
+    private TimeSpan increment = TimeSpan.Zero;
     private float lastTickDownDateTime = 0;
-    private static Regex stringToTimeSpanRegex = new Regex(@"(?:(\d+):)?(\d{1,2})", RegexOptions.Compiled);
+    private static Regex stringToTimeSpanRegex = new Regex(@"(?:(\d+):)?(\d{1,2})(?:\.(\d{1,2}))?", RegexOptions.Compiled);
     private GameController gameController;
 
     public bool TickingDown { get; private set; }
@@ -24,7 +25,7 @@ public class SingleClock : MonoBehaviour
         gameController = StaticReferences.gameController.Value;
     }
 
-    public void ResetClock(string rootInitialTime)
+    public void ResetClock(string rootInitialTime, string rootIncrement)
     {
         TickingDown = false;
         gameObject.GetComponent<TextMeshProUGUI>().color = InitialGrayColor;
@@ -32,6 +33,7 @@ public class SingleClock : MonoBehaviour
         var initialTime = string.IsNullOrEmpty(this.initialTime) ? rootInitialTime : this.initialTime;
         gameObject.GetComponent<TextMeshProUGUI>().SetText(initialTime);
         remainingTimeSinceLastTickDown = stringToTimeSpan(initialTime);
+        increment = stringToTimeSpan(string.IsNullOrEmpty(initialIncrement) ? rootIncrement : initialIncrement);
     }
 
     public void TickDown()
@@ -41,13 +43,22 @@ public class SingleClock : MonoBehaviour
         lastTickDownDateTime = Time.time;
     }
 
-    public void StopTicking(string rootIncrement)
+    public void StopTicking()
     {
         TickingDown = false;
-        var increment = string.IsNullOrEmpty(this.increment) ? rootIncrement : this.increment;
-        remainingTimeSinceLastTickDown = remainingTimeSinceLastTickDown - TimeSpan.FromSeconds(Time.time - lastTickDownDateTime) + stringToTimeSpan(increment);
+        remainingTimeSinceLastTickDown = GetTimeLeft() + GetIncrement();
         gameObject.GetComponent<TextMeshProUGUI>().color = InitialGrayColor;
         gameObject.GetComponent<TextMeshProUGUI>().SetText(timeSpanToString(remainingTimeSinceLastTickDown));
+    }
+
+    public TimeSpan GetTimeLeft()
+    {
+        return remainingTimeSinceLastTickDown - TimeSpan.FromSeconds(Time.time - lastTickDownDateTime);
+    }
+
+    public TimeSpan GetIncrement()
+    {
+        return increment;
     }
 
     public void ForceStop()
@@ -55,7 +66,7 @@ public class SingleClock : MonoBehaviour
         if (!TickingDown) return;
 
         TickingDown = false;
-        remainingTimeSinceLastTickDown = remainingTimeSinceLastTickDown - TimeSpan.FromSeconds(Time.time - lastTickDownDateTime);
+        remainingTimeSinceLastTickDown = GetTimeLeft();
         gameObject.GetComponent<TextMeshProUGUI>().color = InitialGrayColor;
     }
 
@@ -63,7 +74,7 @@ public class SingleClock : MonoBehaviour
     {
         if (!TickingDown) return;
 
-        TimeSpan timeLeft = remainingTimeSinceLastTickDown - TimeSpan.FromSeconds(Time.time - lastTickDownDateTime);
+        TimeSpan timeLeft = GetTimeLeft();
 
         if (timeLeft <= TimeSpan.Zero)
         {
@@ -82,10 +93,12 @@ public class SingleClock : MonoBehaviour
         var matches = stringToTimeSpanRegex.Match(duration);
         var minutes = matches.Groups[1].Value;
         var seconds = matches.Groups[2].Value;
+        var milliseconds = matches.Groups[3].Value;
 
         var minutesNumber = string.IsNullOrEmpty(minutes) ? 0 : Int32.Parse(minutes);
         var secondsNumber = string.IsNullOrEmpty(seconds) ? 0 : Int32.Parse(seconds);
-        return new TimeSpan(0, minutesNumber, secondsNumber);
+        var millisecondsNumber = string.IsNullOrEmpty(milliseconds) ? 0 : (int)(float.Parse($"0.{milliseconds}") * 1000);
+        return new TimeSpan(0, 0, minutesNumber, secondsNumber, millisecondsNumber);
     }
 
     private string timeSpanToString(TimeSpan duration)

@@ -24,6 +24,33 @@ public static class BitBoard
     13, 18,  8, 12,  7,  6,  5, 63
   };
 
+  private static ulong[] shiftPositiveAvoidWraps = new ulong[9]{
+    0x0000000000000000,
+    0x8080808080808080,
+    0xc0c0c0c0c0c0c0c0,
+    0xe0e0e0e0e0e0e0e0,
+    0xf0f0f0f0f0f0f0f0,
+    0xf8f8f8f8f8f8f8f8,
+    0xfcfcfcfcfcfcfcfc,
+    0xfefefefefefefefe,
+    0xffffffffffffffff,
+  };
+
+  private static ulong[] shiftNegativeAvoidWraps = new ulong[9]{
+    0x0000000000000000,
+    0x0101010101010101,
+    0x0303030303030303,
+    0x0707070707070707,
+    0x0f0f0f0f0f0f0f0f,
+    0x1f1f1f1f1f1f1f1f,
+    0x3f3f3f3f3f3f3f3f,
+    0x7f7f7f7f7f7f7f7f,
+    0xffffffffffffffff,
+  };
+
+  public static ulong firstColumn = 0x0101010101010101;
+  public static ulong firstRow = 0x00000000000000FF;
+
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
   public static int lsb(this ulong bitBoard)
   {
@@ -42,7 +69,6 @@ public static class BitBoard
   {
     unchecked
     {
-      var copy = bitBoard;
       if (bitBoard == 0) return -1;
       bitBoard |= bitBoard >> 1;
       bitBoard |= bitBoard >> 2;
@@ -51,6 +77,24 @@ public static class BitBoard
       bitBoard |= bitBoard >> 16;
       bitBoard |= bitBoard >> 32;
       return msb_64_table[(bitBoard * 0x03f79d71b4cb0a89ul) >> 58];
+    }
+  }
+
+  [MethodImpl(MethodImplOptions.AggressiveInlining)]
+  public static ulong shiftColumn(this ulong bitBoard, int shift)
+  {
+    unchecked
+    {
+      return shift < 0 ? (bitBoard & ~shiftNegativeAvoidWraps[-shift]) >> (-shift) : (bitBoard & ~shiftPositiveAvoidWraps[shift]) << shift;
+    }
+  }
+
+  [MethodImpl(MethodImplOptions.AggressiveInlining)]
+  public static ulong shiftRow(this ulong bitBoard, int shift)
+  {
+    unchecked
+    {
+      return shift < 0 ? bitBoard >> (-8 * shift) : bitBoard << (8 * shift);
     }
   }
 
@@ -64,5 +108,20 @@ public static class BitBoard
       bitBoard &= bitBoard - 1;
     }
     return count;
+  }
+
+  [MethodImpl(MethodImplOptions.AggressiveInlining)]
+  public static int[] extractIndices(this ulong bitBoard)
+  {
+    var bitCount = bitBoard.bitCount();
+    var indices = new int[bitCount];
+    for (var index = 0; index < bitCount; ++index)
+    {
+      var nextPiece = bitBoard.lsb();
+      bitBoard ^= 1ul << nextPiece;
+      indices[index] = nextPiece;
+    }
+
+    return indices;
   }
 }

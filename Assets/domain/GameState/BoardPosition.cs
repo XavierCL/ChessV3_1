@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using Unity.VisualScripting;
 
 [DebuggerDisplay("{pretty}")]
 public struct BoardPosition
@@ -22,7 +23,7 @@ public struct BoardPosition
 
     public bool IsWhiteSquare()
     {
-        return index % 2 == 1;
+        return index.IsWhiteSquare();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -54,4 +55,13 @@ public static class BoardPositionExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int getRow(this int index) => index / 8;
     public static BoardPosition toBoardPosition(this int index) => new BoardPosition(index);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static ulong toBitBoard(this int index) => 1ul << index;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool IsWhiteSquare(this int index)
+    {
+        return index % 2 == 1;
+    }
 }

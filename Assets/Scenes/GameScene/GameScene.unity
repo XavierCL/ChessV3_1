@@ -3295,10 +3295,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 609873490}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b071a9e3357fb28419c533458f4bea3c, type: 3}
+  m_Script: {fileID: 11500000, guid: 2df77f1dae16b1e4f8852caa316b60d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Ply: 1
+  ShowDebugInfo: 1
 --- !u!1 &628009634
 GameObject:
   m_ObjectHideFlags: 0
@@ -7078,7 +7078,7 @@ MonoBehaviour:
   NoMoreTimeColor: {r: 1, g: 0.27058825, b: 0.27058825, a: 1}
   IsTop: 0
   initialTime: 
-  increment: 
+  initialIncrement: 
 --- !u!1 &1250195714
 GameObject:
   m_ObjectHideFlags: 0
@@ -7269,10 +7269,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1293550091}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b071a9e3357fb28419c533458f4bea3c, type: 3}
+  m_Script: {fileID: 11500000, guid: e57d3bd80683efe4d8659bacbc0b3087, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Ply: 1
+  ShowDebugInfo: 1
 --- !u!1 &1312554370
 GameObject:
   m_ObjectHideFlags: 0
@@ -10894,7 +10894,7 @@ MonoBehaviour:
   NoMoreTimeColor: {r: 1, g: 0.27058825, b: 0.27058825, a: 1}
   IsTop: 1
   initialTime: 
-  increment: 
+  initialIncrement: 
 --- !u!1 &1816159495
 GameObject:
   m_ObjectHideFlags: 0

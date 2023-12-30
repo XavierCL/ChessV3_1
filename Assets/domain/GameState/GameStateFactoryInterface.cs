@@ -96,17 +96,17 @@ public abstract class GameStateFactoryInterface
         }
     }
 
-    protected Castling FenToCastle(string fen)
+    protected CastleFlags FenToCastle(string fen)
     {
         var fens = fen.Split(" ");
         if (fens.Length < 3) return 0;
         var fenCastling = fens[2];
         if (fenCastling == "-") return 0;
-        Castling castling = 0;
-        if (fenCastling.Contains("K")) castling |= Castling.WhiteKing;
-        if (fenCastling.Contains("Q")) castling |= Castling.WhiteQueen;
-        if (fenCastling.Contains("k")) castling |= Castling.BlackKing;
-        if (fenCastling.Contains("q")) castling |= Castling.BlackQueen;
+        CastleFlags castling = CastleFlags.Nothing;
+        if (fenCastling.Contains("K")) castling |= CastleFlags.WhiteKing;
+        if (fenCastling.Contains("Q")) castling |= CastleFlags.WhiteQueen;
+        if (fenCastling.Contains("k")) castling |= CastleFlags.BlackKing;
+        if (fenCastling.Contains("q")) castling |= CastleFlags.BlackQueen;
         return castling;
     }
 }

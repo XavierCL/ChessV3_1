@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 public class Clocks : MonoBehaviour
@@ -21,8 +20,8 @@ public class Clocks : MonoBehaviour
         var bottomClock = StaticReferences.bottomClock.Value.GetComponent<SingleClock>();
 
         InitializeClocks();
-        topClock.ResetClock(initialTime);
-        bottomClock.ResetClock(initialTime);
+        topClock.ResetClock(initialTime, increment);
+        bottomClock.ResetClock(initialTime, increment);
         ResetSwap();
 
         if (topFirst)
@@ -42,12 +41,12 @@ public class Clocks : MonoBehaviour
 
         if (topClock.TickingDown)
         {
-            topClock.StopTicking(increment);
+            topClock.StopTicking();
             bottomClock.TickDown();
         }
         else
         {
-            bottomClock.StopTicking(increment);
+            bottomClock.StopTicking();
             topClock.TickDown();
         }
     }

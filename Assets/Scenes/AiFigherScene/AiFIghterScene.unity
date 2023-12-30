@@ -164,10 +164,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 195540169}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b071a9e3357fb28419c533458f4bea3c, type: 3}
+  m_Script: {fileID: 11500000, guid: 2df77f1dae16b1e4f8852caa316b60d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Ply: 1
+  ShowDebugInfo: 0
 --- !u!1 &292345930
 GameObject:
   m_ObjectHideFlags: 0
@@ -246,8 +246,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   initialTime: 1
-  increment: 1
-  OnlyFirstPosition: 1
+  increment: 0.01
+  OnlyFirstPosition: 0
   ReversePositions: 1
 --- !u!4 &328839930
 Transform:
@@ -305,6 +305,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 578633564}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0194bf2e80d2a004986fe5f1f7ef064d, type: 3}
+  m_Script: {fileID: 11500000, guid: e57d3bd80683efe4d8659bacbc0b3087, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ShowDebugInfo: 0

@@ -27,17 +27,14 @@ public class V2GameState : GameStateInterface
         snapshots = gameState.Snapshots.ToDictionary(tuple => new V2BoardState(tuple.Key), tuple => tuple.Value);
     }
 
-    public V2GameState(List<PiecePosition> piecePositions, bool whiteStarts, Castling castling)
+    public V2GameState(List<PiecePosition> piecePositions, bool whiteStarts, CastleFlags castling)
     {
         staleTurns = 0;
         history = new List<ReversibleMove>();
         boardState = new V2BoardState(
             whiteStarts,
             piecePositions,
-            (castling & Castling.WhiteKing) == Castling.WhiteKing,
-            (castling & Castling.WhiteQueen) == Castling.WhiteQueen,
-            (castling & Castling.BlackKing) == Castling.BlackKing,
-            (castling & Castling.BlackQueen) == Castling.BlackQueen,
+            castling,
             -1
         );
         snapshots = new Dictionary<V2BoardState, ushort>();
@@ -56,20 +53,14 @@ public class V2GameState : GameStateInterface
         snapshots[oldBoardState] = (ushort)(snapshots.GetValueOrDefault(oldBoardState) + 1);
         boardState = nextBoardPlay.boardState;
 
-        var lostWhiteKingCastleRight = oldBoardState.whiteCastleKingSide != nextBoardPlay.boardState.whiteCastleKingSide;
-        var lostWhiteQueenCastleRight = oldBoardState.whiteCastleQueenSide != nextBoardPlay.boardState.whiteCastleQueenSide;
-        var lostBlackKingCastleRight = oldBoardState.blackCastleKingSide != nextBoardPlay.boardState.blackCastleKingSide;
-        var lostBlackQueenCastleRight = oldBoardState.blackCastleQueenSide != nextBoardPlay.boardState.blackCastleQueenSide;
+        var lostCastleRights = oldBoardState.castleFlags & ~nextBoardPlay.boardState.castleFlags;
 
         var reversibleMove = new ReversibleMove(
             move.source,
             move.target,
             StaleTurns,
             move.promotion,
-            lostWhiteKingCastleRight,
-            lostWhiteQueenCastleRight,
-            lostBlackKingCastleRight,
-            lostBlackQueenCastleRight,
+            lostCastleRights,
             oldBoardState.enPassantColumn,
             nextBoardPlay.killedPiece
         );

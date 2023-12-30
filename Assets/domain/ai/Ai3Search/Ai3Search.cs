@@ -1,7 +1,9 @@
+using System.Threading;
+
 public static class Ai3Search
 {
   // Depths are decreasing. A depth of 1 means evaluation
-  public static double Search(V9GameState gameState, int depth)
+  public static double Search(V10GameState gameState, int depth, CancellationToken cancellationToken)
   {
     if (depth == 1) return Ai3Evaluate.Evaluate(gameState);
 
@@ -25,8 +27,9 @@ public static class Ai3Search
 
     for (var legalMoveIndex = 0; legalMoveIndex < legalMoves.Count; ++legalMoveIndex)
     {
+      if (cancellationToken.IsCancellationRequested) return bestValue;
       gameState.PlayMove(legalMoves[legalMoveIndex]);
-      var value = Search(gameState, depth - 1);
+      var value = Search(gameState, depth - 1, cancellationToken);
       gameState.UndoMove();
 
       if (value > bestValue && gameState.boardState.whiteTurn || value < bestValue && !gameState.boardState.whiteTurn)

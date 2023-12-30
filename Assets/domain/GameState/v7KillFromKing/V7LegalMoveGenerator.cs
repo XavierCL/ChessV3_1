@@ -310,16 +310,16 @@ public static class V7LegalMoveGenerator
     .ToList();
 
     var castles = new[] {
-      new { isWhite = true, canCastle = boardState.whiteCastleKingSide, emptyPositions = new List<BoardPosition>{ new BoardPosition(5, 0), new BoardPosition(6, 0) }, noCheckPositions = new List<BoardPosition>{ new BoardPosition(5, 0), new BoardPosition(6, 0) } },
-      new { isWhite = true, canCastle = boardState.whiteCastleQueenSide, emptyPositions = new List<BoardPosition>{ new BoardPosition(3, 0), new BoardPosition(2, 0), new BoardPosition(1, 0) }, noCheckPositions = new List<BoardPosition>{ new BoardPosition(3, 0), new BoardPosition(2, 0) } },
-      new { isWhite = false, canCastle = boardState.blackCastleKingSide, emptyPositions = new List<BoardPosition>{ new BoardPosition(5, 7), new BoardPosition(6, 7) }, noCheckPositions = new List<BoardPosition>{ new BoardPosition(5, 7), new BoardPosition(6, 7) } },
-      new { isWhite = false, canCastle = boardState.blackCastleQueenSide, emptyPositions = new List<BoardPosition>{ new BoardPosition(3, 7), new BoardPosition(2, 7), new BoardPosition(1, 7) }, noCheckPositions = new List<BoardPosition>{ new BoardPosition(3, 7), new BoardPosition(2, 7) } },
+      new { castle = CastleFlags.WhiteKing, emptyPositions = new List<BoardPosition>{ new BoardPosition(5, 0), new BoardPosition(6, 0) }, noCheckPositions = new List<BoardPosition>{ new BoardPosition(5, 0), new BoardPosition(6, 0) } },
+      new { castle = CastleFlags.WhiteQueen, emptyPositions = new List<BoardPosition>{ new BoardPosition(3, 0), new BoardPosition(2, 0), new BoardPosition(1, 0) }, noCheckPositions = new List<BoardPosition>{ new BoardPosition(3, 0), new BoardPosition(2, 0) } },
+      new { castle = CastleFlags.BlackKing, emptyPositions = new List<BoardPosition>{ new BoardPosition(5, 7), new BoardPosition(6, 7) }, noCheckPositions = new List<BoardPosition>{ new BoardPosition(5, 7), new BoardPosition(6, 7) } },
+      new { castle = CastleFlags.BlackQueen, emptyPositions = new List<BoardPosition>{ new BoardPosition(3, 7), new BoardPosition(2, 7), new BoardPosition(1, 7) }, noCheckPositions = new List<BoardPosition>{ new BoardPosition(3, 7), new BoardPosition(2, 7) } },
     };
 
     var rockMoves = castles.Where(rock =>
     {
-      if (!rock.canCastle) return false;
-      if (rock.isWhite != piecePosition.pieceType.IsWhite()) return false;
+      if (!boardState.castleFlags.HasFlag(rock.castle)) return false;
+      if (piecePosition.pieceType.IsWhite() != rock.castle.IsWhite()) return false;
 
       foreach (var emptyPosition in rock.emptyPositions)
       {
@@ -329,13 +329,13 @@ public static class V7LegalMoveGenerator
       var lastCheckedBoardState = boardState;
       var lastKingPosition = piecePosition.position;
 
-      if (CanKingDie(lastCheckedBoardState, rock.isWhite)) return false;
+      if (CanKingDie(lastCheckedBoardState, piecePosition.pieceType.IsWhite())) return false;
 
       foreach (var noCheckPosition in rock.noCheckPositions)
       {
         lastCheckedBoardState = lastCheckedBoardState.PlayMove(new Move(lastKingPosition, noCheckPosition, PieceType.Nothing)).boardState;
         lastKingPosition = noCheckPosition;
-        var canKingDie = CanKingDie(lastCheckedBoardState, rock.isWhite);
+        var canKingDie = CanKingDie(lastCheckedBoardState, piecePosition.pieceType.IsWhite());
         if (canKingDie) return false;
       }
 

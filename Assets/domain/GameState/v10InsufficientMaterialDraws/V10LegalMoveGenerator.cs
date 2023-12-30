@@ -342,17 +342,17 @@ public static class V10LegalMoveGenerator
     }
 
     var castles = new[] {
-      new { isWhite = true, canCastle = boardState.whiteCastleKingSide, emptyPositions = new List<int>{ BoardPosition.fromColRow(5, 0), BoardPosition.fromColRow(6, 0) }, noCheckPositions = new List<BoardPosition>{ new BoardPosition(5, 0), new BoardPosition(6, 0) } },
-      new { isWhite = true, canCastle = boardState.whiteCastleQueenSide, emptyPositions = new List<int>{ BoardPosition.fromColRow(3, 0), BoardPosition.fromColRow(2, 0), BoardPosition.fromColRow(1, 0) }, noCheckPositions = new List<BoardPosition>{ new BoardPosition(3, 0), new BoardPosition(2, 0) } },
-      new { isWhite = false, canCastle = boardState.blackCastleKingSide, emptyPositions = new List<int>{ BoardPosition.fromColRow(5, 7), BoardPosition.fromColRow(6, 7) }, noCheckPositions = new List<BoardPosition>{ new BoardPosition(5, 7), new BoardPosition(6, 7) } },
-      new { isWhite = false, canCastle = boardState.blackCastleQueenSide, emptyPositions = new List<int>{ BoardPosition.fromColRow(3, 7), BoardPosition.fromColRow(2, 7), BoardPosition.fromColRow(1, 7) }, noCheckPositions = new List<BoardPosition>{ new BoardPosition(3, 7), new BoardPosition(2, 7) } },
+      new { castle = CastleFlags.WhiteKing, emptyPositions = new List<int>{ BoardPosition.fromColRow(5, 0), BoardPosition.fromColRow(6, 0) }, noCheckPositions = new List<BoardPosition>{ new BoardPosition(5, 0), new BoardPosition(6, 0) } },
+      new { castle = CastleFlags.WhiteQueen, emptyPositions = new List<int>{ BoardPosition.fromColRow(3, 0), BoardPosition.fromColRow(2, 0), BoardPosition.fromColRow(1, 0) }, noCheckPositions = new List<BoardPosition>{ new BoardPosition(3, 0), new BoardPosition(2, 0) } },
+      new { castle = CastleFlags.BlackKing, emptyPositions = new List<int>{ BoardPosition.fromColRow(5, 7), BoardPosition.fromColRow(6, 7) }, noCheckPositions = new List<BoardPosition>{ new BoardPosition(5, 7), new BoardPosition(6, 7) } },
+      new { castle = CastleFlags.BlackQueen, emptyPositions = new List<int>{ BoardPosition.fromColRow(3, 7), BoardPosition.fromColRow(2, 7), BoardPosition.fromColRow(1, 7) }, noCheckPositions = new List<BoardPosition>{ new BoardPosition(3, 7), new BoardPosition(2, 7) } },
     };
 
     for (var castleIndex = 0; castleIndex < castles.Length; ++castleIndex)
     {
       var castle = castles[castleIndex];
-      if (!castle.canCastle) continue;
-      if (castle.isWhite != pieceType.IsWhite()) continue;
+      if (!boardState.castleFlags.HasFlag(castle.castle)) continue;
+      if (pieceType.IsWhite() != castle.castle.IsWhite()) continue;
 
       bool positionsAreEmpty = true;
       foreach (var emptyPosition in castle.emptyPositions)
@@ -369,14 +369,14 @@ public static class V10LegalMoveGenerator
       var lastCheckedBoardState = boardState;
       var lastKingPosition = position;
 
-      if (CanKingDie(lastCheckedBoardState, castle.isWhite)) continue;
+      if (CanKingDie(lastCheckedBoardState, pieceType.IsWhite())) continue;
 
       bool kingIsNeverInCheck = true;
       foreach (var noCheckPosition in castle.noCheckPositions)
       {
         lastCheckedBoardState = lastCheckedBoardState.PlayMove(new Move(lastKingPosition, noCheckPosition, PieceType.Nothing)).boardState;
         lastKingPosition = noCheckPosition;
-        if (CanKingDie(lastCheckedBoardState, castle.isWhite))
+        if (CanKingDie(lastCheckedBoardState, pieceType.IsWhite()))
         {
           kingIsNeverInCheck = false;
           break;

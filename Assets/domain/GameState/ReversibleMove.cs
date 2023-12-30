@@ -4,10 +4,7 @@ public class ReversibleMove
     public BoardPosition target { get; }
     public int oldStaleTurns { get; }
     public PieceType promotion { get; }
-    public bool lostWhiteKingCastleRight { get; }
-    public bool lostWhiteQueenCastleRight { get; }
-    public bool lostBlackKingCastleRight { get; }
-    public bool lostBlackQueenCastleRight { get; }
+    public CastleFlags lostCastleRights { get; }
     public int oldEnPassantColumn { get; }
     public PiecePosition killed { get; }
 
@@ -16,10 +13,7 @@ public class ReversibleMove
         BoardPosition target,
         int oldStaleTurns,
         PieceType promotion,
-        bool lostWhiteKingCastleRight,
-        bool lostWhiteQueenCastleRight,
-        bool lostBlackKingCastleRight,
-        bool lostBlackQueenCastleRight,
+        CastleFlags lostCastleRights,
         int oldEnPassantColumn,
         PiecePosition killed
     )
@@ -28,10 +22,7 @@ public class ReversibleMove
         this.target = target;
         this.oldStaleTurns = oldStaleTurns;
         this.promotion = promotion;
-        this.lostWhiteKingCastleRight = lostWhiteKingCastleRight;
-        this.lostWhiteQueenCastleRight = lostWhiteQueenCastleRight;
-        this.lostBlackKingCastleRight = lostBlackKingCastleRight;
-        this.lostBlackQueenCastleRight = lostBlackQueenCastleRight;
+        this.lostCastleRights = lostCastleRights;
         this.oldEnPassantColumn = oldEnPassantColumn;
         this.killed = killed;
     }

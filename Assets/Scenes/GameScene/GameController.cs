@@ -10,6 +10,8 @@ public class GameController : MonoBehaviour
     public GameEndState gameEndState = GameEndState.Ongoing;
     public GameVisual gameVisual { get; private set; }
     private AiController aiController;
+    private SingleClock topClock;
+    private SingleClock bottomClock;
 
     public GameController()
     {
@@ -134,7 +136,8 @@ public class GameController : MonoBehaviour
         || (gameType == GameType.HumanWhiteAiBlack && !gameState.BoardState.whiteTurn)
         || (gameType == GameType.HumanBlackAiWhite && gameState.BoardState.whiteTurn))
         {
-            var aiMove = await GetAiController().GetMove(gameState, IsAi1Turn(gameState));
+            var clock = IsAi1Turn(gameState) ? GetBottomClock() : GetTopClock();
+            var aiMove = await GetAiController().GetMove(gameState, IsAi1Turn(gameState), clock.GetTimeLeft(), clock.GetIncrement());
 
             // Coming back on another thread. If there's no move, then unity has stopped.
             if (aiMove == null) return;
@@ -150,5 +153,23 @@ public class GameController : MonoBehaviour
         aiController = StaticReferences.aiController.Value;
 
         return aiController;
+    }
+
+    private SingleClock GetTopClock()
+    {
+        if (topClock != null) return topClock;
+
+        topClock = StaticReferences.topClock.Value.GetComponent<SingleClock>();
+
+        return topClock;
+    }
+
+    private SingleClock GetBottomClock()
+    {
+        if (bottomClock != null) return bottomClock;
+
+        bottomClock = StaticReferences.bottomClock.Value.GetComponent<SingleClock>();
+
+        return bottomClock;
     }
 }

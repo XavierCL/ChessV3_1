@@ -26,11 +26,12 @@ public class AiFighter : MonoBehaviour
         var ai1Wins = 0;
         var ai2Wins = 0;
         var draws = 0;
+        var increment = SingleClock.stringToTimeSpan(this.increment);
         var ai1Time = TimeSpan.Zero;
         var ai2Time = TimeSpan.Zero;
         var startingPositions = StartingPositions();
         var movePlayed = 0;
-        var gameStateFactory = new V9GameStateFactory();
+        var gameStateFactory = new V10GameStateFactory();
 
         if (OnlyFirstPosition)
         {
@@ -41,18 +42,40 @@ public class AiFighter : MonoBehaviour
         {
             var originalGameState = startingPositions[gameStateIndex];
             GameStateInterface ai1WhiteGameState = gameStateFactory.FromGameState(originalGameState);
+
+            var ai1Clock = SingleClock.stringToTimeSpan(initialTime);
+            var ai2Clock = ai1Clock;
+
             while (ai1WhiteGameState.GetGameEndState() == GameEndState.Ongoing)
             {
                 var startTime = DateTime.UtcNow;
-                var move = await aiController.GetMoveSync(ai1WhiteGameState, ai1WhiteGameState.BoardState.whiteTurn);
+
+                var move = await aiController.GetMoveSync(
+                    ai1WhiteGameState,
+                    ai1WhiteGameState.BoardState.whiteTurn,
+                    ai1WhiteGameState.BoardState.whiteTurn ? ai1Clock : ai2Clock,
+                    increment
+                );
+
+                var elapsed = DateTime.UtcNow - startTime;
                 ++movePlayed;
                 if (ai1WhiteGameState.BoardState.whiteTurn)
                 {
-                    ai1Time += DateTime.UtcNow - startTime;
+                    ai1Time += elapsed;
+                    ai1Clock -= elapsed;
+
+                    if (ai1Clock <= TimeSpan.Zero) break;
+
+                    ai1Clock += increment;
                 }
                 else
                 {
-                    ai2Time += DateTime.UtcNow - startTime;
+                    ai2Time += elapsed;
+                    ai2Clock -= elapsed;
+
+                    if (ai2Clock <= TimeSpan.Zero) break;
+
+                    ai2Clock += increment;
                 }
                 ai1WhiteGameState.PlayMove(move);
             }
@@ -61,7 +84,7 @@ public class AiFighter : MonoBehaviour
             {
                 ++draws;
             }
-            else if (ai1WhiteGameState.GetGameEndState() == GameEndState.WhiteWin)
+            else if (ai1WhiteGameState.GetGameEndState() == GameEndState.WhiteWin || ai2Clock < TimeSpan.Zero)
             {
                 ++ai1Wins;
             }
@@ -78,20 +101,40 @@ public class AiFighter : MonoBehaviour
 
             Debug.Log($"{gameStateIndex * 2 + 1}/{startingPositions.Count * 2}");
 
-            GameStateInterface ai2WhiteGameState = gameStateFactory.FromGameState(ai1WhiteGameState);
+            ai1Clock = SingleClock.stringToTimeSpan(initialTime);
+            ai2Clock = ai1Clock;
+            GameStateInterface ai2WhiteGameState = gameStateFactory.FromGameState(originalGameState);
 
             while (ai2WhiteGameState.GetGameEndState() == GameEndState.Ongoing)
             {
                 var startTime = DateTime.UtcNow;
-                var move = await aiController.GetMoveSync(ai2WhiteGameState, !ai2WhiteGameState.BoardState.whiteTurn);
+
+                var move = await aiController.GetMoveSync(
+                    ai2WhiteGameState,
+                    !ai2WhiteGameState.BoardState.whiteTurn,
+                    ai2WhiteGameState.BoardState.whiteTurn ? ai2Clock : ai1Clock,
+                    increment
+                );
+
+                var elapsed = DateTime.UtcNow - startTime;
                 ++movePlayed;
-                if (ai1WhiteGameState.BoardState.whiteTurn)
+                if (ai2WhiteGameState.BoardState.whiteTurn)
                 {
-                    ai2Time += DateTime.UtcNow - startTime;
+                    ai2Time += elapsed;
+                    ai2Clock -= elapsed;
+
+                    if (ai2Clock <= TimeSpan.Zero) break;
+
+                    ai2Clock += increment;
                 }
                 else
                 {
-                    ai1Time += DateTime.UtcNow - startTime;
+                    ai1Time += elapsed;
+                    ai1Clock -= elapsed;
+
+                    if (ai1Clock <= TimeSpan.Zero) break;
+
+                    ai1Clock += increment;
                 }
                 ai2WhiteGameState.PlayMove(move);
             }
@@ -102,7 +145,7 @@ public class AiFighter : MonoBehaviour
             {
                 ++draws;
             }
-            else if (ai2WhiteGameState.GetGameEndState() == GameEndState.WhiteWin)
+            else if (ai2WhiteGameState.GetGameEndState() == GameEndState.WhiteWin || ai1Clock <= TimeSpan.Zero)
             {
                 ++ai2Wins;
             }

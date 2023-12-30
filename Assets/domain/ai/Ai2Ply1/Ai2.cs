@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -6,7 +7,7 @@ using UnityEngine;
 public class Ai2 : MonoBehaviour, AiInterface
 {
     private System.Random random = new System.Random();
-    public Task<Move> GetMove(GameStateInterface referenceGameState)
+    public Task<Move> GetMove(GameStateInterface referenceGameState, TimeSpan remainingTime, TimeSpan increment)
     {
         var gameState = new V9GameState(referenceGameState);
         var legalMoves = gameState.getLegalMoves();

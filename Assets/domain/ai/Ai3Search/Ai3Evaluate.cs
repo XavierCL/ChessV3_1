@@ -2,7 +2,7 @@ using System.Linq;
 
 public static class Ai3Evaluate
 {
-  public static double Evaluate(V9GameState gameState)
+  public static double Evaluate(V10GameState gameState)
   {
     var endGameState = gameState.GetGameEndState();
 
