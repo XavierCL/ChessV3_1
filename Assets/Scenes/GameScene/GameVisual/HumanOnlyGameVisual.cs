@@ -99,7 +99,7 @@ public class HumanOnlyGameVisual : HumanGameVisual
             .Select(move => move.target)
             .ToList();
 
-        boardController.DrawPossibleTargets(legalTargetPositions, startPosition);
+        boardController.DrawPossibleTargets(legalTargetPositions);
 
         // Draw currently highlighted square if it's legal
         var targetPosition = GetPointerBoardPosition();

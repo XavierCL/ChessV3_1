@@ -28,7 +28,7 @@ public class BoardController : MonoBehaviour
         UpdateAnimation();
     }
 
-    public void DrawPossibleTargets(List<BoardPosition> possibleTargets, BoardPosition source)
+    public void DrawPossibleTargets(List<BoardPosition> possibleTargets)
     {
         foreach (var possibleTarget in possibleTargets)
         {

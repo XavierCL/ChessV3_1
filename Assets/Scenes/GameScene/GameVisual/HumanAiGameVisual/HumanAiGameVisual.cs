@@ -153,7 +153,7 @@ public class HumanAiGameVisual : HumanGameVisual
             .Select(move => move.target)
             .ToList();
 
-        boardController.DrawPossibleTargets(legalTargetPositions, startPosition);
+        boardController.DrawPossibleTargets(legalTargetPositions);
 
         // Draw currently highlighted square if it's legal
         if (!legalTargetPositions.Any(position => Equals(position, targetPosition))) return;

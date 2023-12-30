@@ -44,13 +44,13 @@ public class V12BoardState : BoardStateInterface
     bitBoards[WhiteRook] = BoardPosition.fromColRow(0, 0).toBitBoard() | BoardPosition.fromColRow(7, 0).toBitBoard();
     bitBoards[WhiteBishop] = BoardPosition.fromColRow(2, 0).toBitBoard() | BoardPosition.fromColRow(5, 0).toBitBoard();
     bitBoards[WhiteKnight] = BoardPosition.fromColRow(1, 0).toBitBoard() | BoardPosition.fromColRow(6, 0).toBitBoard();
-    bitBoards[WhitePawn] = ((1ul << 9) - 1) << 8;
+    bitBoards[WhitePawn] = ((1ul << 8) - 1) << 8;
     bitBoards[BlackKing] = BoardPosition.fromColRow(4, 7).toBitBoard();
     bitBoards[BlackQueen] = BoardPosition.fromColRow(3, 7).toBitBoard();
     bitBoards[BlackRook] = BoardPosition.fromColRow(0, 7).toBitBoard() | BoardPosition.fromColRow(7, 7).toBitBoard();
     bitBoards[BlackBishop] = BoardPosition.fromColRow(2, 7).toBitBoard() | BoardPosition.fromColRow(5, 7).toBitBoard();
     bitBoards[BlackKnight] = BoardPosition.fromColRow(1, 7).toBitBoard() | BoardPosition.fromColRow(6, 7).toBitBoard();
-    bitBoards[BlackPawn] = ((1ul << 9) - 1) << 40;
+    bitBoards[BlackPawn] = ((1ul << 8) - 1) << 48;
   }
 
   public V12BoardState(BoardStateInterface other)
