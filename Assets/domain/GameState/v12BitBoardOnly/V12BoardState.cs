@@ -16,13 +16,13 @@ public class V12BoardState : BoardStateInterface
         .Concat(bitBoards[WhiteQueen].extractIndices().Select(index => new PiecePosition("", PieceType.WhiteQueen, index.toBoardPosition())))
         .Concat(bitBoards[WhiteRook].extractIndices().Select(index => new PiecePosition("", PieceType.WhiteRook, index.toBoardPosition())))
         .Concat(bitBoards[WhiteBishop].extractIndices().Select(index => new PiecePosition("", PieceType.WhiteBishop, index.toBoardPosition())))
-        .Concat(bitBoards[WhiteKing].extractIndices().Select(index => new PiecePosition("", PieceType.WhiteKnight, index.toBoardPosition())))
+        .Concat(bitBoards[WhiteKnight].extractIndices().Select(index => new PiecePosition("", PieceType.WhiteKnight, index.toBoardPosition())))
         .Concat(bitBoards[WhitePawn].extractIndices().Select(index => new PiecePosition("", PieceType.WhitePawn, index.toBoardPosition())))
         .Concat(bitBoards[BlackKing].extractIndices().Select(index => new PiecePosition("", PieceType.BlackKing, index.toBoardPosition())))
         .Concat(bitBoards[BlackQueen].extractIndices().Select(index => new PiecePosition("", PieceType.BlackQueen, index.toBoardPosition())))
         .Concat(bitBoards[BlackRook].extractIndices().Select(index => new PiecePosition("", PieceType.BlackRook, index.toBoardPosition())))
         .Concat(bitBoards[BlackBishop].extractIndices().Select(index => new PiecePosition("", PieceType.BlackBishop, index.toBoardPosition())))
-        .Concat(bitBoards[BlackKing].extractIndices().Select(index => new PiecePosition("", PieceType.BlackKnight, index.toBoardPosition())))
+        .Concat(bitBoards[BlackKnight].extractIndices().Select(index => new PiecePosition("", PieceType.BlackKnight, index.toBoardPosition())))
         .Concat(bitBoards[BlackPawn].extractIndices().Select(index => new PiecePosition("", PieceType.BlackPawn, index.toBoardPosition())))
         .ToList();
     }

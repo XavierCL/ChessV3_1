@@ -23,6 +23,8 @@ public class AiController : MonoBehaviour
     public void ResetAis()
     {
         gameId = Guid.NewGuid();
+        ai1Interface = Ai1.GetComponent<AiInterface>();
+        ai2Interface = Ai2.GetComponent<AiInterface>();
         ai1Interface.ResetAi();
         ai2Interface.ResetAi();
     }

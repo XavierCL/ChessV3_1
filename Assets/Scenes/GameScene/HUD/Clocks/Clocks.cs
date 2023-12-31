@@ -75,7 +75,7 @@ public class Clocks : MonoBehaviour
         isSwapped = !isSwapped;
     }
 
-    private void InitializeClocks()
+    public void InitializeClocks()
     {
         var topClock = StaticReferences.topClock.Value.GetComponent<SingleClock>();
         var bottomClock = StaticReferences.bottomClock.Value.GetComponent<SingleClock>();

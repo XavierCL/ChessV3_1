@@ -105,7 +105,12 @@ public class SingleClock : MonoBehaviour
     {
         var totalMinutes = Math.Floor(duration.TotalMinutes);
 
-        if (totalMinutes <= 0) return $"{duration.Seconds:00}";
-        return $"{Math.Floor(duration.TotalMinutes)}:{duration.Seconds:00}";
+        if (totalMinutes > 0) return $"{totalMinutes}:{duration.Seconds:00}";
+
+        var totalSeconds = duration.TotalSeconds;
+
+        if (totalSeconds >= 10) return $"{Math.Floor(totalSeconds):00}";
+
+        return $"{totalSeconds:0.0}";
     }
 }

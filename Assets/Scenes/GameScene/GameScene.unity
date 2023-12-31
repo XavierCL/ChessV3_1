@@ -3295,10 +3295,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 609873490}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2df77f1dae16b1e4f8852caa316b60d3, type: 3}
+  m_Script: {fileID: 11500000, guid: e57d3bd80683efe4d8659bacbc0b3087, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ShowDebugInfo: 1
+  ShowDebugInfo: 0
 --- !u!1 &628009634
 GameObject:
   m_ObjectHideFlags: 0
@@ -3890,7 +3890,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 707303123}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
@@ -6984,7 +6984,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 5:00
+  m_text: 10
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -6993,8 +6993,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4278240001
+  m_fontColor: {r: 0.003921569, g: 0.7647059, b: 0, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -7272,7 +7272,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e57d3bd80683efe4d8659bacbc0b3087, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ShowDebugInfo: 1
+  ShowDebugInfo: 0
 --- !u!1 &1312554370
 GameObject:
   m_ObjectHideFlags: 0
@@ -8531,8 +8531,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: -1343923517
-  m_SortingLayer: 1
+  m_SortingLayerID: 1068315163
+  m_SortingLayer: -4
   m_SortingOrder: 0
   m_Sprite: {fileID: 607429745, guid: 0d0accf6d7b98b545a086a928d95d49f, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -9291,7 +9291,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PrintFen: 0
-  gameType: 0
+  gameType: 4
   gameEndState: 0
 --- !u!1 &1564330818
 GameObject:
@@ -10800,7 +10800,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 5:00
+  m_text: 10
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -10809,8 +10809,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4278240001
-  m_fontColor: {r: 0.003921569, g: 0.7647059, b: 0, a: 1}
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:

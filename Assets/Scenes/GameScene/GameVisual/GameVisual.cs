@@ -22,6 +22,9 @@ public abstract class GameVisual
         historyHandler.Start();
         boardController.ResetPieces(gameState.BoardState);
         endStateText.SetEndState(gameState.GetGameEndState());
+        clocks.Stop();
+        clocks.ResetSwap();
+        clocks.InitializeClocks();
     }
 
     public virtual void GameOver(GameStateInterface gameState)
