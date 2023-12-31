@@ -7,7 +7,7 @@ using System.Linq;
 [DebuggerDisplay("{piecePositions.Count} pieces")]
 public class V5BoardState : BoardStateInterface
 {
-  public bool whiteTurn { get; }
+  public bool WhiteTurn { get; }
   public List<PiecePosition> piecePositions { get; }
   private PieceType[] boardPieces { get; }
   public CastleFlags castleFlags { get; }
@@ -17,7 +17,7 @@ public class V5BoardState : BoardStateInterface
 
   public V5BoardState()
   {
-    whiteTurn = true;
+    WhiteTurn = true;
     castleFlags = CastleFlags.All;
     enPassantColumn = -1;
 
@@ -77,7 +77,7 @@ public class V5BoardState : BoardStateInterface
 
   public V5BoardState(BoardStateInterface other)
   {
-    whiteTurn = other.whiteTurn;
+    WhiteTurn = other.WhiteTurn;
     piecePositions = new List<PiecePosition>(other.piecePositions);
     castleFlags = other.castleFlags;
     enPassantColumn = other.enPassantColumn;
@@ -102,7 +102,7 @@ public class V5BoardState : BoardStateInterface
 
   public V5BoardState(bool whiteTurn, List<PiecePosition> piecePositions, PieceType[] boardPieces, CastleFlags castleFlags, int enPassantColumn, BoardPosition whiteKingPosition, BoardPosition blackKingPosition)
   {
-    this.whiteTurn = whiteTurn;
+    this.WhiteTurn = whiteTurn;
     this.piecePositions = piecePositions;
     this.boardPieces = boardPieces;
     this.castleFlags = castleFlags;
@@ -113,7 +113,7 @@ public class V5BoardState : BoardStateInterface
 
   public V5BoardState(bool whiteTurn, List<PiecePosition> piecePositions, CastleFlags castleFlags)
   {
-    this.whiteTurn = whiteTurn;
+    this.WhiteTurn = whiteTurn;
     this.piecePositions = piecePositions;
     this.castleFlags = castleFlags;
     enPassantColumn = -1;
@@ -275,7 +275,7 @@ public class V5BoardState : BoardStateInterface
     return new BoardStatePlay()
     {
       boardState = new V5BoardState(
-        !whiteTurn,
+        !WhiteTurn,
         newPiecePositions,
         newBoardPieces,
         castleFlags,
@@ -386,7 +386,7 @@ public class V5BoardState : BoardStateInterface
     }
 
     return new V5BoardState(
-      !whiteTurn,
+      !WhiteTurn,
       newPiecePositions,
       newBoardPieces,
       castleFlags,
@@ -406,7 +406,7 @@ public class V5BoardState : BoardStateInterface
     var other = (V5BoardState)obj;
     if (castleFlags != other.castleFlags
     || enPassantColumn != other.enPassantColumn
-    || whiteTurn != other.whiteTurn) return false;
+    || WhiteTurn != other.WhiteTurn) return false;
 
     if (!new HashSet<PiecePosition>(piecePositions).SetEquals(other.piecePositions)) return false;
 
@@ -419,7 +419,7 @@ public class V5BoardState : BoardStateInterface
     {
       var hashCode = enPassantColumn + 2;
       hashCode = hashCode * 17 + (int)castleFlags + 1;
-      hashCode = hashCode * 2 + (whiteTurn ? 1 : 0);
+      hashCode = hashCode * 2 + (WhiteTurn ? 1 : 0);
       hashCode *= 0x1971987;
       hashCode = piecePositions.Select(piece => piece.GetHashCode()).Aggregate(hashCode, (cum, cur) => cum + cur);
       return hashCode;

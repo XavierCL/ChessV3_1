@@ -67,7 +67,7 @@ public class PieceIdBoardStateAdapter : BoardStateInterface
     );
   }
 
-  public bool whiteTurn => underlying.BoardState.whiteTurn;
+  public bool WhiteTurn => underlying.BoardState.WhiteTurn;
 
   public CastleFlags castleFlags => underlying.BoardState.castleFlags;
 

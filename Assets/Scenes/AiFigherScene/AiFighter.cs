@@ -52,14 +52,14 @@ public class AiFighter : MonoBehaviour
 
                 var move = await aiController.GetMoveSync(
                     ai1WhiteGameState,
-                    ai1WhiteGameState.BoardState.whiteTurn,
-                    ai1WhiteGameState.BoardState.whiteTurn ? ai1Clock : ai2Clock,
+                    ai1WhiteGameState.BoardState.WhiteTurn,
+                    ai1WhiteGameState.BoardState.WhiteTurn ? ai1Clock : ai2Clock,
                     increment
                 );
 
                 var elapsed = DateTime.UtcNow - startTime;
                 ++movePlayed;
-                if (ai1WhiteGameState.BoardState.whiteTurn)
+                if (ai1WhiteGameState.BoardState.WhiteTurn)
                 {
                     ai1Time += elapsed;
                     ai1Clock -= elapsed;
@@ -111,14 +111,14 @@ public class AiFighter : MonoBehaviour
 
                 var move = await aiController.GetMoveSync(
                     ai2WhiteGameState,
-                    !ai2WhiteGameState.BoardState.whiteTurn,
-                    ai2WhiteGameState.BoardState.whiteTurn ? ai2Clock : ai1Clock,
+                    !ai2WhiteGameState.BoardState.WhiteTurn,
+                    ai2WhiteGameState.BoardState.WhiteTurn ? ai2Clock : ai1Clock,
                     increment
                 );
 
                 var elapsed = DateTime.UtcNow - startTime;
                 ++movePlayed;
-                if (ai2WhiteGameState.BoardState.whiteTurn)
+                if (ai2WhiteGameState.BoardState.WhiteTurn)
                 {
                     ai2Time += elapsed;
                     ai2Clock -= elapsed;

@@ -52,13 +52,13 @@ public static class V10LegalMoveGenerator
       }
     }
 
-    var pseudoLegalMoves = GeneratePseudoLegalMoves(gameState.boardState, gameState.BoardState.whiteTurn);
+    var pseudoLegalMoves = GeneratePseudoLegalMoves(gameState.boardState, gameState.BoardState.WhiteTurn);
     var legalMoves = new List<Move>(pseudoLegalMoves.Count);
 
     for (var index = 0; index < pseudoLegalMoves.Count; ++index)
     {
       var move = pseudoLegalMoves[index];
-      if (!CanKingDieAfterMove(gameState.boardState, move, gameState.BoardState.whiteTurn))
+      if (!CanKingDieAfterMove(gameState.boardState, move, gameState.BoardState.WhiteTurn))
       {
         legalMoves.Add(move);
       }
@@ -69,7 +69,7 @@ public static class V10LegalMoveGenerator
 
   public static bool CanOwnKingDie(V10GameState gameState)
   {
-    return CanKingDie(gameState.boardState, gameState.BoardState.whiteTurn);
+    return CanKingDie(gameState.boardState, gameState.BoardState.WhiteTurn);
   }
 
   private static bool CanKingDieAfterMove(V10BoardState boardState, Move ownMove, bool whiteKing)

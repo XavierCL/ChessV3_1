@@ -22,7 +22,7 @@ public class HumanAiGameVisual : HumanGameVisual
 
     public override void PlayAnimatedMove(Move move, bool animated)
     {
-        base.PlayAnimatedMove(move, humanWhite == gameController.gameState.BoardState.whiteTurn);
+        base.PlayAnimatedMove(move, humanWhite == gameController.gameState.BoardState.WhiteTurn);
         PopPremoveQueueIfNeeded();
     }
 
@@ -51,7 +51,7 @@ public class HumanAiGameVisual : HumanGameVisual
             return;
         }
 
-        var isHumanTurn = humanWhite == gameController.gameState.BoardState.whiteTurn;
+        var isHumanTurn = humanWhite == gameController.gameState.BoardState.WhiteTurn;
 
         if (promotionHandler.PromotionInProgress)
         {
@@ -176,7 +176,7 @@ public class HumanAiGameVisual : HumanGameVisual
 
     private async void PopPremoveQueueIfNeeded()
     {
-        if (humanWhite != gameController.gameState.BoardState.whiteTurn) return;
+        if (humanWhite != gameController.gameState.BoardState.WhiteTurn) return;
 
         // Execute on next lifecycle so GameController.PlayMove has time to finish
         await Task.Delay(1);
@@ -186,6 +186,6 @@ public class HumanAiGameVisual : HumanGameVisual
 
     private bool IsPremoving()
     {
-        return humanWhite != gameController.gameState.BoardState.whiteTurn || premoveHandler.HasMoves();
+        return humanWhite != gameController.gameState.BoardState.WhiteTurn || premoveHandler.HasMoves();
     }
 }

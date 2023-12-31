@@ -94,8 +94,8 @@ public class GameController : MonoBehaviour
 
     public bool IsPremoveMode()
     {
-        if (gameType == GameType.HumanWhiteAiBlack && !gameState.BoardState.whiteTurn) return true;
-        if (gameType == GameType.HumanBlackAiWhite && gameState.BoardState.whiteTurn) return true;
+        if (gameType == GameType.HumanWhiteAiBlack && !gameState.BoardState.WhiteTurn) return true;
+        if (gameType == GameType.HumanBlackAiWhite && gameState.BoardState.WhiteTurn) return true;
         return false;
     }
 
@@ -121,8 +121,8 @@ public class GameController : MonoBehaviour
 
     public bool IsAi1Turn(GameStateInterface gameState)
     {
-        return (gameType == GameType.Ai1WhiteAi2Black) && gameState.BoardState.whiteTurn ||
-            (gameType == GameType.Ai1BlackAi2White) && !gameState.BoardState.whiteTurn ||
+        return (gameType == GameType.Ai1WhiteAi2Black) && gameState.BoardState.WhiteTurn ||
+            (gameType == GameType.Ai1BlackAi2White) && !gameState.BoardState.WhiteTurn ||
             gameType == GameType.HumanWhiteAiBlack ||
             gameType == GameType.HumanBlackAiWhite;
     }
@@ -133,8 +133,8 @@ public class GameController : MonoBehaviour
 
         if (gameType == GameType.Ai1WhiteAi2Black
         || gameType == GameType.Ai1BlackAi2White
-        || (gameType == GameType.HumanWhiteAiBlack && !gameState.BoardState.whiteTurn)
-        || (gameType == GameType.HumanBlackAiWhite && gameState.BoardState.whiteTurn))
+        || (gameType == GameType.HumanWhiteAiBlack && !gameState.BoardState.WhiteTurn)
+        || (gameType == GameType.HumanBlackAiWhite && gameState.BoardState.WhiteTurn))
         {
             var clock = IsAi1Turn(gameState) ? GetBottomClock() : GetTopClock();
             var aiMove = await GetAiController().GetMove(gameState, IsAi1Turn(gameState), clock.GetTimeLeft(), clock.GetIncrement());

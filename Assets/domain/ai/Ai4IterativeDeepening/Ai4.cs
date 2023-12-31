@@ -26,7 +26,7 @@ public class Ai4 : MonoBehaviour, AiInterface
         while (!timeManagement.ShouldStop())
         {
             var bestIndices = new List<int> { };
-            var bestValue = gameState.boardState.whiteTurn ? double.MinValue : double.MaxValue;
+            var bestValue = gameState.boardState.WhiteTurn ? double.MinValue : double.MaxValue;
 
             for (var legalMoveIndex = 0; legalMoveIndex < legalMoves.Count; ++legalMoveIndex)
             {
@@ -47,7 +47,7 @@ public class Ai4 : MonoBehaviour, AiInterface
                 {
                     bestIndices.Add(legalMoveIndex);
                 }
-                else if (value > bestValue && gameState.boardState.whiteTurn || value < bestValue && !gameState.boardState.whiteTurn)
+                else if (value > bestValue && gameState.boardState.WhiteTurn || value < bestValue && !gameState.boardState.WhiteTurn)
                 {
                     bestIndices = new List<int> { legalMoveIndex };
                     bestValue = value;
@@ -59,7 +59,7 @@ public class Ai4 : MonoBehaviour, AiInterface
             bestIndicesEver = bestIndices;
 
             // Don't go deeper if check mate can be delivered at searched depth
-            if (bestValue == double.MaxValue && gameState.boardState.whiteTurn || bestValue == double.MinValue && !gameState.boardState.whiteTurn)
+            if (bestValue == double.MaxValue && gameState.boardState.WhiteTurn || bestValue == double.MinValue && !gameState.boardState.WhiteTurn)
             {
                 break;
             }

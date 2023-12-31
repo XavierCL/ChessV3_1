@@ -35,7 +35,7 @@ public class HumanOnlyGameVisual : HumanGameVisual
 
         if (promotionHandler.PromotionInProgress)
         {
-            var move = promotionHandler.FinalizePromotion(collision, gameController.gameState.BoardState.whiteTurn);
+            var move = promotionHandler.FinalizePromotion(collision, gameController.gameState.BoardState.WhiteTurn);
             if (move == null) return;
 
             gameController.PlayMove(move);
@@ -46,7 +46,7 @@ public class HumanOnlyGameVisual : HumanGameVisual
 
         if (pieceAtPosition == null) return;
         if (pieceAtPosition.pieceType == PieceType.Nothing) return;
-        if (gameController.gameState.BoardState.whiteTurn != pieceAtPosition.pieceType.IsWhite()) return;
+        if (gameController.gameState.BoardState.WhiteTurn != pieceAtPosition.pieceType.IsWhite()) return;
 
         StartDrawPieceToPointer(collision, pieceAtPosition.position);
     }
@@ -74,7 +74,7 @@ public class HumanOnlyGameVisual : HumanGameVisual
         if (validMoves.Count > 1)
         {
             // Pawn promotion
-            promotionHandler.PromptPromotion(startPosition, endBoardPosition, gameController.gameState.BoardState.whiteTurn);
+            promotionHandler.PromptPromotion(startPosition, endBoardPosition, gameController.gameState.BoardState.WhiteTurn);
         }
         else
         {

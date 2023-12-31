@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 [DebuggerDisplay("{piecePositions.Count} pieces")]
 public class V10BoardState : BoardStateInterface
 {
-  public bool whiteTurn { get; }
+  public bool WhiteTurn { get; }
   private List<PiecePosition> _piecePositions;
   public List<PiecePosition> piecePositions
   {
@@ -51,7 +51,7 @@ public class V10BoardState : BoardStateInterface
 
   public V10BoardState()
   {
-    whiteTurn = true;
+    WhiteTurn = true;
     castleFlags = CastleFlags.All;
     enPassantColumn = -1;
     allBitBoard = 0;
@@ -113,7 +113,7 @@ public class V10BoardState : BoardStateInterface
 
   public V10BoardState(BoardStateInterface other)
   {
-    whiteTurn = other.whiteTurn;
+    WhiteTurn = other.WhiteTurn;
     castleFlags = other.castleFlags;
     enPassantColumn = other.enPassantColumn;
     allBitBoard = 0;
@@ -139,7 +139,7 @@ public class V10BoardState : BoardStateInterface
 
   public V10BoardState(bool whiteTurn, PieceType[] boardPieces, ulong allBitBoard, CastleFlags castleFlags, int enPassantColumn, int whiteKingPosition, int blackKingPosition)
   {
-    this.whiteTurn = whiteTurn;
+    this.WhiteTurn = whiteTurn;
     this.boardPieces = boardPieces;
     this.allBitBoard = allBitBoard;
     this.castleFlags = castleFlags;
@@ -150,7 +150,7 @@ public class V10BoardState : BoardStateInterface
 
   public V10BoardState(bool whiteTurn, List<PiecePosition> piecePositions, CastleFlags castleFlags)
   {
-    this.whiteTurn = whiteTurn;
+    this.WhiteTurn = whiteTurn;
     this.castleFlags = castleFlags;
     enPassantColumn = -1;
     allBitBoard = 0;
@@ -289,7 +289,7 @@ public class V10BoardState : BoardStateInterface
 
     return new BoardStatePlay(
       new V10BoardState(
-        !whiteTurn,
+        !WhiteTurn,
         newBoardPieces,
         newAllBitBoard,
         castleFlags,
@@ -376,7 +376,7 @@ public class V10BoardState : BoardStateInterface
     }
 
     return new V10BoardState(
-      !whiteTurn,
+      !WhiteTurn,
       newBoardPieces,
       newAllBitBoard,
       castleFlags,
@@ -398,7 +398,7 @@ public class V10BoardState : BoardStateInterface
     if (castleFlags != other.castleFlags
     || enPassantColumn != other.enPassantColumn
     || allBitBoard != other.allBitBoard
-    || whiteTurn != other.whiteTurn) return false;
+    || WhiteTurn != other.WhiteTurn) return false;
 
     for (var index = 0; index < pieceIndices.Length; ++index)
     {
@@ -417,7 +417,7 @@ public class V10BoardState : BoardStateInterface
     {
       var hashCode = enPassantColumn + 2;
       hashCode = hashCode * 17 + (int)castleFlags + 1;
-      hashCode = hashCode * 2 + (whiteTurn ? 1 : 0);
+      hashCode = hashCode * 2 + (WhiteTurn ? 1 : 0);
 
       for (var index = 0; index < pieceIndices.Length; ++index)
       {

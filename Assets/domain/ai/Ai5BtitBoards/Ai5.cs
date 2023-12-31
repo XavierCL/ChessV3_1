@@ -26,12 +26,13 @@ public class Ai5 : MonoBehaviour, AiInterface
         while (!timeManagement.ShouldStop())
         {
             var bestIndices = new List<int> { };
-            var bestValue = gameState.boardState.whiteTurn ? double.MinValue : double.MaxValue;
+            var bestValue = gameState.boardState.WhiteTurn ? double.MinValue : double.MaxValue;
+            var allTerminalLeaves = true;
 
             for (var legalMoveIndex = 0; legalMoveIndex < legalMoves.Count; ++legalMoveIndex)
             {
                 gameState.PlayMove(legalMoves[legalMoveIndex]);
-                var value = Ai5Search.Search(gameState, depth, timeManagement);
+                var searchResult = Ai5Search.Search(gameState, depth, timeManagement);
                 gameState.UndoMove();
 
                 if (timeManagement.ShouldStop())
@@ -43,14 +44,16 @@ public class Ai5 : MonoBehaviour, AiInterface
                     break;
                 }
 
-                if (value == bestValue)
+                allTerminalLeaves = allTerminalLeaves && searchResult.terminalLeaf;
+
+                if (searchResult.value == bestValue)
                 {
                     bestIndices.Add(legalMoveIndex);
                 }
-                else if (value > bestValue && gameState.boardState.whiteTurn || value < bestValue && !gameState.boardState.whiteTurn)
+                else if (searchResult.value > bestValue && gameState.boardState.WhiteTurn || searchResult.value < bestValue && !gameState.boardState.WhiteTurn)
                 {
                     bestIndices = new List<int> { legalMoveIndex };
-                    bestValue = value;
+                    bestValue = searchResult.value;
                 }
             }
 
@@ -59,7 +62,13 @@ public class Ai5 : MonoBehaviour, AiInterface
             bestIndicesEver = bestIndices;
 
             // Don't go deeper if check mate can be delivered at searched depth
-            if (bestValue == double.MaxValue && gameState.boardState.whiteTurn || bestValue == double.MinValue && !gameState.boardState.whiteTurn)
+            if (bestValue == double.MaxValue && gameState.boardState.WhiteTurn || bestValue == double.MinValue && !gameState.boardState.WhiteTurn)
+            {
+                break;
+            }
+
+            // Don't go deeper if the tree has only reached terminal leaves. Useful in case of draws.
+            if (allTerminalLeaves)
             {
                 break;
             }

@@ -12,7 +12,7 @@ public static class V11LegalMoveGenerator
     if (gameState.StaleTurns >= 100) return new List<Move>();
     if (gameState.snapshots.GetValueOrDefault(gameState.boardState) >= 2) return new List<Move>();
 
-    if (legalCache == null) legalCache = new HashsetCache<V11BoardState, List<Move>>(99_991);
+    if (legalCache == null) legalCache = new HashsetCache<V11BoardState, List<Move>>(999_983);
 
     var cacheEntry = legalCache.Get(gameState.boardState);
     if (cacheEntry != null) return cacheEntry;
@@ -63,13 +63,13 @@ public static class V11LegalMoveGenerator
       }
     }
 
-    var pseudoLegalMoves = GeneratePseudoLegalMoves(boardState, boardState.whiteTurn);
+    var pseudoLegalMoves = GeneratePseudoLegalMoves(boardState, boardState.WhiteTurn);
     var legalMoves = new List<Move>(pseudoLegalMoves.Count);
 
     for (var index = 0; index < pseudoLegalMoves.Count; ++index)
     {
       var move = pseudoLegalMoves[index];
-      if (!CanKingDieAfterMove(boardState, move, boardState.whiteTurn))
+      if (!CanKingDieAfterMove(boardState, move, boardState.WhiteTurn))
       {
         legalMoves.Add(move);
       }
@@ -80,7 +80,7 @@ public static class V11LegalMoveGenerator
 
   public static bool CanOwnKingDie(V11GameState gameState)
   {
-    return CanKingDie(gameState.boardState, gameState.BoardState.whiteTurn);
+    return CanKingDie(gameState.boardState, gameState.BoardState.WhiteTurn);
   }
 
   private static bool CanKingDieAfterMove(V11BoardState boardState, Move ownMove, bool whiteKing)

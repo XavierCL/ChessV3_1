@@ -7,7 +7,7 @@ using System.Linq;
 [DebuggerDisplay("{piecePositions.Count} pieces")]
 public class V6BoardState : BoardStateInterface
 {
-  public bool whiteTurn { get; }
+  public bool WhiteTurn { get; }
   private List<PiecePosition> _piecePositions;
   public List<PiecePosition> piecePositions
   {
@@ -38,7 +38,7 @@ public class V6BoardState : BoardStateInterface
 
   public V6BoardState()
   {
-    whiteTurn = true;
+    WhiteTurn = true;
     castleFlags = CastleFlags.All;
     enPassantColumn = -1;
 
@@ -98,7 +98,7 @@ public class V6BoardState : BoardStateInterface
 
   public V6BoardState(BoardStateInterface other)
   {
-    whiteTurn = other.whiteTurn;
+    WhiteTurn = other.WhiteTurn;
     castleFlags = other.castleFlags;
     enPassantColumn = other.enPassantColumn;
 
@@ -122,7 +122,7 @@ public class V6BoardState : BoardStateInterface
 
   public V6BoardState(bool whiteTurn, PieceType[] boardPieces, CastleFlags castleFlags, int enPassantColumn, BoardPosition whiteKingPosition, BoardPosition blackKingPosition)
   {
-    this.whiteTurn = whiteTurn;
+    this.WhiteTurn = whiteTurn;
     this.boardPieces = boardPieces;
     this.castleFlags = castleFlags;
     this.enPassantColumn = enPassantColumn;
@@ -132,7 +132,7 @@ public class V6BoardState : BoardStateInterface
 
   public V6BoardState(bool whiteTurn, List<PiecePosition> piecePositions, CastleFlags castleFlags)
   {
-    this.whiteTurn = whiteTurn;
+    this.WhiteTurn = whiteTurn;
     this.castleFlags = castleFlags;
     enPassantColumn = -1;
 
@@ -250,7 +250,7 @@ public class V6BoardState : BoardStateInterface
     return new BoardStatePlay()
     {
       boardState = new V6BoardState(
-        !whiteTurn,
+        !WhiteTurn,
         newBoardPieces,
         castleFlags,
         enPassantColumn,
@@ -330,7 +330,7 @@ public class V6BoardState : BoardStateInterface
     }
 
     return new V6BoardState(
-      !whiteTurn,
+      !WhiteTurn,
       newBoardPieces,
       castleFlags,
       reversibleMove.oldEnPassantColumn,
@@ -349,7 +349,7 @@ public class V6BoardState : BoardStateInterface
     var other = (V6BoardState)obj;
     if (castleFlags != other.castleFlags
     || enPassantColumn != other.enPassantColumn
-    || whiteTurn != other.whiteTurn) return false;
+    || WhiteTurn != other.WhiteTurn) return false;
 
     return boardPieces.SequenceEqual(other.boardPieces);
   }
@@ -360,7 +360,7 @@ public class V6BoardState : BoardStateInterface
     {
       var hashCode = enPassantColumn + 2;
       hashCode = hashCode * 17 + (int)castleFlags + 1;
-      hashCode = hashCode * 2 + (whiteTurn ? 1 : 0);
+      hashCode = hashCode * 2 + (WhiteTurn ? 1 : 0);
       hashCode = boardPieces.Aggregate(hashCode, (cum, cur) => cum * 0x1971987 + (int)cur + 1);
       return hashCode;
     }

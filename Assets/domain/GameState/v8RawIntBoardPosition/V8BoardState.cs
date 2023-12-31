@@ -6,7 +6,7 @@ using System.Diagnostics;
 [DebuggerDisplay("{piecePositions.Count} pieces")]
 public class V8BoardState : BoardStateInterface
 {
-  public bool whiteTurn { get; }
+  public bool WhiteTurn { get; }
   private List<PiecePosition> _piecePositions;
   public List<PiecePosition> piecePositions
   {
@@ -37,7 +37,7 @@ public class V8BoardState : BoardStateInterface
 
   public V8BoardState()
   {
-    whiteTurn = true;
+    WhiteTurn = true;
     castleFlags = CastleFlags.All;
     enPassantColumn = -1;
 
@@ -97,7 +97,7 @@ public class V8BoardState : BoardStateInterface
 
   public V8BoardState(BoardStateInterface other)
   {
-    whiteTurn = other.whiteTurn;
+    WhiteTurn = other.WhiteTurn;
     castleFlags = other.castleFlags;
     enPassantColumn = other.enPassantColumn;
 
@@ -121,7 +121,7 @@ public class V8BoardState : BoardStateInterface
 
   public V8BoardState(bool whiteTurn, PieceType[] boardPieces, CastleFlags castleFlags, int enPassantColumn, BoardPosition whiteKingPosition, BoardPosition blackKingPosition)
   {
-    this.whiteTurn = whiteTurn;
+    this.WhiteTurn = whiteTurn;
     this.boardPieces = boardPieces;
     this.castleFlags = castleFlags;
     this.enPassantColumn = enPassantColumn;
@@ -131,7 +131,7 @@ public class V8BoardState : BoardStateInterface
 
   public V8BoardState(bool whiteTurn, List<PiecePosition> piecePositions, CastleFlags castleFlags)
   {
-    this.whiteTurn = whiteTurn;
+    this.WhiteTurn = whiteTurn;
     this.castleFlags = castleFlags;
     enPassantColumn = -1;
 
@@ -261,7 +261,7 @@ public class V8BoardState : BoardStateInterface
 
     return new BoardStatePlay(
       new V8BoardState(
-        !whiteTurn,
+        !WhiteTurn,
         newBoardPieces,
         castleFlags,
         enPassantColumn,
@@ -341,7 +341,7 @@ public class V8BoardState : BoardStateInterface
     }
 
     return new V8BoardState(
-      !whiteTurn,
+      !WhiteTurn,
       newBoardPieces,
       castleFlags,
       reversibleMove.oldEnPassantColumn,
@@ -360,7 +360,7 @@ public class V8BoardState : BoardStateInterface
     var other = (V8BoardState)obj;
     if (castleFlags != other.castleFlags
     || enPassantColumn != other.enPassantColumn
-    || whiteTurn != other.whiteTurn) return false;
+    || WhiteTurn != other.WhiteTurn) return false;
 
     for (var index = 0; index < boardPieces.Length; ++index)
     {
@@ -376,7 +376,7 @@ public class V8BoardState : BoardStateInterface
     {
       var hashCode = enPassantColumn + 2;
       hashCode = hashCode * 17 + (int)castleFlags + 1;
-      hashCode = hashCode * 2 + (whiteTurn ? 1 : 0);
+      hashCode = hashCode * 2 + (WhiteTurn ? 1 : 0);
 
       for (var index = 0; index < boardPieces.Length; ++index)
       {

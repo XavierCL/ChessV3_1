@@ -85,7 +85,7 @@ public abstract class GameStateInterface
             if (row > 0) fen += "/";
         }
 
-        var startingColor = BoardState.whiteTurn ? "w" : "b";
+        var startingColor = BoardState.WhiteTurn ? "w" : "b";
         return $"{fen} {startingColor}";
     }
 }

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 
 [DebuggerDisplay("{piecePositions.Count} pieces")]
-public class V12BoardState : BoardStateInterface
+public class V13BoardState : BoardStateInterface
 {
   public readonly bool whiteTurn;
   public bool WhiteTurn { get => whiteTurn; }
@@ -33,7 +33,7 @@ public class V12BoardState : BoardStateInterface
   public CastleFlags castleFlags { get; }
   public int enPassantColumn { get; }
 
-  public V12BoardState()
+  public V13BoardState()
   {
     whiteTurn = true;
     castleFlags = CastleFlags.All;
@@ -54,7 +54,7 @@ public class V12BoardState : BoardStateInterface
     bitBoards[BlackPawn] = ((1ul << 8) - 1) << 48;
   }
 
-  public V12BoardState(BoardStateInterface other)
+  public V13BoardState(BoardStateInterface other)
   {
     whiteTurn = other.WhiteTurn;
     castleFlags = other.castleFlags;
@@ -62,7 +62,16 @@ public class V12BoardState : BoardStateInterface
     bitBoards = piecePositionsToBitBoards(other.piecePositions);
   }
 
-  public V12BoardState(
+  public V13BoardState(V13BoardState other)
+  {
+    whiteTurn = other.whiteTurn;
+    castleFlags = other.castleFlags;
+    enPassantColumn = other.enPassantColumn;
+    bitBoards = new ulong[12];
+    Array.Copy(other.bitBoards, bitBoards, 12);
+  }
+
+  public V13BoardState(
     bool whiteTurn,
     ulong[] bitBoards,
     CastleFlags castleFlags,
@@ -75,7 +84,7 @@ public class V12BoardState : BoardStateInterface
     this.bitBoards = bitBoards;
   }
 
-  public V12BoardState(bool whiteTurn, List<PiecePosition> piecePositions, CastleFlags castleFlags)
+  public V13BoardState(bool whiteTurn, List<PiecePosition> piecePositions, CastleFlags castleFlags)
   {
     this.whiteTurn = whiteTurn;
     this.castleFlags = castleFlags;
@@ -85,11 +94,11 @@ public class V12BoardState : BoardStateInterface
 
   public class BoardStatePlay
   {
-    public readonly V12BoardState boardState;
+    public readonly V13BoardState boardState;
     public readonly PiecePosition sourcePiece;
     public readonly PiecePosition killedPiece;
 
-    public BoardStatePlay(V12BoardState boardState, PiecePosition sourcePiece, PiecePosition killedPiece)
+    public BoardStatePlay(V13BoardState boardState, PiecePosition sourcePiece, PiecePosition killedPiece)
     {
       this.boardState = boardState;
       this.sourcePiece = sourcePiece;
@@ -205,7 +214,7 @@ public class V12BoardState : BoardStateInterface
     }
 
     return new BoardStatePlay(
-      new V12BoardState(
+      new V13BoardState(
         !whiteTurn,
         newBitBoards,
         castleFlags,
@@ -216,7 +225,7 @@ public class V12BoardState : BoardStateInterface
     );
   }
 
-  public V12BoardState UndoMove(ReversibleMove reversibleMove)
+  public V13BoardState UndoMove(ReversibleMove reversibleMove)
   {
     var newBitBoards = new ulong[12];
     Array.Copy(bitBoards, newBitBoards, 12);
@@ -282,7 +291,7 @@ public class V12BoardState : BoardStateInterface
       newBitBoards[sourcePieceType.IsWhite() ? WhiteRook : BlackRook] ^= rookSwapBitBoard;
     }
 
-    return new V12BoardState(
+    return new V13BoardState(
       !whiteTurn,
       newBitBoards,
       castleFlags,
@@ -307,7 +316,7 @@ public class V12BoardState : BoardStateInterface
 
   public override bool Equals(object obj)
   {
-    var other = (V12BoardState)obj;
+    var other = (V13BoardState)obj;
     if (castleFlags != other.castleFlags
     || enPassantColumn != other.enPassantColumn
     || whiteTurn != other.whiteTurn) return false;

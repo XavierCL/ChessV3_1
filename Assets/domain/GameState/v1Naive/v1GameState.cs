@@ -103,6 +103,6 @@ public class V1GameState : GameStateInterface
         if (getLegalMoves().Count > 0) return GameEndState.Ongoing;
         var canOwnKingDie = V1LegalMoveGenerator.CanOwnKingDie(this);
         if (!canOwnKingDie) return GameEndState.Draw;
-        return boardState.whiteTurn ? GameEndState.BlackWin : GameEndState.WhiteWin;
+        return boardState.WhiteTurn ? GameEndState.BlackWin : GameEndState.WhiteWin;
     }
 }

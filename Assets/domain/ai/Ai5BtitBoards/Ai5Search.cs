@@ -1,47 +1,62 @@
 public static class Ai5Search
 {
   // Depths are decreasing. A depth of 1 means evaluation
-  public static double Search(V12GameState gameState, int depth, Ai5TimeManagement timeManagement)
+  public static SearchResult Search(V12GameState gameState, int depth, Ai5TimeManagement timeManagement)
   {
     var legalMoves = gameState.getLegalMoves();
-    if (depth <= 1 && legalMoves.Count != 1) return Ai5Evaluate.Evaluate(gameState);
-
     var endGameState = gameState.GetGameEndState();
 
     if (endGameState == GameEndState.WhiteWin)
     {
-      return double.MaxValue;
+      return new SearchResult(double.MaxValue, true);
     }
     else if (endGameState == GameEndState.BlackWin)
     {
-      return double.MinValue;
+      return new SearchResult(double.MinValue, true);
     }
     else if (endGameState == GameEndState.Draw)
     {
-      return 0;
+      return new SearchResult(0, true);
     }
 
-    var bestValue = gameState.boardState.whiteTurn ? double.MinValue : double.MaxValue;
+    if (depth <= 1 && legalMoves.Count != 1) return new SearchResult(Ai5Evaluate.Evaluate(gameState), false);
+
+    var bestValue = gameState.boardState.WhiteTurn ? double.MinValue : double.MaxValue;
+    var allTerminalLeaves = true;
 
     for (var legalMoveIndex = 0; legalMoveIndex < legalMoves.Count; ++legalMoveIndex)
     {
-      if (timeManagement.ShouldStop()) return bestValue;
+      if (timeManagement.ShouldStop()) return new SearchResult(bestValue, false);
       gameState.PlayMove(legalMoves[legalMoveIndex]);
-      var value = Search(gameState, legalMoves.Count == 1 ? depth : depth - 1, timeManagement);
+      var searchResult = Search(gameState, legalMoves.Count == 1 ? depth : depth - 1, timeManagement);
       gameState.UndoMove();
 
-      if (value > bestValue && gameState.boardState.whiteTurn || value < bestValue && !gameState.boardState.whiteTurn)
+      allTerminalLeaves = allTerminalLeaves && searchResult.terminalLeaf;
+
+      if (searchResult.value > bestValue && gameState.boardState.WhiteTurn || searchResult.value < bestValue && !gameState.boardState.WhiteTurn)
       {
-        bestValue = value;
+        bestValue = searchResult.value;
       }
 
       // Return early if the best outcome can be achieved
-      if (bestValue == double.MaxValue && gameState.boardState.whiteTurn || bestValue == double.MinValue && !gameState.boardState.whiteTurn)
+      if (bestValue == double.MaxValue && gameState.boardState.WhiteTurn || bestValue == double.MinValue && !gameState.boardState.WhiteTurn)
       {
-        return bestValue;
+        return new SearchResult(bestValue, true);
       }
     }
 
-    return bestValue;
+    return new SearchResult(bestValue, allTerminalLeaves);
+  }
+
+  public class SearchResult
+  {
+    public readonly double value;
+    public readonly bool terminalLeaf;
+
+    public SearchResult(double value, bool terminalLeaf)
+    {
+      this.value = value;
+      this.terminalLeaf = terminalLeaf;
+    }
   }
 }

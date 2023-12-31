@@ -12,7 +12,7 @@ public class Ai2 : MonoBehaviour, AiInterface
         var gameState = new V9GameState(referenceGameState);
         var legalMoves = gameState.getLegalMoves();
         var bestIndices = new List<int> { };
-        var bestValue = gameState.boardState.whiteTurn ? double.MinValue : double.MaxValue;
+        var bestValue = gameState.boardState.WhiteTurn ? double.MinValue : double.MaxValue;
 
         for (var legalMoveIndex = 0; legalMoveIndex < legalMoves.Count; ++legalMoveIndex)
         {
@@ -24,7 +24,7 @@ public class Ai2 : MonoBehaviour, AiInterface
             {
                 bestIndices.Add(legalMoveIndex);
             }
-            else if (value > bestValue && gameState.boardState.whiteTurn || value < bestValue && !gameState.boardState.whiteTurn)
+            else if (value > bestValue && gameState.boardState.WhiteTurn || value < bestValue && !gameState.boardState.WhiteTurn)
             {
                 bestIndices = new List<int> { legalMoveIndex };
                 bestValue = value;

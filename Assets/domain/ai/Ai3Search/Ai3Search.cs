@@ -23,7 +23,7 @@ public static class Ai3Search
     }
 
     var legalMoves = gameState.getLegalMoves();
-    var bestValue = gameState.boardState.whiteTurn ? double.MinValue : double.MaxValue;
+    var bestValue = gameState.boardState.WhiteTurn ? double.MinValue : double.MaxValue;
 
     for (var legalMoveIndex = 0; legalMoveIndex < legalMoves.Count; ++legalMoveIndex)
     {
@@ -32,13 +32,13 @@ public static class Ai3Search
       var value = Search(gameState, depth - 1, cancellationToken);
       gameState.UndoMove();
 
-      if (value > bestValue && gameState.boardState.whiteTurn || value < bestValue && !gameState.boardState.whiteTurn)
+      if (value > bestValue && gameState.boardState.WhiteTurn || value < bestValue && !gameState.boardState.WhiteTurn)
       {
         bestValue = value;
       }
 
       // Return early if the best outcome can be achieved
-      if (bestValue == double.MaxValue && gameState.boardState.whiteTurn || bestValue == double.MinValue && !gameState.boardState.whiteTurn)
+      if (bestValue == double.MaxValue && gameState.boardState.WhiteTurn || bestValue == double.MinValue && !gameState.boardState.WhiteTurn)
       {
         return bestValue;
       }

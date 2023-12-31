@@ -2,43 +2,43 @@ using System.Collections.Generic;
 using System.Linq;
 
 // This game state drops support for piece position id. Don't use this in the UI.
-public class V7GameState : GameStateInterface
+public class V13GameState : GameStateInterface
 {
     private int staleTurns;
     public override int StaleTurns { get => staleTurns; }
     public override BoardStateInterface BoardState { get => boardState; }
-    public V7BoardState boardState { get; private set; }
+    public V13BoardState boardState;
     public override List<ReversibleMove> history { get; }
     public override Dictionary<BoardStateInterface, ushort> Snapshots { get => snapshots.ToDictionary(tuple => (BoardStateInterface)tuple.Key, tuple => tuple.Value); }
-    public Dictionary<V7BoardState, ushort> snapshots { get; }
-    private List<Move> legalMoves { get; set; } = null;
+    public Dictionary<V13BoardState, ushort> snapshots { get; }
+    private List<Move> legalMoves = null;
 
-    public V7GameState()
+    public V13GameState()
     {
         staleTurns = 0;
         history = new List<ReversibleMove>();
-        boardState = new V7BoardState();
-        snapshots = new Dictionary<V7BoardState, ushort>();
+        boardState = new V13BoardState();
+        snapshots = new Dictionary<V13BoardState, ushort>();
     }
 
-    public V7GameState(GameStateInterface gameState)
+    public V13GameState(GameStateInterface gameState)
     {
         staleTurns = gameState.StaleTurns;
         history = new List<ReversibleMove>(gameState.history);
-        boardState = new V7BoardState(gameState.BoardState);
-        snapshots = gameState.Snapshots.ToDictionary(tuple => new V7BoardState(tuple.Key), tuple => tuple.Value);
+        boardState = new V13BoardState(gameState.BoardState);
+        snapshots = gameState.Snapshots.ToDictionary(tuple => new V13BoardState(tuple.Key), tuple => tuple.Value);
     }
 
-    public V7GameState(List<PiecePosition> piecePositions, bool whiteStarts, CastleFlags castling)
+    public V13GameState(List<PiecePosition> piecePositions, bool whiteStarts, CastleFlags castling)
     {
         staleTurns = 0;
         history = new List<ReversibleMove>();
-        boardState = new V7BoardState(
+        boardState = new V13BoardState(
             whiteStarts,
             piecePositions,
             castling
         );
-        snapshots = new Dictionary<V7BoardState, ushort>();
+        snapshots = new Dictionary<V13BoardState, ushort>();
     }
 
     public override List<Move> getLegalMoves()
@@ -102,8 +102,8 @@ public class V7GameState : GameStateInterface
     public override GameEndState GetGameEndState()
     {
         if (getLegalMoves().Count > 0) return GameEndState.Ongoing;
-        var canOwnKingDie = V7LegalMoveGenerator.CanOwnKingDie(this);
+        var canOwnKingDie = V13LegalMoveGenerator.CanOwnKingDie(this);
         if (!canOwnKingDie) return GameEndState.Draw;
-        return boardState.WhiteTurn ? GameEndState.BlackWin : GameEndState.WhiteWin;
+        return boardState.whiteTurn ? GameEndState.BlackWin : GameEndState.WhiteWin;
     }
 }

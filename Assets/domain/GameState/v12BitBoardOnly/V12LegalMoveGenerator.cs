@@ -2,12 +2,13 @@ using System.Collections.Generic;
 
 public static class V12LegalMoveGenerator
 {
+  private static List<Move> emptyMoves = new List<Move>();
   public static HashsetCache<V12BoardState, List<Move>> legalCache;
 
   public static List<Move> GenerateLegalMoves(this V12GameState gameState)
   {
-    if (gameState.StaleTurns >= 100) return new List<Move>();
-    if (gameState.snapshots.GetValueOrDefault(gameState.boardState) >= 2) return new List<Move>();
+    if (gameState.StaleTurns >= 100) return emptyMoves;
+    if (gameState.snapshots.GetValueOrDefault(gameState.boardState) >= 2) return emptyMoves;
 
     if (legalCache == null) legalCache = new HashsetCache<V12BoardState, List<Move>>(999_983);
 
@@ -26,7 +27,7 @@ public static class V12LegalMoveGenerator
     // Declare insufficient material draws
     // Two kings
     var pieceCount = boardState.allBitBoard.bitCount();
-    if (pieceCount == 2) return new List<Move>();
+    if (pieceCount == 2) return emptyMoves;
 
     var onGoingBitBoards = rawBoardState.bitBoards[V12BoardState.WhitePawn]
           | rawBoardState.bitBoards[V12BoardState.BlackPawn]
@@ -38,7 +39,7 @@ public static class V12LegalMoveGenerator
     if (onGoingBitBoards == 0)
     {
       // Two kings and a single bishop or knight
-      if (pieceCount == 3) return new List<Move>();
+      if (pieceCount == 3) return emptyMoves;
 
       // Different color same square bishops: draw
       if (pieceCount == 4
@@ -46,7 +47,7 @@ public static class V12LegalMoveGenerator
         && rawBoardState.bitBoards[V12BoardState.BlackBishop].bitCount() == 1
         && rawBoardState.bitBoards[V12BoardState.WhiteBishop].lsb().IsWhiteSquare() == rawBoardState.bitBoards[V12BoardState.BlackBishop].lsb().IsWhiteSquare())
       {
-        return new List<Move>();
+        return emptyMoves;
       }
     }
 
@@ -67,7 +68,7 @@ public static class V12LegalMoveGenerator
 
   public static bool CanOwnKingDie(V12GameState gameState)
   {
-    return CanKingDie(new AugmentedBoardState(gameState.boardState), gameState.BoardState.whiteTurn);
+    return CanKingDie(new AugmentedBoardState(gameState.boardState), gameState.BoardState.WhiteTurn);
   }
 
   private static bool CanKingDieAfterMove(V12BoardState boardState, Move ownMove, bool whiteKing)
