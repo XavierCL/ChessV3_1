@@ -342,9 +342,8 @@ public class V13BoardState : BoardStateInterface
 
       for (var index = 0; index < bitBoards.Length; ++index)
       {
-        var bitHash = (bitBoards[index] + 1) * 0xADDEA54B659DBADBul;
-        hashCode = hashCode * 0x513B6CD7 + (int)bitHash;
-        hashCode = hashCode * 0x1DD41EA5 + (int)(bitHash >> 32);
+        hashCode ^= (int)bitBoards[index] + (int)0x9e3779b9 + (hashCode << 6) + (hashCode >> 2);
+        hashCode ^= (int)(bitBoards[index] >> 32) + (int)0x9e3779b9 + (hashCode << 6) + (hashCode >> 2);
       }
 
       return hashCode;

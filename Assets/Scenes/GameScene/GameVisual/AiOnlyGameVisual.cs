@@ -12,9 +12,9 @@ public class AiOnlyGameVisual : GameVisual
 
     public override void StartGame(GameStateInterface gameState)
     {
+        base.StartGame(gameState);
         if (whiteTop) boardController.RotateBlackBottom();
         clocks.Restart(whiteTop);
-        base.StartGame(gameState);
     }
 
     public override void Cleanup()

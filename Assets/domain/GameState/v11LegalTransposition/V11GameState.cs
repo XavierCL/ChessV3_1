@@ -41,7 +41,7 @@ public class V11GameState : GameStateInterface
         snapshots = new Dictionary<V11BoardState, ushort>();
     }
 
-    public override List<Move> getLegalMoves()
+    public override IReadOnlyList<Move> getLegalMoves()
     {
         if (legalMoves != null) return legalMoves;
         legalMoves = this.GenerateLegalMoves();

@@ -1,7 +1,7 @@
 public static class Ai5Search
 {
   // Depths are decreasing. A depth of 1 means evaluation
-  public static SearchResult Search(V12GameState gameState, int depth, Ai5TimeManagement timeManagement)
+  public static SearchResult Search(V14GameState gameState, int depth)
   {
     var legalMoves = gameState.getLegalMoves();
     var endGameState = gameState.GetGameEndState();
@@ -26,9 +26,8 @@ public static class Ai5Search
 
     for (var legalMoveIndex = 0; legalMoveIndex < legalMoves.Count; ++legalMoveIndex)
     {
-      if (timeManagement.ShouldStop()) return new SearchResult(bestValue, false);
       gameState.PlayMove(legalMoves[legalMoveIndex]);
-      var searchResult = Search(gameState, legalMoves.Count == 1 ? depth : depth - 1, timeManagement);
+      var searchResult = Search(gameState, legalMoves.Count == 1 ? depth : depth - 1);
       gameState.UndoMove();
 
       allTerminalLeaves = allTerminalLeaves && searchResult.terminalLeaf;

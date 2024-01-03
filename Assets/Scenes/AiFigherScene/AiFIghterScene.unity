@@ -164,10 +164,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 195540169}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2df77f1dae16b1e4f8852caa316b60d3, type: 3}
+  m_Script: {fileID: 11500000, guid: 5993e741fbbb9914b8f595aa446e0299, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ShowDebugInfo: 0
+  ShowDebugInfo: 1
+  ForceDepth: 3
 --- !u!1 &292345930
 GameObject:
   m_ObjectHideFlags: 0
@@ -245,10 +246,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 65aad90ea68d86a408d5cf1a8bf7d850, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  initialTime: 1
-  increment: 0.01
-  OnlyFirstPosition: 0
+  initialTime: 1000
+  increment: 1
+  OnlyFirstPosition: 1
   ReversePositions: 1
+  SingleMove: 1
 --- !u!4 &328839930
 Transform:
   m_ObjectHideFlags: 0
@@ -305,7 +307,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 578633564}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e57d3bd80683efe4d8659bacbc0b3087, type: 3}
+  m_Script: {fileID: 11500000, guid: aad5acec50028b143aba01f0ace1b10d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ShowDebugInfo: 0
+  ShowDebugInfo: 1
+  ForceDepth: 3

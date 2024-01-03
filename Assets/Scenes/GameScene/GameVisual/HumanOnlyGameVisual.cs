@@ -4,8 +4,8 @@ public class HumanOnlyGameVisual : HumanGameVisual
 {
     public override void StartGame(GameStateInterface gameState)
     {
-        base.StartGame(gameState);
         clocks.Restart(false);
+        base.StartGame(gameState);
     }
 
     public override void PlayAnimatedMove(Move move, bool animated)

@@ -231,7 +231,7 @@ public static class V13LegalMoveGenerator
     var bishopPositions = boardState.boardState.bitBoards[boardState.boardState.whiteTurn ? V13BoardState.WhiteBishop : V13BoardState.BlackBishop].extractIndices();
     var queenPositions = boardState.boardState.bitBoards[boardState.boardState.whiteTurn ? V13BoardState.WhiteQueen : V13BoardState.BlackQueen].extractIndices();
 
-    var pseudoLegalMoves = new List<Move>(2 * (pawnPositions.Length + rookPositions.Length + knightPositions.Length + bishopPositions.Length + queenPositions.Length + 1));
+    var pseudoLegalMoves = new List<Move>(4 * (pawnPositions.Length + rookPositions.Length + knightPositions.Length + bishopPositions.Length + queenPositions.Length + 1));
 
     for (var index = 0; index < pawnPositions.Length; ++index)
     {

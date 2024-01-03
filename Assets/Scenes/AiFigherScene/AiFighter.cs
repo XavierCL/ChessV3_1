@@ -10,6 +10,7 @@ public class AiFighter : MonoBehaviour
     public string increment = "1";
     public bool OnlyFirstPosition = false;
     public bool ReversePositions = true;
+    public bool SingleMove = false;
 
     void Awake()
     {
@@ -26,6 +27,7 @@ public class AiFighter : MonoBehaviour
         var ai1Wins = 0;
         var ai2Wins = 0;
         var draws = 0;
+        var lossByTime = 0;
         var increment = SingleClock.stringToTimeSpan(this.increment);
         var ai1Time = TimeSpan.Zero;
         var ai2Time = TimeSpan.Zero;
@@ -78,18 +80,26 @@ public class AiFighter : MonoBehaviour
                     ai2Clock += increment;
                 }
                 ai1WhiteGameState.PlayMove(move);
+
+                if (originalGameState.BoardState.WhiteTurn == ai1WhiteGameState.BoardState.WhiteTurn && SingleMove) break;
             }
 
-            if (ai1WhiteGameState.GetGameEndState() == GameEndState.Draw)
+            if (ai1WhiteGameState.GetGameEndState() == GameEndState.Ongoing)
+            {
+                ++draws;
+            }
+            else if (ai1WhiteGameState.GetGameEndState() == GameEndState.Draw)
             {
                 ++draws;
             }
             else if (ai1WhiteGameState.GetGameEndState() == GameEndState.WhiteWin || ai2Clock < TimeSpan.Zero)
             {
+                if (ai2Clock < TimeSpan.Zero) ++lossByTime;
                 ++ai1Wins;
             }
             else
             {
+                if (ai1Clock < TimeSpan.Zero) ++lossByTime;
                 ++ai2Wins;
             }
 
@@ -137,20 +147,28 @@ public class AiFighter : MonoBehaviour
                     ai1Clock += increment;
                 }
                 ai2WhiteGameState.PlayMove(move);
+
+                if (originalGameState.BoardState.WhiteTurn == ai2WhiteGameState.BoardState.WhiteTurn && SingleMove) break;
             }
 
             Debug.Log($"{gameStateIndex * 2 + 2}/{startingPositions.Count * 2}");
 
-            if (ai2WhiteGameState.GetGameEndState() == GameEndState.Draw)
+            if (ai2WhiteGameState.GetGameEndState() == GameEndState.Ongoing)
+            {
+                ++draws;
+            }
+            else if (ai2WhiteGameState.GetGameEndState() == GameEndState.Draw)
             {
                 ++draws;
             }
             else if (ai2WhiteGameState.GetGameEndState() == GameEndState.WhiteWin || ai1Clock <= TimeSpan.Zero)
             {
+                if (ai1Clock < TimeSpan.Zero) ++lossByTime;
                 ++ai2Wins;
             }
             else
             {
+                if (ai2Clock < TimeSpan.Zero) ++lossByTime;
                 ++ai1Wins;
             }
         }

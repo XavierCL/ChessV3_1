@@ -41,7 +41,7 @@ public class V13GameState : GameStateInterface
         snapshots = new Dictionary<V13BoardState, ushort>();
     }
 
-    public override List<Move> getLegalMoves()
+    public override IReadOnlyList<Move> getLegalMoves()
     {
         if (legalMoves != null) return legalMoves;
         legalMoves = this.GenerateLegalMoves();
@@ -80,11 +80,11 @@ public class V13GameState : GameStateInterface
         var reversibleMove = history[^1];
         history.RemoveAt(history.Count - 1);
         boardState = boardState.UndoMove(reversibleMove);
-        if (!snapshots.ContainsKey(boardState))
+
+        if (!snapshots.TryGetValue(boardState, out var oldSnapshotCount))
         {
             throw new System.Exception("Could not undo move: board isn't a snapshot");
         }
-        var oldSnapshotCount = snapshots[boardState];
 
         if (oldSnapshotCount == 1)
         {

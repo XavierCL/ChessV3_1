@@ -16,8 +16,8 @@ public class HumanAiGameVisual : HumanGameVisual
     public override void StartGame(GameStateInterface gameState)
     {
         if (!humanWhite) boardController.RotateBlackBottom();
-        clocks.Restart(!humanWhite);
         base.StartGame(gameState);
+        clocks.Restart(!humanWhite);
     }
 
     public override void PlayAnimatedMove(Move move, bool animated)

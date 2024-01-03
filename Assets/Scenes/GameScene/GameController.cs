@@ -21,7 +21,7 @@ public class GameController : MonoBehaviour
 
     public void Start()
     {
-        StartNewGame(GameType.HumanHuman);
+        StartNewGame(Random.value >= 0.5 ? GameType.HumanWhiteAiBlack : GameType.HumanBlackAiWhite);
     }
 
     public void Update()

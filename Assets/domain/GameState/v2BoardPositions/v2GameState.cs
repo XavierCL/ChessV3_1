@@ -40,7 +40,7 @@ public class V2GameState : GameStateInterface
         snapshots = new Dictionary<V2BoardState, ushort>();
     }
 
-    public override List<Move> getLegalMoves()
+    public override IReadOnlyList<Move> getLegalMoves()
     {
         return this.GenerateLegalMoves();
     }

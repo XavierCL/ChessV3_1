@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using Unity.Mathematics;
 
 public static class BitBoard
 {
@@ -57,9 +58,19 @@ public static class BitBoard
     unchecked
     {
       if (bitBoard == 0) return -1;
-      uint folded;
       bitBoard ^= bitBoard - 1;
-      folded = ((uint)bitBoard) ^ (uint)(bitBoard >> 32);
+      uint folded = ((uint)bitBoard) ^ (uint)(bitBoard >> 32);
+      return lsb_64_table[folded * 0x78291ACF >> 26];
+    }
+  }
+
+  [MethodImpl(MethodImplOptions.AggressiveInlining)]
+  public static int lsbUnchecked(this ulong bitBoard)
+  {
+    unchecked
+    {
+      bitBoard ^= bitBoard - 1;
+      uint folded = ((uint)bitBoard) ^ (uint)(bitBoard >> 32);
       return lsb_64_table[folded * 0x78291ACF >> 26];
     }
   }
@@ -103,6 +114,18 @@ public static class BitBoard
   {
     int count = 0;
     while (bitBoard != 0)
+    {
+      count++;
+      bitBoard &= bitBoard - 1;
+    }
+    return count;
+  }
+
+  [MethodImpl(MethodImplOptions.AggressiveInlining)]
+  public static int bitCountLimit(this ulong bitBoard, int limit)
+  {
+    int count = 0;
+    while (bitBoard != 0 && count < limit)
     {
       count++;
       bitBoard &= bitBoard - 1;

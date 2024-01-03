@@ -7,18 +7,24 @@ public class Ai5TimeManagement
   private readonly TimeSpan increment;
   private readonly CancellationToken cancellationToken;
   private readonly DateTime startTime;
+  private readonly int forcedDepth;
 
-  public Ai5TimeManagement(TimeSpan remainingTime, TimeSpan increment, CancellationToken cancellationToken)
+  public Ai5TimeManagement(TimeSpan remainingTime, TimeSpan increment, CancellationToken cancellationToken, int forcedDepth)
   {
     this.remainingTime = remainingTime;
     this.increment = increment;
     this.cancellationToken = cancellationToken;
     startTime = DateTime.UtcNow;
+    this.forcedDepth = forcedDepth;
   }
 
-  public bool ShouldStop()
+  public bool ShouldStop(int depth)
   {
     if (cancellationToken.IsCancellationRequested) return true;
+    if (forcedDepth != -1)
+    {
+      return depth > forcedDepth;
+    }
     var elapsedTime = GetElapsed();
     var allotedTime = remainingTime / 40 + increment - TimeSpan.FromMilliseconds(10);
     return elapsedTime >= allotedTime;

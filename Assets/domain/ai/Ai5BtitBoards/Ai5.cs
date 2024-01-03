@@ -8,22 +8,24 @@ using UnityEngine;
 public class Ai5 : MonoBehaviour, AiInterface
 {
     public bool ShowDebugInfo = false;
+    public int ForceDepth = -1;
     private CancellationTokenSource cancellationToken;
     private System.Random random = new System.Random();
     public Task<Move> GetMove(GameStateInterface referenceGameState, TimeSpan remainingTime, TimeSpan increment)
     {
         cancellationToken = new CancellationTokenSource();
-        var timeManagement = new Ai5TimeManagement(remainingTime, increment, cancellationToken.Token);
+        var timeManagement = new Ai5TimeManagement(remainingTime, increment, cancellationToken.Token, ForceDepth);
 
-        var gameState = new V12GameState(referenceGameState);
+        var gameState = new V14GameState(referenceGameState);
         var legalMoves = gameState.getLegalMoves();
 
         if (legalMoves.Count == 1) return Task.FromResult(legalMoves[0]);
 
         var depth = 1;
         var bestIndicesEver = Enumerable.Range(0, legalMoves.Count).ToList();
+        var bestValueEver = gameState.boardState.WhiteTurn ? double.MinValue : double.MaxValue;
 
-        while (!timeManagement.ShouldStop())
+        while (true)
         {
             var bestIndices = new List<int> { };
             var bestValue = gameState.boardState.WhiteTurn ? double.MinValue : double.MaxValue;
@@ -31,18 +33,18 @@ public class Ai5 : MonoBehaviour, AiInterface
 
             for (var legalMoveIndex = 0; legalMoveIndex < legalMoves.Count; ++legalMoveIndex)
             {
-                gameState.PlayMove(legalMoves[legalMoveIndex]);
-                var searchResult = Ai5Search.Search(gameState, depth, timeManagement);
-                gameState.UndoMove();
-
-                if (timeManagement.ShouldStop())
+                if (legalMoveIndex <= legalMoves.Count / 2 && timeManagement.ShouldStop(depth))
                 {
                     if (ShowDebugInfo)
                     {
-                        Debug.Log($"Ai5 Depth: {depth}, ratio: {legalMoveIndex}/{legalMoves.Count}, Elapsed: {timeManagement.GetElapsed().TotalSeconds}");
+                        Debug.Log($"Ai5 Depth: {depth}, ratio: {legalMoveIndex}/{legalMoves.Count}, Elapsed: {timeManagement.GetElapsed().TotalSeconds}, Best moves: {bestIndicesEver.Count}, Evaluation: {bestValueEver}");
                     }
                     break;
                 }
+
+                gameState.PlayMove(legalMoves[legalMoveIndex]);
+                var searchResult = Ai5Search.Search(gameState, depth);
+                gameState.UndoMove();
 
                 allTerminalLeaves = allTerminalLeaves && searchResult.terminalLeaf;
 
@@ -57,9 +59,10 @@ public class Ai5 : MonoBehaviour, AiInterface
                 }
             }
 
-            if (timeManagement.ShouldStop()) break;
+            if (timeManagement.ShouldStop(depth)) break;
 
             bestIndicesEver = bestIndices;
+            bestValueEver = bestValue;
 
             // Don't go deeper if check mate can be delivered at searched depth
             if (bestValue == double.MaxValue && gameState.boardState.WhiteTurn || bestValue == double.MinValue && !gameState.boardState.WhiteTurn)

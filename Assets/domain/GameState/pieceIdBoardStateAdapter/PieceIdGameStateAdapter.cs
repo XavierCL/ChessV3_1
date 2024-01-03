@@ -31,7 +31,7 @@ public class PieceIdGameStateAdapter : GameStateInterface
     boardState = PieceIdBoardStateAdapter.FromMiddlegame(underlying);
   }
 
-  public override List<Move> getLegalMoves()
+  public override IReadOnlyList<Move> getLegalMoves()
   {
     return underlying.getLegalMoves();
   }

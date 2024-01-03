@@ -8,7 +8,7 @@ public abstract class GameStateInterface
     public abstract BoardStateInterface BoardState { get; }
     public abstract Dictionary<BoardStateInterface, ushort> Snapshots { get; }
 
-    public abstract List<Move> getLegalMoves();
+    public abstract IReadOnlyList<Move> getLegalMoves();
     public abstract ReversibleMove PlayMove(Move move);
     public abstract GameEndState GetGameEndState();
     public abstract void UndoMove();
