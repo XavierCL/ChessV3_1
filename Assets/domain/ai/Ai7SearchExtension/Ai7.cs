@@ -34,11 +34,12 @@ public class Ai7 : MonoBehaviour, AiInterface
 
             for (var legalMoveIndex = 0; legalMoveIndex < legalMoves.Count; ++legalMoveIndex)
             {
-                lastCurrentMoveIndex = legalMoveIndex;
-                if (legalMoveIndex <= legalMoves.Count / 2 && timeManagement.ShouldStop(depth))
+                if (legalMoveIndex <= 4 * legalMoves.Count / 5 && timeManagement.ShouldStop(depth))
                 {
                     break;
                 }
+
+                lastCurrentMoveIndex = legalMoveIndex + 1;
 
                 gameState.PlayMove(legalMoves[legalMoveIndex]);
                 var searchResult = Ai7Search.Search(gameState, depth);
@@ -57,10 +58,12 @@ public class Ai7 : MonoBehaviour, AiInterface
                 }
             }
 
-            if (timeManagement.ShouldStop(depth)) break;
+            if (lastCurrentMoveIndex < legalMoves.Count) break;
 
             bestIndicesEver = bestIndices;
             bestValueEver = bestValue;
+            ++depth;
+            lastCurrentMoveIndex = 0;
 
             // Don't go deeper if check mate can be delivered at searched depth
             if (bestValue == double.MaxValue && gameState.boardState.WhiteTurn || bestValue == double.MinValue && !gameState.boardState.WhiteTurn)
@@ -73,8 +76,6 @@ public class Ai7 : MonoBehaviour, AiInterface
             {
                 break;
             }
-
-            ++depth;
         }
 
         if (ShowDebugInfo)
