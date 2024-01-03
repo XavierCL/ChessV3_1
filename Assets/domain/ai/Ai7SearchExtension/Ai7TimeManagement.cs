@@ -26,7 +26,9 @@ public class Ai7TimeManagement
       return depth > forcedDepth;
     }
     var elapsedTime = GetElapsed();
-    var allotedTime = remainingTime / 40 + increment / 2;
+    var bank = remainingTime - increment;
+    var positiveBank = bank < TimeSpan.Zero ? TimeSpan.Zero : bank;
+    var allotedTime = positiveBank / 40 + increment / 2;
     return elapsedTime >= allotedTime;
   }
 

@@ -27,7 +27,8 @@ public class AiFighter : MonoBehaviour
         var ai1Wins = 0;
         var ai2Wins = 0;
         var draws = 0;
-        var lossByTime = 0;
+        var ai1LossByTime = 0;
+        var ai2LossByTime = 0;
         var increment = SingleClock.stringToTimeSpan(this.increment);
         var ai1Time = TimeSpan.Zero;
         var ai2Time = TimeSpan.Zero;
@@ -84,23 +85,19 @@ public class AiFighter : MonoBehaviour
                 if (originalGameState.BoardState.WhiteTurn == ai1WhiteGameState.BoardState.WhiteTurn && SingleMove) break;
             }
 
-            if (ai1WhiteGameState.GetGameEndState() == GameEndState.Ongoing)
+            if (ai1WhiteGameState.GetGameEndState() == GameEndState.WhiteWin || ai2Clock <= TimeSpan.Zero)
             {
-                ++draws;
-            }
-            else if (ai1WhiteGameState.GetGameEndState() == GameEndState.Draw)
-            {
-                ++draws;
-            }
-            else if (ai1WhiteGameState.GetGameEndState() == GameEndState.WhiteWin || ai2Clock < TimeSpan.Zero)
-            {
-                if (ai2Clock < TimeSpan.Zero) ++lossByTime;
+                if (ai2Clock <= TimeSpan.Zero) ++ai2LossByTime;
                 ++ai1Wins;
+            }
+            else if (ai1WhiteGameState.GetGameEndState() == GameEndState.BlackWin || ai1Clock <= TimeSpan.Zero)
+            {
+                if (ai1Clock <= TimeSpan.Zero) ++ai1LossByTime;
+                ++ai2Wins;
             }
             else
             {
-                if (ai1Clock < TimeSpan.Zero) ++lossByTime;
-                ++ai2Wins;
+                ++draws;
             }
 
             if (!ReversePositions)
@@ -153,23 +150,19 @@ public class AiFighter : MonoBehaviour
 
             Debug.Log($"{gameStateIndex * 2 + 2}/{startingPositions.Count * 2}");
 
-            if (ai2WhiteGameState.GetGameEndState() == GameEndState.Ongoing)
+            if (ai2WhiteGameState.GetGameEndState() == GameEndState.WhiteWin || ai1Clock <= TimeSpan.Zero)
             {
-                ++draws;
-            }
-            else if (ai2WhiteGameState.GetGameEndState() == GameEndState.Draw)
-            {
-                ++draws;
-            }
-            else if (ai2WhiteGameState.GetGameEndState() == GameEndState.WhiteWin || ai1Clock <= TimeSpan.Zero)
-            {
-                if (ai1Clock < TimeSpan.Zero) ++lossByTime;
+                if (ai1Clock <= TimeSpan.Zero) ++ai1LossByTime;
                 ++ai2Wins;
+            }
+            else if (ai2WhiteGameState.GetGameEndState() == GameEndState.BlackWin || ai2Clock <= TimeSpan.Zero)
+            {
+                if (ai2Clock <= TimeSpan.Zero) ++ai2LossByTime;
+                ++ai1Wins;
             }
             else
             {
-                if (ai2Clock < TimeSpan.Zero) ++lossByTime;
-                ++ai1Wins;
+                ++draws;
             }
         }
 
@@ -179,6 +172,8 @@ public class AiFighter : MonoBehaviour
         Debug.Log("Ai1 time: " + ai1Time.TotalSeconds);
         Debug.Log("Ai2 time: " + ai2Time.TotalSeconds);
         Debug.Log("Move played: " + movePlayed);
+        Debug.Log("Ai1 loss by time: " + ai1LossByTime);
+        Debug.Log("Ai2 loss by time: " + ai2LossByTime);
     }
 
     private List<GameStateInterface> StartingPositions()
