@@ -20,6 +20,7 @@ public class Ai8TimeManagement
 
   public bool ShouldStop(int depth)
   {
+    if (depth <= 1) return false;
     if (cancellationToken.IsCancellationRequested) return true;
     if (forcedDepth != -1)
     {

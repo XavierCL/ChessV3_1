@@ -1,6 +1,6 @@
 public static class Ai8SearchExtension
 {
-  public static Ai8SearchResult Search(V14GameState gameState)
+  public static Ai8SearchResult Search(V14GameState gameState, Ai8TimeManagement timeManagement)
   {
     var idleEvaluation = Ai8Evaluate.Evaluate(gameState);
 
@@ -20,9 +20,11 @@ public static class Ai8SearchExtension
       if (legalMove.target.index != allowedTarget) continue;
 
       gameState.PlayMove(legalMoves[legalMoveIndex]);
-      var searchResult = Search(gameState);
+      var searchResult = Search(gameState, timeManagement);
       nodeCount += searchResult.nodeCount;
       gameState.UndoMove();
+
+      if (timeManagement.ShouldStop(1)) break;
 
       if (searchResult.value > bestValue && gameState.boardState.WhiteTurn || searchResult.value < bestValue && !gameState.boardState.WhiteTurn)
       {

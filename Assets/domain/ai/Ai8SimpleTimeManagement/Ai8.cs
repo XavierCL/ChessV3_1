@@ -36,7 +36,7 @@ public class Ai8 : MonoBehaviour, AiInterface
             for (lastCurrentMoveIndex = 0; lastCurrentMoveIndex < legalMoves.Count; ++lastCurrentMoveIndex)
             {
                 gameState.PlayMove(legalMoves[lastCurrentMoveIndex]);
-                var searchResult = Ai8Search.Search(gameState, depth);
+                var searchResult = Ai8Search.Search(gameState, depth, timeManagement);
                 nodesVisited += searchResult.nodeCount;
                 gameState.UndoMove();
 

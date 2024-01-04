@@ -1,9 +1,9 @@
 public static class Ai8Search
 {
   // Depths are decreasing. A depth of 1 means evaluation
-  public static Ai8SearchResult Search(V14GameState gameState, int depth)
+  public static Ai8SearchResult Search(V14GameState gameState, int depth, Ai8TimeManagement timeManagement)
   {
-    if (depth <= 1) return Ai8SearchExtension.Search(gameState);
+    if (depth <= 1) return Ai8SearchExtension.Search(gameState, timeManagement);
 
     var legalMoves = gameState.getLegalMoves();
     var endGameState = gameState.GetGameEndState();
@@ -17,9 +17,11 @@ public static class Ai8Search
     for (var legalMoveIndex = 0; legalMoveIndex < legalMoves.Count; ++legalMoveIndex)
     {
       gameState.PlayMove(legalMoves[legalMoveIndex]);
-      var searchResult = Search(gameState, legalMoves.Count == 1 ? depth : depth - 1);
+      var searchResult = Search(gameState, legalMoves.Count == 1 ? depth : depth - 1, timeManagement);
       nodeCount += searchResult.nodeCount;
       gameState.UndoMove();
+
+      if (timeManagement.ShouldStop(depth)) break;
 
       allTerminalLeaves = allTerminalLeaves && searchResult.terminalLeaf;
 
