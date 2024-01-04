@@ -1,18 +1,18 @@
-public static class Ai7Search
+public static class Ai8Search
 {
   // Depths are decreasing. A depth of 1 means evaluation
-  public static Ai7SearchResult Search(V14GameState gameState, int depth)
+  public static Ai8SearchResult Search(V14GameState gameState, int depth)
   {
-    if (depth <= 1) return Ai7SearchExtension.Search(gameState);
+    if (depth <= 1) return Ai8SearchExtension.Search(gameState);
 
     var legalMoves = gameState.getLegalMoves();
     var endGameState = gameState.GetGameEndState();
 
-    if (endGameState != GameEndState.Ongoing) return Ai7Evaluate.Evaluate(gameState);
+    if (endGameState != GameEndState.Ongoing) return Ai8Evaluate.Evaluate(gameState);
 
     var bestValue = gameState.boardState.WhiteTurn ? double.MinValue : double.MaxValue;
     var allTerminalLeaves = true;
-    var nodeCount = 1L;
+    var nodeCount = 0L;
 
     for (var legalMoveIndex = 0; legalMoveIndex < legalMoves.Count; ++legalMoveIndex)
     {
@@ -31,10 +31,10 @@ public static class Ai7Search
       // Return early if the best outcome can be achieved
       if (bestValue == double.MaxValue && gameState.boardState.WhiteTurn || bestValue == double.MinValue && !gameState.boardState.WhiteTurn)
       {
-        return new Ai7SearchResult(bestValue, true, nodeCount);
+        return new Ai8SearchResult(bestValue, true, nodeCount);
       }
     }
 
-    return new Ai7SearchResult(bestValue, allTerminalLeaves, nodeCount);
+    return new Ai8SearchResult(bestValue, allTerminalLeaves, nodeCount);
   }
 }

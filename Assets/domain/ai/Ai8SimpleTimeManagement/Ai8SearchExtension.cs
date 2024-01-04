@@ -1,9 +1,8 @@
-public static class Ai7SearchExtension
+public static class Ai8SearchExtension
 {
-  // Depths are decreasing. A depth of 1 means evaluation
-  public static Ai7SearchResult Search(V14GameState gameState)
+  public static Ai8SearchResult Search(V14GameState gameState)
   {
-    var idleEvaluation = Ai7Evaluate.Evaluate(gameState);
+    var idleEvaluation = Ai8Evaluate.Evaluate(gameState);
 
     if (idleEvaluation.terminalLeaf) return idleEvaluation;
     var lastMove = gameState.history[^1];
@@ -33,10 +32,10 @@ public static class Ai7SearchExtension
       // Return early if the best outcome can be achieved
       if (bestValue == double.MaxValue && gameState.boardState.WhiteTurn || bestValue == double.MinValue && !gameState.boardState.WhiteTurn)
       {
-        return new Ai7SearchResult(bestValue, true, nodeCount);
+        return new Ai8SearchResult(bestValue, true, nodeCount);
       }
     }
 
-    return new Ai7SearchResult(bestValue, false, nodeCount);
+    return new Ai8SearchResult(bestValue, false, nodeCount);
   }
 }

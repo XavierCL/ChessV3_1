@@ -112,8 +112,8 @@ public class V14GameState : GameStateInterface
 
     private GameEndState GenerateGameEndState()
     {
-        if (legalMoves != null ? legalMoves.Count > 0 : V14LegalMoveGenerator.GenerateHasLegalMoves(this)) return GameEndState.Ongoing;
         if (this.IsGameStateDraw()) return GameEndState.Draw;
+        if (legalMoves != null ? legalMoves.Count > 0 : V14LegalMoveGenerator.GenerateHasLegalMoves(this)) return GameEndState.Ongoing;
         var canOwnKingDie = V14LegalMoveGenerator.CanOwnKingDie(this);
 
         // Stalemate

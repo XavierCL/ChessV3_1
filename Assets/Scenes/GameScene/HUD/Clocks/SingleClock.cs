@@ -97,7 +97,7 @@ public class SingleClock : MonoBehaviour
 
         var minutesNumber = string.IsNullOrEmpty(minutes) ? 0 : Int32.Parse(minutes);
         var secondsNumber = string.IsNullOrEmpty(seconds) ? 0 : Int32.Parse(seconds);
-        var millisecondsNumber = string.IsNullOrEmpty(milliseconds) ? 0 : (int)(float.Parse($"0.{milliseconds}") * 1000);
+        var millisecondsNumber = string.IsNullOrEmpty(milliseconds) ? 0 : (int)Math.Round(float.Parse($"0.{milliseconds}") * 1000);
         return new TimeSpan(0, 0, minutesNumber, secondsNumber, millisecondsNumber);
     }
 

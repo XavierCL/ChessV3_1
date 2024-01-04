@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
-public class Ai7 : MonoBehaviour, AiInterface
+public class Ai8 : MonoBehaviour, AiInterface
 {
     public bool ShowDebugInfo = false;
     public int ForceDepth = -1;
@@ -14,7 +14,7 @@ public class Ai7 : MonoBehaviour, AiInterface
     public Task<Move> GetMove(GameStateInterface referenceGameState, TimeSpan remainingTime, TimeSpan increment)
     {
         cancellationToken = new CancellationTokenSource();
-        var timeManagement = new Ai7TimeManagement(remainingTime, increment, cancellationToken.Token, ForceDepth);
+        var timeManagement = new Ai8TimeManagement(remainingTime, increment, cancellationToken.Token, ForceDepth);
 
         var gameState = new V14GameState(referenceGameState);
         var legalMoves = gameState.getLegalMoves();
@@ -24,8 +24,8 @@ public class Ai7 : MonoBehaviour, AiInterface
         var depth = 1;
         var bestIndicesEver = Enumerable.Range(0, legalMoves.Count).ToList();
         var bestValueEver = gameState.boardState.WhiteTurn ? double.MinValue : double.MaxValue;
-        var lastCurrentMoveIndex = 0;
-        var nodeCount = 0L;
+        int lastCurrentMoveIndex;
+        var nodesVisited = 0L;
 
         while (true)
         {
@@ -33,29 +33,24 @@ public class Ai7 : MonoBehaviour, AiInterface
             var bestValue = gameState.boardState.WhiteTurn ? double.MinValue : double.MaxValue;
             var allTerminalLeaves = true;
 
-            for (var legalMoveIndex = 0; legalMoveIndex < legalMoves.Count; ++legalMoveIndex)
+            for (lastCurrentMoveIndex = 0; lastCurrentMoveIndex < legalMoves.Count; ++lastCurrentMoveIndex)
             {
-                if (legalMoveIndex <= 4 * legalMoves.Count / 5 && timeManagement.ShouldStop(depth))
-                {
-                    break;
-                }
-
-                lastCurrentMoveIndex = legalMoveIndex + 1;
-
-                gameState.PlayMove(legalMoves[legalMoveIndex]);
-                var searchResult = Ai7Search.Search(gameState, depth);
-                nodeCount += searchResult.nodeCount;
+                gameState.PlayMove(legalMoves[lastCurrentMoveIndex]);
+                var searchResult = Ai8Search.Search(gameState, depth);
+                nodesVisited += searchResult.nodeCount;
                 gameState.UndoMove();
+
+                if (timeManagement.ShouldStop(depth)) break;
 
                 allTerminalLeaves = allTerminalLeaves && searchResult.terminalLeaf;
 
                 if (searchResult.value == bestValue)
                 {
-                    bestIndices.Add(legalMoveIndex);
+                    bestIndices.Add(lastCurrentMoveIndex);
                 }
                 else if (searchResult.value > bestValue && gameState.boardState.WhiteTurn || searchResult.value < bestValue && !gameState.boardState.WhiteTurn)
                 {
-                    bestIndices = new List<int> { legalMoveIndex };
+                    bestIndices = new List<int> { lastCurrentMoveIndex };
                     bestValue = searchResult.value;
                 }
             }
@@ -73,7 +68,7 @@ public class Ai7 : MonoBehaviour, AiInterface
                 break;
             }
 
-            // Don't go deeper if the tree has only reached terminal leaves. Useful in case of draws.
+            // Don't go deeper if the tree has reached only terminal leaves.
             if (allTerminalLeaves)
             {
                 break;
@@ -82,12 +77,12 @@ public class Ai7 : MonoBehaviour, AiInterface
 
         if (ShowDebugInfo)
         {
-            Debug.Log($"Ai7 Depth: {depth}, ratio: {lastCurrentMoveIndex}/{legalMoves.Count}, Nodes: {nodeCount}, Elapsed: {timeManagement.GetElapsed().TotalSeconds}, Best moves: {bestIndicesEver.Count}, Evaluation: {bestValueEver}");
+            Debug.Log($"Ai8 Depth: {depth}, ratio: {lastCurrentMoveIndex}/{legalMoves.Count}, Nodes: {nodesVisited}, Time: {timeManagement.GetElapsed().TotalSeconds:0.000}/{remainingTime.TotalSeconds:0.000}, Best moves: {bestIndicesEver.Count}, Evaluation: {bestValueEver}");
         }
 
         if (bestIndicesEver.Count == 0)
         {
-            throw new System.Exception("Cannot set legal move index to play");
+            throw new Exception("Cannot set legal move index to play");
         }
 
         cancellationToken = null;
