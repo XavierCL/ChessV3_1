@@ -59,7 +59,7 @@ public class PieceIdBoardStateAdapter : BoardStateInterface
         .BoardState
         .piecePositions
         .Select((piecePosition, index) => new PiecePosition(
-          string.IsNullOrEmpty(piecePosition.id) ? index.ToString() : piecePosition.id,
+          pieceIds[index],
           piecePosition.pieceType,
           piecePosition.position
         ))
@@ -243,4 +243,39 @@ public class PieceIdBoardStateAdapter : BoardStateInterface
 
     return new PieceIdBoardStateAdapter(underlying, newPiecePositions);
   }
+
+  private static string[] pieceIds = new string[] {
+    "a1",
+    "a2",
+    "a6",
+    "a7",
+    "b1",
+    "b2",
+    "b6",
+    "b7",
+    "c1",
+    "c2",
+    "c6",
+    "c7",
+    "d1",
+    "d2",
+    "d6",
+    "d7",
+    "e1",
+    "e2",
+    "e6",
+    "e7",
+    "f1",
+    "f2",
+    "f6",
+    "f7",
+    "g1",
+    "g2",
+    "g6",
+    "g7",
+    "h1",
+    "h2",
+    "h6",
+    "h7"
+  };
 }

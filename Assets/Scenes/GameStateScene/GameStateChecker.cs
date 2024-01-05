@@ -7,7 +7,7 @@ public class GameStateChecker : MonoBehaviour
 {
     public int Ply = 1;
     public bool showFirstPly = false;
-    public bool OnlyLastPosition = false;
+    public bool OnlyFirstPosition = false;
     public bool OnlyFirstGameState = false;
 
     void Start()
@@ -20,9 +20,9 @@ public class GameStateChecker : MonoBehaviour
         var factory2 = new V13GameStateFactory();
 
         var startingPositions = StartingPositions();
-        if (OnlyLastPosition)
+        if (OnlyFirstPosition)
         {
-            startingPositions = new List<GameStateInterface> { startingPositions[^1] };
+            startingPositions = new List<GameStateInterface> { startingPositions[0] };
         }
 
         foreach (var startingPosition in startingPositions)
@@ -103,13 +103,14 @@ public class GameStateChecker : MonoBehaviour
     private List<GameStateInterface> StartingPositions()
     {
         return new List<GameStateInterface> {
+            new V14GameStateFactory().StartingPosition(),
             new V14GameStateFactory().FromFen("rnbqkb1r/pppp1p1p/5np1/4p3/2B1P3/2N2N2/PPPP1PPP/R1BQK2R b KQkq"),
             new V14GameStateFactory().FromFen("2kr1b2/1bp4r/p1nq1p2/3pp3/P3n1P1/3P4/1PP1QP1p/RNB1K1R1 w -"),
             new V14GameStateFactory().FromFen("1r6/4b3/p6P/k7/2p5/8/5r2/7K b -"),
             new V14GameStateFactory().FromFen("4b2k/3p1p1p/3P1P1P/8/8/p1p1p3/P1P1P3/K2B4 w -"),
             new V14GameStateFactory().FromFen("rnbqk2r/pp2bpp1/5n1p/P2pp3/8/NP2PNPB/1pPPQP1P/R3K2R b KQkq"),
             new V14GameStateFactory().FromFen("2kr1b2/1bp4r/p1nq1p2/3pp3/P3n1P1/3P4/1PP1QP2/RNB2KRr w -"),
-            new V14GameStateFactory().StartingPosition(),
+            new V14GameStateFactory().FromFen("8/p1k2p2/1pr2p2/6p1/8/1P1R4/P1P3PP/K7 w -"),
         };
     }
 }

@@ -179,6 +179,8 @@ public class AiFighter : MonoBehaviour
     private List<GameStateInterface> StartingPositions()
     {
         return new List<GameStateInterface> {
+            new V14GameStateFactory().FromFen("8/1P6/8/8/8/2NK5/8/6k1 w -"),
+            new V14GameStateFactory().FromFen("8/p1k2p2/1pr2p2/6p1/8/1P1R4/P1P3PP/K7 w -"),
             new V14GameStateFactory().StartingPosition(),
             new V14GameStateFactory().FromFen("rnbqkb1r/pppp1p1p/5np1/4p3/2B1P3/2N2N2/PPPP1PPP/R1BQK2R b KQkq"),
             new V14GameStateFactory().FromFen("2kr1b2/1bp4r/p1nq1p2/3pp3/P3n1P1/3P4/1PP1QP1p/RNB1K1R1 w -"),
