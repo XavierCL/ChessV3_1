@@ -45,15 +45,16 @@ public class SingleClock : MonoBehaviour
 
     public void StopTicking()
     {
-        TickingDown = false;
         remainingTimeSinceLastTickDown = GetTimeLeft() + GetIncrement();
+        TickingDown = false;
         gameObject.GetComponent<TextMeshProUGUI>().color = InitialGrayColor;
         gameObject.GetComponent<TextMeshProUGUI>().SetText(timeSpanToString(remainingTimeSinceLastTickDown));
     }
 
     public TimeSpan GetTimeLeft()
     {
-        return remainingTimeSinceLastTickDown - TimeSpan.FromSeconds(Time.time - lastTickDownDateTime);
+        if (TickingDown) return remainingTimeSinceLastTickDown - TimeSpan.FromSeconds(Time.time - lastTickDownDateTime);
+        return remainingTimeSinceLastTickDown;
     }
 
     public TimeSpan GetIncrement()
@@ -65,8 +66,8 @@ public class SingleClock : MonoBehaviour
     {
         if (!TickingDown) return;
 
-        TickingDown = false;
         remainingTimeSinceLastTickDown = GetTimeLeft();
+        TickingDown = false;
         gameObject.GetComponent<TextMeshProUGUI>().color = InitialGrayColor;
     }
 

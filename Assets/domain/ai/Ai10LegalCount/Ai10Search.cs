@@ -1,13 +1,14 @@
-public static class Ai9Search
+public static class Ai10Search
 {
   // Depths are decreasing. A depth of 1 means evaluation
-  public static Ai9SearchResult Search(V14GameState gameState, int depth, Ai9TimeManagement timeManagement)
+  public static Ai10SearchResult Search(V14GameState gameState, int depth, Ai10SearchResult idleEvaluation, Ai10TimeManagement timeManagement)
   {
-    if (depth <= 1) return Ai9SearchExtension.Search(gameState, timeManagement);
+    if (idleEvaluation.terminalLeaf) return idleEvaluation;
+
+    if (depth <= 1) return Ai10SearchExtension.Search(gameState, idleEvaluation, timeManagement);
 
     var legalMoves = gameState.getLegalMoves();
     var endGameState = gameState.GetGameEndState();
-    var idleEvaluation = Ai9Evaluate.Evaluate(gameState);
 
     if (endGameState != GameEndState.Ongoing) return idleEvaluation;
 
@@ -18,7 +19,8 @@ public static class Ai9Search
     for (var legalMoveIndex = 0; legalMoveIndex < legalMoves.Count; ++legalMoveIndex)
     {
       gameState.PlayMove(legalMoves[legalMoveIndex]);
-      var searchResult = Search(gameState, legalMoves.Count == 1 ? depth : depth - 1, timeManagement);
+      var nextIdle = Ai10Evaluate.Evaluate(gameState, legalMoves.Count);
+      var searchResult = Search(gameState, legalMoves.Count == 1 ? depth : depth - 1, nextIdle, timeManagement);
       nodeCount += searchResult.nodeCount;
       gameState.UndoMove();
 
@@ -31,7 +33,7 @@ public static class Ai9Search
         // Return early if the best outcome can be achieved
         if (searchResult.IsBestTerminal(gameState))
         {
-          return new Ai9SearchResult(
+          return new Ai10SearchResult(
             idleEvaluation,
             searchResult,
             nodeCount
@@ -42,6 +44,6 @@ public static class Ai9Search
       }
     }
 
-    return new Ai9SearchResult(idleEvaluation, bestSearchResult, allTerminalLeaves, nodeCount);
+    return new Ai10SearchResult(idleEvaluation, bestSearchResult, allTerminalLeaves, nodeCount);
   }
 }

@@ -19,7 +19,11 @@ public class Ai9 : MonoBehaviour, AiInterface
         var gameState = new V14GameState(referenceGameState);
         var legalMoves = gameState.getLegalMoves();
 
-        if (legalMoves.Count == 1) return Task.FromResult(legalMoves[0]);
+        if (legalMoves.Count == 1)
+        {
+            Debug.Log($"Ai9 One legal move");
+            return Task.FromResult(legalMoves[0]);
+        }
 
         var depth = 1;
         var bestIndicesEver = Enumerable.Range(0, legalMoves.Count).ToList();

@@ -136,7 +136,10 @@ public class GameController : MonoBehaviour
         || (gameType == GameType.HumanWhiteAiBlack && !gameState.BoardState.WhiteTurn)
         || (gameType == GameType.HumanBlackAiWhite && gameState.BoardState.WhiteTurn))
         {
-            var clock = IsAi1Turn(gameState) ? GetBottomClock() : GetTopClock();
+            var clock = IsAi1Turn(gameState) && gameType != GameType.HumanWhiteAiBlack && gameType != GameType.HumanBlackAiWhite
+                ? GetBottomClock()
+                : GetTopClock();
+
             var aiMove = await GetAiController().GetMove(gameState, IsAi1Turn(gameState), clock.GetTimeLeft(), clock.GetIncrement());
 
             // Coming back on another thread. If there's no move, then unity has stopped.
