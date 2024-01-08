@@ -2,15 +2,14 @@ public static class Ai8SearchExtension
 {
   public static Ai8SearchResult Search(V14GameState gameState, Ai8TimeManagement timeManagement)
   {
-    var idleEvaluation = Ai8Evaluate.Evaluate(gameState);
-
-    if (idleEvaluation.terminalLeaf) return idleEvaluation;
     var lastMove = gameState.history[^1];
-
-    if (lastMove.killed == null) return idleEvaluation;
+    if (lastMove.killed == null) return Ai8Evaluate.Evaluate(gameState);
+    
+    var legalMoves = gameState.GenerateLegalMoves();
+    var idleEvaluation = Ai8Evaluate.Evaluate(gameState);
+    if (idleEvaluation.terminalLeaf) return idleEvaluation;
 
     var allowedTarget = lastMove.killed.position.index;
-    var legalMoves = gameState.GenerateLegalMoves();
     var bestValue = idleEvaluation.value;
     var nodeCount = 1L;
 

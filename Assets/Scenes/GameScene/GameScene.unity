@@ -3295,7 +3295,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 609873490}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6455e8b7ce596e54cac006b6c599fb73, type: 3}
+  m_Script: {fileID: 11500000, guid: 0adfb7c727d58ec459183c6d1e4a541a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   ShowDebugInfo: 1
@@ -7270,13 +7270,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1293550091}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 86168d28c267cbb4d92a182b4613a510, type: 3}
+  m_Script: {fileID: 11500000, guid: aad5acec50028b143aba01f0ace1b10d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   ShowDebugInfo: 1
   ForceDepth: -1
-  AcceptableDelta: 0.01
-  ShowAllAcceptableMoves: 1
 --- !u!1 &1312554370
 GameObject:
   m_ObjectHideFlags: 0

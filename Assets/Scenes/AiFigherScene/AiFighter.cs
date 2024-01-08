@@ -70,6 +70,7 @@ public class AiFighter : MonoBehaviour
                 var gameStateIndex = iterationIndex / GamePerHyperParameter;
                 var originalGameState = startingPositions[gameStateIndex];
                 GameStateInterface ai1WhiteGameState = gameStateFactory.FromGameState(originalGameState);
+                aiController.ResetAis();
 
                 var ai1Clock = SingleClock.stringToTimeSpan(initialTime);
                 var ai2Clock = ai1Clock;
@@ -142,6 +143,7 @@ public class AiFighter : MonoBehaviour
                 ai1Clock = SingleClock.stringToTimeSpan(initialTime);
                 ai2Clock = ai1Clock;
                 GameStateInterface ai2WhiteGameState = gameStateFactory.FromGameState(originalGameState);
+                aiController.ResetAis();
 
                 if (MultipleFrames)
                 {

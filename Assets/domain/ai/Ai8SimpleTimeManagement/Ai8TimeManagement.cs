@@ -3,15 +3,16 @@ using System.Threading;
 
 public class Ai8TimeManagement
 {
-  private readonly TimeSpan remainingTime;
+  private readonly TimeSpan startOfTurnRemainingTime;
   private readonly TimeSpan increment;
   private readonly CancellationToken cancellationToken;
   private readonly DateTime startTime;
   private readonly int forcedDepth;
+  private int maxDepthSeen = 0;
 
   public Ai8TimeManagement(TimeSpan remainingTime, TimeSpan increment, CancellationToken cancellationToken, int forcedDepth)
   {
-    this.remainingTime = remainingTime;
+    this.startOfTurnRemainingTime = remainingTime;
     this.increment = increment;
     this.cancellationToken = cancellationToken;
     startTime = DateTime.UtcNow;
@@ -22,20 +23,22 @@ public class Ai8TimeManagement
   {
     if (depth <= 1) return false;
     if (cancellationToken.IsCancellationRequested) return true;
-    if (forcedDepth != -1)
-    {
-      return depth > forcedDepth;
-    }
-
-    if (remainingTime < MINIMUM) return true;
-
+    if (forcedDepth != -1) return depth > forcedDepth;
+    if (startOfTurnRemainingTime < MINIMUM) return true;
     var elapsedTime = GetElapsed();
+    var currentRemainingTime = startOfTurnRemainingTime - elapsedTime - MINIMUM;
+    if (currentRemainingTime < TimeSpan.Zero) return true;
 
-    if (remainingTime < increment * 2) return elapsedTime >= remainingTime / 2;
+    var bank = startOfTurnRemainingTime - increment - MINIMUM;
+    var positiveBank = bank < TimeSpan.Zero ? TimeSpan.Zero : bank;
+    var allotedTime = positiveBank / 40 + increment;
 
-    var bank = remainingTime - increment;
-    var relativeBank = TimeSpan.FromMilliseconds(Math.Ceiling(bank.TotalMilliseconds / 40.0));
-    var allotedTime = increment + relativeBank;
+    if (depth > this.maxDepthSeen) {
+      // New depth, don't start it if alloted time is < 2x elapsed time
+      this.maxDepthSeen = depth;
+      return elapsedTime * 2 >= allotedTime;
+    }
+    
     return elapsedTime >= allotedTime;
   }
 

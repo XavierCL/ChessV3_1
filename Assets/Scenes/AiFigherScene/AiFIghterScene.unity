@@ -251,8 +251,8 @@ MonoBehaviour:
   OnlyFirstPosition: 0
   ReversePositions: 1
   SingleMove: 0
-  GamePerHyperParameter: 10
-  MultipleFrames: 1
+  GamePerHyperParameter: 3
+  MultipleFrames: 0
 --- !u!4 &328839930
 Transform:
   m_ObjectHideFlags: 0

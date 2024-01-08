@@ -9,14 +9,27 @@ public class Ai7 : MonoBehaviour, AiInterface
 {
     public bool ShowDebugInfo = false;
     public int ForceDepth = -1;
+
+    private readonly System.Random random = new System.Random();
+
     private CancellationTokenSource cancellationToken;
-    private System.Random random = new System.Random();
+    private V14GameState ownGameState;
+
     public Task<Move> GetMove(GameStateInterface referenceGameState, TimeSpan remainingTime, TimeSpan increment)
     {
         cancellationToken = new CancellationTokenSource();
         var timeManagement = new Ai7TimeManagement(remainingTime, increment, cancellationToken.Token, ForceDepth);
 
-        var gameState = new V14GameState(referenceGameState);
+        if (ownGameState == null) {
+            ownGameState = new V14GameState(referenceGameState);
+        } else {
+            while (ownGameState.history.Count < referenceGameState.history.Count) {
+                ownGameState.PlayMove(new Move(referenceGameState.history[^(referenceGameState.history.Count - ownGameState.history.Count)]));
+            }
+        }
+
+        var gameState = ownGameState;
+
         var legalMoves = gameState.getLegalMoves();
 
         if (legalMoves.Count == 1) return Task.FromResult(legalMoves[0]);
@@ -82,7 +95,7 @@ public class Ai7 : MonoBehaviour, AiInterface
 
         if (ShowDebugInfo)
         {
-            Debug.Log($"Ai7 Depth: {depth}, ratio: {lastCurrentMoveIndex}/{legalMoves.Count}, Nodes: {nodeCount}, Elapsed: {timeManagement.GetElapsed().TotalSeconds}, Best moves: {bestIndicesEver.Count}, Evaluation: {bestValueEver}");
+            Debug.Log($"Ai7 Depth: {depth}, ratio: {lastCurrentMoveIndex}/{legalMoves.Count}, Nodes: {nodeCount}, Elapsed: {timeManagement.GetElapsed().TotalSeconds:0.000}/{remainingTime.TotalSeconds:0.000}, Best moves: {bestIndicesEver.Count}, Evaluation: {bestValueEver}");
         }
 
         if (bestIndicesEver.Count == 0)
@@ -97,6 +110,7 @@ public class Ai7 : MonoBehaviour, AiInterface
 
     public void ResetAi()
     {
+        ownGameState = null;
         if (cancellationToken != null)
         {
             cancellationToken.Cancel();
