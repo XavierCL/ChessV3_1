@@ -49,4 +49,9 @@ public class AiController : MonoBehaviour
         if (ai1) return await ai1Interface.GetMove(gameState, remainingTime, increment);
         return await ai2Interface.GetMove(gameState, remainingTime, increment);
     }
+
+    public AiInterface GetAi1()
+    {
+        return ai1Interface;
+    }
 }

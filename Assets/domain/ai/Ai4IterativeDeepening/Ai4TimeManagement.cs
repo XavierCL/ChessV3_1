@@ -19,8 +19,17 @@ public class Ai4TimeManagement
   public bool ShouldStop()
   {
     if (cancellationToken.IsCancellationRequested) return true;
+
+    if (remainingTime < MINIMUM) return true;
+
+    var safeRemainingTime = remainingTime - MINIMUM;
     var elapsedTime = GetElapsed();
-    var allotedTime = remainingTime / 40 + increment - TimeSpan.FromMilliseconds(10);
+
+    if (safeRemainingTime < increment * 2) return elapsedTime >= safeRemainingTime / 2;
+
+    var bank = safeRemainingTime - increment;
+    var relativeBank = TimeSpan.FromMilliseconds(Math.Ceiling(bank.TotalMilliseconds / 40.0));
+    var allotedTime = increment + relativeBank;
     return elapsedTime >= allotedTime;
   }
 
@@ -28,4 +37,6 @@ public class Ai4TimeManagement
   {
     return DateTime.UtcNow - startTime;
   }
+
+  private readonly TimeSpan MINIMUM = TimeSpan.FromMilliseconds(100);
 }
