@@ -12,7 +12,7 @@ public static class Ai8Search
 
     var bestValue = gameState.boardState.WhiteTurn ? double.MinValue : double.MaxValue;
     var allTerminalLeaves = true;
-    var nodeCount = 0L;
+    var nodeCount = 1L;
 
     for (var legalMoveIndex = 0; legalMoveIndex < legalMoves.Count; ++legalMoveIndex)
     {

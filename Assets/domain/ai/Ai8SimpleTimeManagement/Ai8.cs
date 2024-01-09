@@ -30,13 +30,19 @@ public class Ai8 : MonoBehaviour, AiInterface
         var gameState = ownGameState;
         var legalMoves = gameState.getLegalMoves();
 
-        if (legalMoves.Count == 1) return Task.FromResult(legalMoves[0]);
+        if (legalMoves.Count == 1)
+        {
+            if (ShowDebugInfo) {
+                Debug.Log($"Ai8 One legal move");
+            }
+            return Task.FromResult(legalMoves[0]);
+        }
 
         var depth = 1;
         var bestIndicesEver = Enumerable.Range(0, legalMoves.Count).ToList();
         var bestValueEver = gameState.boardState.WhiteTurn ? double.MinValue : double.MaxValue;
         int lastCurrentMoveIndex = 0;
-        var nodesVisited = 0L;
+        var nodesVisited = 1L;
 
         while (true)
         {

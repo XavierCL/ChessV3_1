@@ -9,19 +9,33 @@ public class Ai9 : MonoBehaviour, AiInterface
 {
     public bool ShowDebugInfo = false;
     public int ForceDepth = -1;
+
+    private readonly System.Random random = new System.Random();
+
     private CancellationTokenSource cancellationToken;
-    private System.Random random = new System.Random();
+    private V14GameState ownGameState;
+
     public Task<Move> GetMove(GameStateInterface referenceGameState, TimeSpan remainingTime, TimeSpan increment)
     {
         cancellationToken = new CancellationTokenSource();
         var timeManagement = new Ai9TimeManagement(remainingTime, increment, cancellationToken.Token, ForceDepth);
 
-        var gameState = new V14GameState(referenceGameState);
+        if (ownGameState == null) {
+            ownGameState = new V14GameState(referenceGameState);
+        } else {
+            while (ownGameState.history.Count < referenceGameState.history.Count) {
+                ownGameState.PlayMove(new Move(referenceGameState.history[^(referenceGameState.history.Count - ownGameState.history.Count)]));
+            }
+        }
+
+        var gameState = ownGameState;
         var legalMoves = gameState.getLegalMoves();
 
         if (legalMoves.Count == 1)
         {
-            Debug.Log($"Ai9 One legal move");
+            if (ShowDebugInfo) {
+                Debug.Log($"Ai9 One legal move");
+            }
             return Task.FromResult(legalMoves[0]);
         }
 
@@ -29,7 +43,7 @@ public class Ai9 : MonoBehaviour, AiInterface
         var bestIndicesEver = Enumerable.Range(0, legalMoves.Count).ToList();
         var lowestValue = gameState.boardState.WhiteTurn ? double.MinValue : double.MaxValue;
         var bestValueEver = new Ai9SearchResult(lowestValue, false, 0, lowestValue, 0);
-        int lastCurrentMoveIndex;
+        int lastCurrentMoveIndex = 0;
         var nodesVisited = 1L;
 
         while (true)
@@ -37,6 +51,8 @@ public class Ai9 : MonoBehaviour, AiInterface
             var bestIndices = new List<int> { };
             var bestSearchResult = new Ai9SearchResult(lowestValue, false, 0, lowestValue, 0);
             var allTerminalLeaves = true;
+
+            if (timeManagement.ShouldStop(depth)) break;
 
             for (lastCurrentMoveIndex = 0; lastCurrentMoveIndex < legalMoves.Count; ++lastCurrentMoveIndex)
             {
@@ -97,6 +113,7 @@ public class Ai9 : MonoBehaviour, AiInterface
 
     public void ResetAi()
     {
+        ownGameState = null;
         if (cancellationToken != null)
         {
             cancellationToken.Cancel();
