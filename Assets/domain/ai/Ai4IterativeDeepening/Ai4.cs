@@ -87,4 +87,8 @@ public class Ai4 : MonoBehaviour, AiInterface
             cancellationToken = null;
         }
     }
+
+    public void ResetStats()
+    {
+    }
 }

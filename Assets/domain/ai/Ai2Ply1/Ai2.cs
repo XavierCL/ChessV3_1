@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 
-
 public class Ai2 : MonoBehaviour, AiInterface
 {
     private System.Random random = new System.Random();
@@ -42,6 +41,10 @@ public class Ai2 : MonoBehaviour, AiInterface
     }
 
     public void ResetAi()
+    {
+    }
+
+    public void ResetStats()
     {
     }
 }

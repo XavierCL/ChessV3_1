@@ -2,7 +2,6 @@ using System;
 using System.Threading.Tasks;
 using UnityEngine;
 
-
 public class Ai1FirstMove : MonoBehaviour, AiInterface
 {
     public Task<Move> GetMove(GameStateInterface gameState, TimeSpan remainingTime, TimeSpan increment)
@@ -16,6 +15,10 @@ public class Ai1FirstMove : MonoBehaviour, AiInterface
     }
 
     public void ResetAi()
+    {
+    }
+
+    public void ResetStats()
     {
     }
 }

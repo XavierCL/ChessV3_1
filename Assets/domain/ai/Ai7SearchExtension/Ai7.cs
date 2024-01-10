@@ -126,4 +126,9 @@ public class Ai7 : MonoBehaviour, AiInterface
     {
         return "";
     }
+
+    public void ResetStats()
+    {
+
+    }
 }

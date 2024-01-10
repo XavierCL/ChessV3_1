@@ -8,4 +8,6 @@ public interface AiInterface
     void ResetAi();
 
     string GetStats();
+
+    void ResetStats();
 }

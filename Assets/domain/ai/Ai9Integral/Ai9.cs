@@ -135,4 +135,10 @@ public class Ai9 : MonoBehaviour, AiInterface
     {
         return $"Average depth: {averageUsefulDepth:0.00}";
     }
+
+    public void ResetStats()
+    {
+        averageUsefulDepth = 0;
+        moveCount = 0;
+    }
 }

@@ -37,7 +37,9 @@ public class AiFighter : MonoBehaviour
 
         var hyperParameterAi1Wins = new List<int>();
         var hyperParameterAi2Wins = new List<int>();
-        var hyperParameterValues = new List<double> { 1 };
+        var hyperParameterAi1Stats = new List<string>();
+        var hyperParameterAi2Stats = new List<string>();
+        var hyperParameterValues = new List<double> { 0.001 };
 
         foreach (var hyperParameterValue in hyperParameterValues)
         {
@@ -45,7 +47,7 @@ public class AiFighter : MonoBehaviour
 
             if (ai1 != null)
             {
-                ai1.AcceptableDelta = hyperParameterValue;
+                // ai1.AcceptableDelta = hyperParameterValue;
             }
 
             var ai1Wins = 0;
@@ -218,6 +220,11 @@ public class AiFighter : MonoBehaviour
 
             hyperParameterAi1Wins.Add(ai1Wins);
             hyperParameterAi2Wins.Add(ai2Wins);
+            hyperParameterAi1Stats.Add(aiController.GetAi1().GetStats());
+            hyperParameterAi2Stats.Add(aiController.GetAi2().GetStats());
+
+            aiController.GetAi1().ResetStats();
+            aiController.GetAi2().ResetStats();
 
             Debug.Log("Ai1 time: " + ai1Time.TotalSeconds);
             Debug.Log("Ai2 time: " + ai2Time.TotalSeconds);
@@ -233,8 +240,8 @@ public class AiFighter : MonoBehaviour
             }
         }
 
-        Debug.Log("Ai1 stats: " + aiController.GetAi1().GetStats());
-        Debug.Log("Ai2 stats: " + aiController.GetAi2().GetStats());
+        Debug.Log("Ai1 Stats: " + string.Join(", ", hyperParameterAi1Stats));
+        Debug.Log("Ai2 Stats: " + string.Join(", ", hyperParameterAi2Stats));
 
         if (hyperParameterValues.Count > 1)
         {

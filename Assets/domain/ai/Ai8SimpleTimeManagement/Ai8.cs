@@ -128,4 +128,9 @@ public class Ai8 : MonoBehaviour, AiInterface
     {
         return "";
     }
+
+    public void ResetStats()
+    {
+
+    }
 }

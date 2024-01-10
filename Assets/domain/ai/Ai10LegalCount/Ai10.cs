@@ -9,7 +9,7 @@ public class Ai10 : MonoBehaviour, AiInterface
 {
     public bool ShowDebugInfo = false;
     public int ForceDepth = -1;
-    public double AcceptableDelta = 0.01;
+    public double AcceptableDelta = 0.005;
     public double Temperature = 3.0;
     public bool ShowAllAcceptableMoves = false;
 
@@ -18,6 +18,7 @@ public class Ai10 : MonoBehaviour, AiInterface
     private CancellationTokenSource cancellationToken;
     private V14GameState ownGameState;
     private double averageUsefulDepth = 0.0;
+    private double averageAcceptableMoves = 0.0;
     private int moveCount = 0;
 
     public Task<Move> GetMove(GameStateInterface referenceGameState, TimeSpan remainingTime, TimeSpan increment)
@@ -127,6 +128,7 @@ public class Ai10 : MonoBehaviour, AiInterface
         }
 
         averageUsefulDepth = (averageUsefulDepth * moveCount + (depth - 1)) / (moveCount + 1);
+        averageAcceptableMoves = (averageAcceptableMoves * moveCount + (orderedMoveIndices.Count)) / (moveCount + 1);
         ++moveCount;
 
         cancellationToken = null;
@@ -146,6 +148,13 @@ public class Ai10 : MonoBehaviour, AiInterface
 
     public string GetStats()
     {
-        return $"Average depth: {averageUsefulDepth:0.00}";
+        return $"Average depth: {averageUsefulDepth:0.00}, Average good moves: {averageAcceptableMoves:0.00}";
+    }
+
+    public void ResetStats()
+    {
+        averageUsefulDepth = 0;
+        averageAcceptableMoves = 0;
+        moveCount = 0;
     }
 }

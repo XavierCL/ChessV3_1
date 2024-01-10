@@ -103,4 +103,9 @@ public class Ai6 : MonoBehaviour, AiInterface
             cancellationToken = null;
         }
     }
+
+    public void ResetStats()
+    {
+
+    }
 }

@@ -99,4 +99,8 @@ public class Ai5 : MonoBehaviour, AiInterface
             cancellationToken = null;
         }
     }
+
+    public void ResetStats()
+    {
+    }
 }

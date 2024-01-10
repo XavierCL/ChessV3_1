@@ -55,4 +55,8 @@ public class Ai3 : MonoBehaviour, AiInterface
             cancellationToken = null;
         }
     }
+
+    public void ResetStats()
+    {
+    }
 }
