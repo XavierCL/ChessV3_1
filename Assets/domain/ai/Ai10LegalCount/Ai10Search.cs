@@ -1,16 +1,14 @@
 public static class Ai10Search
 {
   // Depths are decreasing. A depth of 1 means evaluation
-  public static Ai10SearchResult Search(V14GameState gameState, int depth, Ai10SearchResult idleEvaluation, Ai10TimeManagement timeManagement)
+  public static Ai10SearchResult Search(V14GameState gameState, int depth, int previousLegalCount, int previousSecondLegalCount, Ai10TimeManagement timeManagement)
   {
-    if (idleEvaluation.terminalLeaf) return idleEvaluation;
-
-    if (depth <= 1) return Ai10SearchExtension.Search(gameState, idleEvaluation, timeManagement);
+    if (depth <= 1) return Ai10SearchExtension.Search(gameState, previousLegalCount, previousSecondLegalCount, timeManagement);
 
     var legalMoves = gameState.getLegalMoves();
-    var endGameState = gameState.GetGameEndState();
+    var idleEvaluation = Ai10Evaluate.Evaluate(gameState, previousLegalCount, previousSecondLegalCount);
 
-    if (endGameState != GameEndState.Ongoing) return idleEvaluation;
+    if (idleEvaluation.terminalLeaf) return idleEvaluation;
 
     var bestSearchResult = idleEvaluation.SetValue(gameState.boardState.WhiteTurn ? double.MinValue : double.MaxValue);
     var allTerminalLeaves = true;
@@ -19,8 +17,7 @@ public static class Ai10Search
     for (var legalMoveIndex = 0; legalMoveIndex < legalMoves.Count; ++legalMoveIndex)
     {
       gameState.PlayMove(legalMoves[legalMoveIndex]);
-      var nextIdle = Ai10Evaluate.Evaluate(gameState, legalMoves.Count);
-      var searchResult = Search(gameState, legalMoves.Count == 1 ? depth : depth - 1, nextIdle, timeManagement);
+      var searchResult = Search(gameState, legalMoves.Count == 1 ? depth : depth - 1, legalMoves.Count, previousLegalCount, timeManagement);
       nodeCount += searchResult.nodeCount;
       gameState.UndoMove();
 

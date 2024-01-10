@@ -12,6 +12,11 @@ public class Ai1Random : MonoBehaviour, AiInterface
         return Task.FromResult(legalMoves[random.Next(0, legalMoves.Count)]);
     }
 
+    public string GetStats()
+    {
+        return "";
+    }
+
     public void ResetAi()
     {
     }

@@ -6,4 +6,6 @@ public interface AiInterface
     Task<Move> GetMove(GameStateInterface gameState, TimeSpan remainingTime, TimeSpan increment);
 
     void ResetAi();
+
+    string GetStats();
 }

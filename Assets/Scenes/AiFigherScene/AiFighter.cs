@@ -233,6 +233,9 @@ public class AiFighter : MonoBehaviour
             }
         }
 
+        Debug.Log("Ai1 stats: " + aiController.GetAi1().GetStats());
+        Debug.Log("Ai2 stats: " + aiController.GetAi2().GetStats());
+
         if (hyperParameterValues.Count > 1)
         {
             Debug.Log("Hyper Ai1 wins: " + string.Join(", ", hyperParameterAi1Wins));

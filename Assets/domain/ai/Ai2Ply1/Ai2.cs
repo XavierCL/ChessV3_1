@@ -36,6 +36,11 @@ public class Ai2 : MonoBehaviour, AiInterface
         return Task.FromResult(legalMoves[bestIndices[random.Next(0, bestIndices.Count)]]);
     }
 
+    public string GetStats()
+    {
+        return "";
+    }
+
     public void ResetAi()
     {
     }

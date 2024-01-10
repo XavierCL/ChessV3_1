@@ -1,13 +1,13 @@
 public static class Ai10SearchExtension
 {
-  public static Ai10SearchResult Search(V14GameState gameState, Ai10SearchResult idleEvaluation, Ai10TimeManagement timeManagement)
+  public static Ai10SearchResult Search(V14GameState gameState, int previousLegalCount, int previousSecondLegalCount, Ai10TimeManagement timeManagement)
   {
-    if (idleEvaluation.terminalLeaf) return idleEvaluation;
+    var lastMove = gameState.history[^1];
+    if (lastMove.killed == null) return Ai10Evaluate.Evaluate(gameState, previousLegalCount, previousSecondLegalCount);
 
     var legalMoves = gameState.GenerateLegalMoves();
-    var lastMove = gameState.history[^1];
-
-    if (lastMove.killed == null) return idleEvaluation;
+    var idleEvaluation = Ai10Evaluate.Evaluate(gameState, previousLegalCount, previousSecondLegalCount);
+    if (idleEvaluation.terminalLeaf) return idleEvaluation;
 
     var allowedTarget = lastMove.killed.position.index;
     var bestSearchResult = idleEvaluation;
@@ -19,8 +19,7 @@ public static class Ai10SearchExtension
       if (legalMove.target.index != allowedTarget) continue;
 
       gameState.PlayMove(legalMoves[legalMoveIndex]);
-      var nextIdle = Ai10Evaluate.Evaluate(gameState, legalMoves.Count);
-      var searchResult = Search(gameState, nextIdle, timeManagement);
+      var searchResult = Search(gameState, legalMoves.Count, previousLegalCount, timeManagement);
       nodeCount += searchResult.nodeCount;
       gameState.UndoMove();
 

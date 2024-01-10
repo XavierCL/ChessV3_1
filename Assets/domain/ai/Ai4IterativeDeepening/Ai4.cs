@@ -74,6 +74,11 @@ public class Ai4 : MonoBehaviour, AiInterface
         return Task.FromResult(legalMoves[bestIndicesEver[random.Next(0, bestIndicesEver.Count)]]);
     }
 
+    public string GetStats()
+    {
+        return "";
+    }
+
     public void ResetAi()
     {
         if (cancellationToken != null)

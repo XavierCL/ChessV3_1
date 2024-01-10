@@ -19,10 +19,14 @@ public class Ai8 : MonoBehaviour, AiInterface
         cancellationToken = new CancellationTokenSource();
         var timeManagement = new Ai8TimeManagement(remainingTime, increment, cancellationToken.Token, ForceDepth);
 
-        if (ownGameState == null) {
+        if (ownGameState == null)
+        {
             ownGameState = new V14GameState(referenceGameState);
-        } else {
-            while (ownGameState.history.Count < referenceGameState.history.Count) {
+        }
+        else
+        {
+            while (ownGameState.history.Count < referenceGameState.history.Count)
+            {
                 ownGameState.PlayMove(new Move(referenceGameState.history[^(referenceGameState.history.Count - ownGameState.history.Count)]));
             }
         }
@@ -32,7 +36,8 @@ public class Ai8 : MonoBehaviour, AiInterface
 
         if (legalMoves.Count == 1)
         {
-            if (ShowDebugInfo) {
+            if (ShowDebugInfo)
+            {
                 Debug.Log($"Ai8 One legal move");
             }
             return Task.FromResult(legalMoves[0]);
@@ -117,5 +122,10 @@ public class Ai8 : MonoBehaviour, AiInterface
             cancellationToken.Cancel();
             cancellationToken = null;
         }
+    }
+
+    public string GetStats()
+    {
+        return "";
     }
 }

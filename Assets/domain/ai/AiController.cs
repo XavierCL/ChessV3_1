@@ -54,4 +54,9 @@ public class AiController : MonoBehaviour
     {
         return ai1Interface;
     }
+
+    public AiInterface GetAi2()
+    {
+        return ai2Interface;
+    }
 }

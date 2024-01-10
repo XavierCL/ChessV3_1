@@ -1,8 +1,7 @@
 public static class Ai10Evaluate
 {
-  public static Ai10SearchResult Evaluate(V14GameState gameState, int previousLegalCount)
+  public static Ai10SearchResult Evaluate(V14GameState gameState, int previousLegalCount, int previousSecondLegalCount)
   {
-    var legalCount = gameState.getLegalMoves().Count;
     var endGameState = gameState.GetGameEndState();
 
     if (endGameState == GameEndState.WhiteWin)
@@ -29,7 +28,7 @@ public static class Ai10Evaluate
       + gameState.boardState.bitBoards[V14BoardState.WhiteQueen].bitCount() * 9
       + gameState.boardState.bitBoards[V14BoardState.BlackQueen].bitCount() * -9;
 
-    var legalDiff = (gameState.boardState.whiteTurn ? 0.001 : -0.001) * (legalCount - previousLegalCount);
+    var legalDiff = (gameState.boardState.whiteTurn ? -0.001 : 0.001) * (previousLegalCount - previousSecondLegalCount);
 
     return new Ai10SearchResult(
       value + legalDiff,

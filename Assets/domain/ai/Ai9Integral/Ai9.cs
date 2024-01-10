@@ -14,16 +14,22 @@ public class Ai9 : MonoBehaviour, AiInterface
 
     private CancellationTokenSource cancellationToken;
     private V14GameState ownGameState;
+    private double averageUsefulDepth = 0.0;
+    private int moveCount = 0;
 
     public Task<Move> GetMove(GameStateInterface referenceGameState, TimeSpan remainingTime, TimeSpan increment)
     {
         cancellationToken = new CancellationTokenSource();
         var timeManagement = new Ai9TimeManagement(remainingTime, increment, cancellationToken.Token, ForceDepth);
 
-        if (ownGameState == null) {
+        if (ownGameState == null)
+        {
             ownGameState = new V14GameState(referenceGameState);
-        } else {
-            while (ownGameState.history.Count < referenceGameState.history.Count) {
+        }
+        else
+        {
+            while (ownGameState.history.Count < referenceGameState.history.Count)
+            {
                 ownGameState.PlayMove(new Move(referenceGameState.history[^(referenceGameState.history.Count - ownGameState.history.Count)]));
             }
         }
@@ -33,7 +39,8 @@ public class Ai9 : MonoBehaviour, AiInterface
 
         if (legalMoves.Count == 1)
         {
-            if (ShowDebugInfo) {
+            if (ShowDebugInfo)
+            {
                 Debug.Log($"Ai9 One legal move");
             }
             return Task.FromResult(legalMoves[0]);
@@ -106,6 +113,9 @@ public class Ai9 : MonoBehaviour, AiInterface
             throw new Exception("Cannot set legal move index to play");
         }
 
+        averageUsefulDepth = (averageUsefulDepth * moveCount + (depth - 1)) / (moveCount + 1);
+        ++moveCount;
+
         cancellationToken = null;
 
         return Task.FromResult(legalMoves[bestIndicesEver[random.Next(0, bestIndicesEver.Count)]]);
@@ -119,5 +129,10 @@ public class Ai9 : MonoBehaviour, AiInterface
             cancellationToken.Cancel();
             cancellationToken = null;
         }
+    }
+
+    public string GetStats()
+    {
+        return $"Average depth: {averageUsefulDepth:0.00}";
     }
 }

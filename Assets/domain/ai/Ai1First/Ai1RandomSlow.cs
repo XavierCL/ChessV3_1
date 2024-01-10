@@ -26,6 +26,11 @@ public class Ai1RandomSlow : MonoBehaviour, AiInterface
         }
     }
 
+    public string GetStats()
+    {
+        return "";
+    }
+
     public void ResetAi()
     {
         if (cancellationTokenSource != null) cancellationTokenSource.Cancel();

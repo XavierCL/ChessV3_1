@@ -10,6 +10,11 @@ public class Ai1FirstMove : MonoBehaviour, AiInterface
         return Task.FromResult(gameState.getLegalMoves()[0]);
     }
 
+    public string GetStats()
+    {
+        return "";
+    }
+
     public void ResetAi()
     {
     }

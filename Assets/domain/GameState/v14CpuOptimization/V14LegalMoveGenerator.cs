@@ -31,18 +31,6 @@ public static class V14LegalMoveGenerator
     return legalMoves.moves;
   }
 
-  public static IReadOnlyList<Move> GenerateAttackMoves(this V14GameState gameState)
-  {
-    InitializeCache();
-
-    var cacheEntry = legalCache.Get(gameState.boardState);
-    if (cacheEntry != null && cacheEntry.type == CacheEntryType.AttackList) return cacheEntry.moves;
-
-    var legalMoves = GenerateBoardLegalMoves(gameState.boardState, CacheEntryType.AttackList);
-    legalCache.Set(gameState.boardState, legalMoves);
-    return legalMoves.moves;
-  }
-
   public static bool GenerateHasLegalMoves(this V14GameState gameState)
   {
     InitializeCache();
@@ -361,17 +349,15 @@ public static class V14LegalMoveGenerator
 
     var targetBitBoard = 0ul;
 
-    if (entryType != CacheEntryType.AttackList)
-    {
-      // One up
-      var oneUpBitBoard = bitBoardPosition.shiftRow(increment) & ~boardState.allBitBoard;
-      targetBitBoard |= oneUpBitBoard;
 
-      // Two up
-      if (oneUpBitBoard != 0 && ownRow == ownPawnStartingY)
-      {
-        targetBitBoard |= oneUpBitBoard.shiftRow(increment) & ~boardState.allBitBoard;
-      }
+    // One up
+    var oneUpBitBoard = bitBoardPosition.shiftRow(increment) & ~boardState.allBitBoard;
+    targetBitBoard |= oneUpBitBoard;
+
+    // Two up
+    if (oneUpBitBoard != 0 && ownRow == ownPawnStartingY)
+    {
+      targetBitBoard |= oneUpBitBoard.shiftRow(increment) & ~boardState.allBitBoard;
     }
 
     // Captures
@@ -445,7 +431,6 @@ public static class V14LegalMoveGenerator
       | GetTargetRay(-1, 0, ownBitBoard, boardState.allBitBoard, position)
       | GetTargetRay(0, 1, ownBitBoard, boardState.allBitBoard, position)
       | GetTargetRay(0, -1, ownBitBoard, boardState.allBitBoard, position);
-    if (entryType == CacheEntryType.AttackList) targetBitBoard &= boardState.boardState.whiteTurn ? boardState.blackBitBoard : boardState.whiteBitBoard;
 
     // Kill attacker or block ray
     if (boardState.middleRay != 0)
@@ -465,7 +450,6 @@ public static class V14LegalMoveGenerator
   private static Move[] GetPseudoLegalKnightMoves(CheckInfoBoardState boardState, int position, CacheEntryType entryType)
   {
     var targetBitBoard = V14Precomputed.knightBitBoards[position] & ~(boardState.boardState.whiteTurn ? boardState.whiteBitBoard : boardState.blackBitBoard);
-    if (entryType == CacheEntryType.AttackList) targetBitBoard &= boardState.boardState.whiteTurn ? boardState.blackBitBoard : boardState.whiteBitBoard;
 
     // Stay pinned
     if ((boardState.pins & position.toBitBoard()) != 0) return emptyMoveArray;
@@ -486,7 +470,6 @@ public static class V14LegalMoveGenerator
       | GetTargetRay(-1, 1, ownBitBoard, boardState.allBitBoard, position)
       | GetTargetRay(1, -1, ownBitBoard, boardState.allBitBoard, position)
       | GetTargetRay(1, 1, ownBitBoard, boardState.allBitBoard, position);
-    if (entryType == CacheEntryType.AttackList) targetBitBoard &= boardState.boardState.whiteTurn ? boardState.blackBitBoard : boardState.whiteBitBoard;
 
     // Kill attacker or block ray
     if (boardState.middleRay != 0)
@@ -514,7 +497,6 @@ public static class V14LegalMoveGenerator
       | GetTargetRay(-1, 1, ownBitBoard, boardState.allBitBoard, position)
       | GetTargetRay(1, -1, ownBitBoard, boardState.allBitBoard, position)
       | GetTargetRay(1, 1, ownBitBoard, boardState.allBitBoard, position);
-    if (entryType == CacheEntryType.AttackList) targetBitBoard &= boardState.boardState.whiteTurn ? boardState.blackBitBoard : boardState.whiteBitBoard;
 
     // Kill attacker or block ray
     if (boardState.middleRay != 0)
@@ -535,7 +517,6 @@ public static class V14LegalMoveGenerator
   {
     var normalMoveTargetBitBoard = V14Precomputed.kingBitBoards[position] & ~(boardState.boardState.whiteTurn ? boardState.whiteBitBoard : boardState.blackBitBoard);
     var normalMovesNotSteppingInMiddleRay = normalMoveTargetBitBoard & (~boardState.middleRay | boardState.attackers);
-    if (entryType == CacheEntryType.AttackList) normalMovesNotSteppingInMiddleRay &= boardState.boardState.whiteTurn ? boardState.blackBitBoard : boardState.whiteBitBoard;
     var pseudoLegalTargetPositions = normalMovesNotSteppingInMiddleRay.extractIndices();
     var boardStateCopy = new V14BoardState(boardState.boardState);
     var ownBitBoard = position.toBitBoard();
@@ -754,8 +735,7 @@ public static class V14LegalMoveGenerator
   public enum CacheEntryType
   {
     HasMove = 0,
-    AttackList = 1,
-    FullList = 2,
+    FullList = 1,
   }
 
   public class CacheEntry
