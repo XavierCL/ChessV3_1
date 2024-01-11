@@ -48,6 +48,7 @@ public class PlayerInputHandler : MonoBehaviour
         if (context.phase == InputActionPhase.Started)
         {
             var historicGame = historyHandler.GetGameAtHistory();
+            aiController.ResetAis();
             await aiController.GetMove(historicGame, gameController.IsAi1Turn(historicGame), TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
         }
     }
