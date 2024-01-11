@@ -50,6 +50,13 @@ public class V14GameState : GameStateInterface
         return legalMoves;
     }
 
+    public IReadOnlyList<Move> getLegalMovesWithoutGameStateCheck()
+    {
+        if (legalMoves != null) return legalMoves;
+        legalMoves = this.GenerateLegalMoves();
+        return legalMoves;
+    }
+
     public override ReversibleMove PlayMove(Move move)
     {
         var oldBoardState = boardState;
@@ -106,13 +113,20 @@ public class V14GameState : GameStateInterface
     public override GameEndState GetGameEndState()
     {
         if (endState != GameEndState.Nothing) return endState;
+        if (this.IsGameStateDraw()) endState = GameEndState.Draw;
+        else endState = GenerateGameEndState();
+        return endState;
+    }
+
+    public GameEndState GetGameEndStateWithoutGameStateCheck()
+    {
+        if (endState != GameEndState.Nothing) return endState;
         endState = GenerateGameEndState();
         return endState;
     }
 
     private GameEndState GenerateGameEndState()
     {
-        if (this.IsGameStateDraw()) return GameEndState.Draw;
         if (legalMoves != null ? legalMoves.Count > 0 : V14LegalMoveGenerator.GenerateHasLegalMoves(this)) return GameEndState.Ongoing;
         var canOwnKingDie = V14LegalMoveGenerator.CanOwnKingDie(this);
 

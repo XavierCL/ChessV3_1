@@ -43,7 +43,7 @@ public class AiFighter : MonoBehaviour
 
         foreach (var hyperParameterValue in hyperParameterValues)
         {
-            var ai1 = aiController.GetAi1() as Ai10;
+            var ai1 = aiController.GetAi1() as Ai11;
 
             if (ai1 != null)
             {

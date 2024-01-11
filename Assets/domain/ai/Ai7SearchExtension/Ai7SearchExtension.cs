@@ -11,7 +11,7 @@ public static class Ai7SearchExtension
     if (lastMove.killed == null) return idleEvaluation;
 
     var allowedTarget = lastMove.killed.position.index;
-    var legalMoves = gameState.GenerateLegalMoves();
+    var legalMoves = gameState.getLegalMoves();
     var bestValue = idleEvaluation.value;
     var nodeCount = 1L;
 

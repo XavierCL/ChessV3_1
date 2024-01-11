@@ -4,8 +4,8 @@ public static class Ai8SearchExtension
   {
     var lastMove = gameState.history[^1];
     if (lastMove.killed == null) return Ai8Evaluate.Evaluate(gameState);
-    
-    var legalMoves = gameState.GenerateLegalMoves();
+
+    var legalMoves = gameState.getLegalMoves();
     var idleEvaluation = Ai8Evaluate.Evaluate(gameState);
     if (idleEvaluation.terminalLeaf) return idleEvaluation;
 

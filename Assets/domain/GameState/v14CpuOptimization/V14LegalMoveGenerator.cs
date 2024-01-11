@@ -16,7 +16,38 @@ public static class V14LegalMoveGenerator
   {
     if (gameState.StaleTurns >= 100) return true;
     if (gameState.snapshots.TryGetValue(gameState.boardState, out var snapshotCount) && snapshotCount >= 2) return true;
-    return DrawByInsufficientMaterial(new AugmentedBoardState(gameState.boardState));
+    return false;
+  }
+
+  private static bool DrawByInsufficientMaterial(AugmentedBoardState boardState)
+  {
+    var pieceCount = boardState.allBitBoard.bitCountLimit(5);
+
+    // Two kings
+    if (pieceCount <= 2) return true;
+    if (pieceCount > 4) return false;
+
+    var onGoingBitBoards = boardState.boardState.bitBoards[V14BoardState.WhitePawn]
+      | boardState.boardState.bitBoards[V14BoardState.BlackPawn]
+      | boardState.boardState.bitBoards[V14BoardState.WhiteRook]
+      | boardState.boardState.bitBoards[V14BoardState.BlackRook]
+      | boardState.boardState.bitBoards[V14BoardState.WhiteQueen]
+      | boardState.boardState.bitBoards[V14BoardState.BlackQueen];
+
+    if (onGoingBitBoards != 0) return false;
+
+    // Two kings and a single bishop or knight
+    if (pieceCount <= 3) return true;
+
+    // Different color same square bishops: draw
+    if (boardState.boardState.bitBoards[V14BoardState.WhiteBishop] != 0
+      && boardState.boardState.bitBoards[V14BoardState.BlackBishop] != 0
+      && boardState.boardState.bitBoards[V14BoardState.WhiteBishop].lsbUnchecked().IsWhiteSquare() == boardState.boardState.bitBoards[V14BoardState.BlackBishop].lsbUnchecked().IsWhiteSquare())
+    {
+      return true;
+    }
+
+    return false;
   }
 
   public static IReadOnlyList<Move> GenerateLegalMoves(this V14GameState gameState)
@@ -46,6 +77,7 @@ public static class V14LegalMoveGenerator
   private static CacheEntry GenerateBoardLegalMoves(V14BoardState rawBoardState, CacheEntryType entryType)
   {
     var boardState = new AugmentedBoardState(rawBoardState);
+    if (DrawByInsufficientMaterial(boardState)) return CacheEntry.empty;
     var checkInfoBoardState = new CheckInfoBoardState(boardState);
 
     var kingPosition = boardState.boardState.bitBoards[boardState.boardState.whiteTurn ? V14BoardState.WhiteKing : V14BoardState.BlackKing].lsbUnchecked();
@@ -305,37 +337,6 @@ public static class V14LegalMoveGenerator
     pins |= GetPinRay(1, -1, diagonalEnemyBitBoard, ownPieces, enemyPieces, kingPosition);
 
     return new KingCheckInfo(attackers, middleRay, pins);
-  }
-
-  private static bool DrawByInsufficientMaterial(AugmentedBoardState boardState)
-  {
-    var pieceCount = boardState.allBitBoard.bitCountLimit(5);
-
-    // Two kings
-    if (pieceCount <= 2) return true;
-    if (pieceCount > 4) return false;
-
-    var onGoingBitBoards = boardState.boardState.bitBoards[V14BoardState.WhitePawn]
-      | boardState.boardState.bitBoards[V14BoardState.BlackPawn]
-      | boardState.boardState.bitBoards[V14BoardState.WhiteRook]
-      | boardState.boardState.bitBoards[V14BoardState.BlackRook]
-      | boardState.boardState.bitBoards[V14BoardState.WhiteQueen]
-      | boardState.boardState.bitBoards[V14BoardState.BlackQueen];
-
-    if (onGoingBitBoards != 0) return false;
-
-    // Two kings and a single bishop or knight
-    if (pieceCount <= 3) return true;
-
-    // Different color same square bishops: draw
-    if (boardState.boardState.bitBoards[V14BoardState.WhiteBishop] != 0
-      && boardState.boardState.bitBoards[V14BoardState.BlackBishop] != 0
-      && boardState.boardState.bitBoards[V14BoardState.WhiteBishop].lsbUnchecked().IsWhiteSquare() == boardState.boardState.bitBoards[V14BoardState.BlackBishop].lsbUnchecked().IsWhiteSquare())
-    {
-      return true;
-    }
-
-    return false;
   }
 
   private static Move[] GetConstrainedLegalPawnMoves(CheckInfoBoardState boardState, int position, CacheEntryType entryType)
@@ -740,6 +741,7 @@ public static class V14LegalMoveGenerator
 
   public class CacheEntry
   {
+    public readonly static CacheEntry empty = new CacheEntry(emptyMoveArray, CacheEntryType.FullList);
     public readonly IReadOnlyList<Move> moves;
     public readonly CacheEntryType type;
 

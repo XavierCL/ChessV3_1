@@ -5,7 +5,7 @@ public static class Ai10SearchExtension
     var lastMove = gameState.history[^1];
     if (lastMove.killed == null) return Ai10Evaluate.Evaluate(gameState, previousLegalCount, previousSecondLegalCount);
 
-    var legalMoves = gameState.GenerateLegalMoves();
+    var legalMoves = gameState.getLegalMoves();
     var idleEvaluation = Ai10Evaluate.Evaluate(gameState, previousLegalCount, previousSecondLegalCount);
     if (idleEvaluation.terminalLeaf) return idleEvaluation;
 
