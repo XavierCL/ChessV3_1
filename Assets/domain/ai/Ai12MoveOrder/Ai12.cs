@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
-public class Ai11 : MonoBehaviour, AiInterface
+public class Ai12 : MonoBehaviour, AiInterface
 {
     public bool ShowDebugInfo = false;
     public int ForceDepth = -1;
@@ -21,18 +21,18 @@ public class Ai11 : MonoBehaviour, AiInterface
     private double averageUsefulDepth = 0.0;
     private double averageAcceptableMoves = 0.0;
     private int moveCount = 0;
-    private HashsetCache<V14BoardState, Ai11SearchResult> evaluationCache;
+    private HashsetCache<V14BoardState, Ai12SearchResult> evaluationCache;
 
     public Task<Move> GetMove(GameStateInterface referenceGameState, TimeSpan remainingTime, TimeSpan increment)
     {
         var currentCancellationToken = new CancellationTokenSource();
         cancellationToken = currentCancellationToken;
-        var timeManagement = new Ai11TimeManagement(remainingTime, increment, cancellationToken.Token, ForceDepth);
+        var timeManagement = new Ai12TimeManagement(remainingTime, increment, cancellationToken.Token, ForceDepth);
 
         if (ownGameState == null)
         {
             ownGameState = new V14GameState(referenceGameState);
-            evaluationCache = new HashsetCache<V14BoardState, Ai11SearchResult>(999_983);
+            evaluationCache = new HashsetCache<V14BoardState, Ai12SearchResult>(999_983);
         }
         else
         {
@@ -49,27 +49,27 @@ public class Ai11 : MonoBehaviour, AiInterface
         {
             if (ShowDebugInfo)
             {
-                Debug.Log($"Ai11 One legal move");
+                Debug.Log($"Ai12 One legal move");
             }
             return Task.FromResult(legalMoves[0]);
         }
 
         var depth = 1;
-        var allSearchResultsEver = new List<Ai11SearchResult>();
+        var allSearchResultsEver = new List<Ai12SearchResult>();
         int lastCurrentMoveIndex = 0;
         var nodesVisited = 1L;
-        var orderedMoveIndices = new List<int>();
+        var orderedMoveIndices = Enumerable.Range(0, allSearchResultsEver.Count).ToList();
 
         while (true)
         {
-            var searchResults = new List<Ai11SearchResult>(legalMoves.Count);
+            var searchResults = new List<Ai12SearchResult>(legalMoves.Count);
 
             if (timeManagement.ShouldStop(depth)) break;
 
             for (lastCurrentMoveIndex = 0; lastCurrentMoveIndex < legalMoves.Count; ++lastCurrentMoveIndex)
             {
                 gameState.PlayMove(legalMoves[lastCurrentMoveIndex]);
-                var searchResult = Ai11Search.Search(gameState, depth, legalMoves.Count, legalMoves.Count, evaluationCache, timeManagement);
+                var searchResult = Ai12Search.Search(gameState, depth, legalMoves.Count, legalMoves.Count, evaluationCache, timeManagement);
                 nodesVisited += searchResult.nodeCount;
                 gameState.UndoMove();
 
@@ -88,10 +88,10 @@ public class Ai11 : MonoBehaviour, AiInterface
 
             var allTerminal = allSearchResultsEver.All(searchResult => searchResult.terminalLeaf);
             var cacheEntry = evaluationCache.Get(gameState.boardState);
-            var idleEvaluation = cacheEntry != null ? cacheEntry.ResetGameTurn(gameState.history.Count) : Ai11Evaluate.Evaluate(gameState, 0, 0);
+            var idleEvaluation = cacheEntry != null ? cacheEntry.ResetGameTurn(gameState.history.Count) : Ai12Evaluate.Evaluate(gameState, 0, 0);
             orderedMoveIndices = Enumerable.Range(0, allSearchResultsEver.Count).ToList();
             orderedMoveIndices.Sort((a, b) => allSearchResultsEver[a].IsBetterThan(allSearchResultsEver[b], gameState) ? -1 : 1);
-            evaluationCache.Set(gameState.boardState, new Ai11SearchResult(idleEvaluation, allSearchResultsEver[orderedMoveIndices[0]], allTerminal, gameState.history.Count, depth));
+            evaluationCache.Set(gameState.boardState, new Ai12SearchResult(idleEvaluation, allSearchResultsEver[orderedMoveIndices[0]], allTerminal, gameState.history.Count, depth));
 
             // Don't go deeper if check mate can be delivered at searched depth
             if (allSearchResultsEver[^1].IsBestTerminal(gameState)) break;
@@ -133,12 +133,12 @@ public class Ai11 : MonoBehaviour, AiInterface
                 Debug.Log($"Chosen move: {legalMoves[orderedMoveIndices[randomIndex]]}");
             }
 
-            Debug.Log($"Ai11 Depth: {depth}, ratio: {lastCurrentMoveIndex}/{legalMoves.Count}, Nodes: {nodesVisited}, Time: {timeManagement.GetElapsed().TotalSeconds:0.000}/{remainingTime.TotalSeconds:0.000}, Best moves: {orderedMoveIndices.Count}, {allSearchResultsEver[orderedMoveIndices[randomIndex]]}");
+            Debug.Log($"Ai12 Depth: {depth}, ratio: {lastCurrentMoveIndex}/{legalMoves.Count}, Nodes: {nodesVisited}, Time: {timeManagement.GetElapsed().TotalSeconds:0.000}/{remainingTime.TotalSeconds:0.000}, Best moves: {orderedMoveIndices.Count}, {allSearchResultsEver[orderedMoveIndices[randomIndex]]}");
         }
 
         if (ShowCacheInfo)
         {
-            Debug.Log($"Ai11 Cache: {evaluationCache}");
+            Debug.Log($"Ai12 Cache: {evaluationCache}");
         }
 
         averageUsefulDepth = (averageUsefulDepth * moveCount + (depth - 1)) / (moveCount + 1);

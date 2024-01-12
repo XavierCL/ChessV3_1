@@ -167,12 +167,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9fdbbca71d1b0ba4ab5c108aba33c845, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ShowDebugInfo: 1
+  ShowDebugInfo: 0
   ForceDepth: -1
   AcceptableDelta: 0.005
   Temperature: 3
   ShowAllAcceptableMoves: 0
-  ShowCacheInfo: 1
+  ShowCacheInfo: 0
 --- !u!1 &292345930
 GameObject:
   m_ObjectHideFlags: 0
@@ -252,10 +252,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   initialTime: 0.1
   increment: 0.01
-  OnlyFirstPosition: 1
-  ReversePositions: 0
+  OnlyFirstPosition: 0
+  ReversePositions: 1
   SingleMove: 0
-  GamePerHyperParameter: 1
+  GamePerHyperParameter: 3
   MultipleFrames: 1
 --- !u!4 &328839930
 Transform:
@@ -316,8 +316,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 86168d28c267cbb4d92a182b4613a510, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ShowDebugInfo: 1
+  ShowDebugInfo: 0
   ForceDepth: -1
-  AcceptableDelta: 0.01
-  Temperature: 1
+  AcceptableDelta: 0.005
+  Temperature: 3
   ShowAllAcceptableMoves: 0

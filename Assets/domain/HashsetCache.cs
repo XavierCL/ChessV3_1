@@ -49,7 +49,8 @@ public class HashsetCache<TKey, TValue> where TValue : class
 
   public TValue Get(TKey key)
   {
-    var entry = entries[(uint)key.GetHashCode() % entries.Length];
+    var keyIndex = (uint)key.GetHashCode() % entries.Length;
+    var entry = entries[keyIndex];
 
     if (entry == null || !Equals(key, entry.key))
     {

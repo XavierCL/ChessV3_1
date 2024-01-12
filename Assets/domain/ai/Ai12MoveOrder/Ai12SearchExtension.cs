@@ -1,17 +1,17 @@
-public static class Ai11SearchExtension
+public static class Ai12SearchExtension
 {
-  public static Ai11SearchResult Search(V14GameState gameState, int previousLegalCount, int previousSecondLegalCount, HashsetCache<V14BoardState, Ai11SearchResult> evaluationCache, Ai11TimeManagement timeManagement)
+  public static Ai12SearchResult Search(V14GameState gameState, int previousLegalCount, int previousSecondLegalCount, HashsetCache<V14BoardState, Ai12SearchResult> evaluationCache, Ai12TimeManagement timeManagement)
   {
-    if (gameState.IsGameStateDraw()) return Ai11SearchResult.FromDraw(gameState.history.Count);
+    if (gameState.IsGameStateDraw()) return Ai12SearchResult.FromDraw(gameState.history.Count);
 
     var cacheEntry = evaluationCache.Get(gameState.boardState);
     if (cacheEntry != null && (cacheEntry.terminalLeaf || cacheEntry.depth >= 2)) return cacheEntry.ResetGameTurn(gameState.history.Count);
 
     var lastMove = gameState.history[^1];
-    if (lastMove.killed == null) return cacheEntry != null ? cacheEntry.ResetGameTurn(gameState.history.Count) : Ai11Evaluate.Evaluate(gameState, previousLegalCount, previousSecondLegalCount);
+    if (lastMove.killed == null) return cacheEntry != null ? cacheEntry.ResetGameTurn(gameState.history.Count) : Ai12Evaluate.Evaluate(gameState, previousLegalCount, previousSecondLegalCount);
 
     var legalMoves = gameState.getLegalMovesWithoutGameStateCheck();
-    var idleEvaluation = cacheEntry != null ? cacheEntry.ResetGameTurn(gameState.history.Count) : Ai11Evaluate.Evaluate(gameState, previousLegalCount, previousSecondLegalCount);
+    var idleEvaluation = cacheEntry != null ? cacheEntry.ResetGameTurn(gameState.history.Count) : Ai12Evaluate.Evaluate(gameState, previousLegalCount, previousSecondLegalCount);
     if (idleEvaluation.terminalLeaf) return idleEvaluation;
 
     var allowedTarget = lastMove.killed.position.index;
@@ -35,7 +35,7 @@ public static class Ai11SearchExtension
         // Return early if the best outcome can be achieved
         if (searchResult.IsBestTerminal(gameState))
         {
-          var earlySearchResult = new Ai11SearchResult(
+          var earlySearchResult = new Ai12SearchResult(
             idleEvaluation,
             searchResult,
             nodeCount,
@@ -51,7 +51,7 @@ public static class Ai11SearchExtension
       }
     }
 
-    var finalSearchResult = new Ai11SearchResult(idleEvaluation, bestSearchResult, false, nodeCount, 1);
+    var finalSearchResult = new Ai12SearchResult(idleEvaluation, bestSearchResult, false, nodeCount, 1);
     evaluationCache.Set(gameState.boardState, finalSearchResult);
     return finalSearchResult;
   }

@@ -3298,7 +3298,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 86168d28c267cbb4d92a182b4613a510, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ShowDebugInfo: 0
+  ShowDebugInfo: 1
   ForceDepth: -1
   AcceptableDelta: 0.005
   Temperature: 3

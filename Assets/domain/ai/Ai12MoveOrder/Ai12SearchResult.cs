@@ -1,4 +1,4 @@
-public class Ai11SearchResult
+public class Ai12SearchResult
 {
   public readonly double value;
   public readonly bool terminalLeaf;
@@ -7,7 +7,7 @@ public class Ai11SearchResult
   public readonly int gameTurn;
   public readonly int depth;
 
-  public Ai11SearchResult(double value, bool terminalLeaf, long nodeCount, double integral, int gameTurn, int depth)
+  public Ai12SearchResult(double value, bool terminalLeaf, long nodeCount, double integral, int gameTurn, int depth)
   {
     this.value = value;
     this.terminalLeaf = terminalLeaf;
@@ -17,7 +17,7 @@ public class Ai11SearchResult
     this.depth = depth;
   }
 
-  public Ai11SearchResult(Ai11SearchResult idle, Ai11SearchResult child, long nodeCount, int depth)
+  public Ai12SearchResult(Ai12SearchResult idle, Ai12SearchResult child, long nodeCount, int depth)
   {
     this.value = child.value;
     this.terminalLeaf = child.terminalLeaf;
@@ -28,7 +28,7 @@ public class Ai11SearchResult
     this.depth = depth;
   }
 
-  public Ai11SearchResult(Ai11SearchResult idle, Ai11SearchResult child, bool terminalLeaf, long nodeCount, int depth)
+  public Ai12SearchResult(Ai12SearchResult idle, Ai12SearchResult child, bool terminalLeaf, long nodeCount, int depth)
   {
     this.value = child.value;
     this.terminalLeaf = terminalLeaf;
@@ -39,22 +39,22 @@ public class Ai11SearchResult
     this.depth = depth;
   }
 
-  public static Ai11SearchResult FromDraw(int gameTurn)
+  public static Ai12SearchResult FromDraw(int gameTurn)
   {
-    return new Ai11SearchResult(0, true, 1, 0, gameTurn, 1);
+    return new Ai12SearchResult(0, true, 1, 0, gameTurn, 1);
   }
 
-  public Ai11SearchResult SetValue(double value)
+  public Ai12SearchResult SetValue(double value)
   {
-    return new Ai11SearchResult(value, terminalLeaf, nodeCount, value, gameTurn, depth);
+    return new Ai12SearchResult(value, terminalLeaf, nodeCount, value, gameTurn, depth);
   }
 
-  public Ai11SearchResult ResetGameTurn(int idleGameTurn)
+  public Ai12SearchResult ResetGameTurn(int idleGameTurn)
   {
-    return new Ai11SearchResult(value, terminalLeaf, 1L, integral, idleGameTurn + depth, depth);
+    return new Ai12SearchResult(value, terminalLeaf, 1L, integral, idleGameTurn + depth, depth);
   }
 
-  public bool IsBetterThan(Ai11SearchResult other, V14GameState gameState)
+  public bool IsBetterThan(Ai12SearchResult other, V14GameState gameState)
   {
     if (gameState.boardState.whiteTurn)
     {
@@ -66,7 +66,7 @@ public class Ai11SearchResult
     }
   }
 
-  public bool IsTheSameAs(Ai11SearchResult other)
+  public bool IsTheSameAs(Ai12SearchResult other)
   {
     return value == other.value && integral == other.integral;
   }
