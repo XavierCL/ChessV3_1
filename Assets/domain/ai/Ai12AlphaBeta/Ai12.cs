@@ -9,6 +9,7 @@ public class Ai12 : MonoBehaviour, AiInterface
 {
     public bool ShowDebugInfo = false;
     public int ForceDepth = -1;
+    public bool DontStartNextDepthAfterHalfTime = true;
 
     private readonly System.Random random = new System.Random();
 
@@ -61,7 +62,7 @@ public class Ai12 : MonoBehaviour, AiInterface
             var bestSearchResult = rootBeta;
             var allTerminalLeaves = true;
 
-            if (timeManagement.ShouldStop(depth)) break;
+            if (timeManagement.ShouldStop(depth, DontStartNextDepthAfterHalfTime)) break;
 
             for (lastCurrentMoveIndex = 0; lastCurrentMoveIndex < legalMoves.Count; ++lastCurrentMoveIndex)
             {
