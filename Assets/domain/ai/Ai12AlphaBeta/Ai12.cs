@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
-public class Ai8 : MonoBehaviour, AiInterface
+public class Ai12 : MonoBehaviour, AiInterface
 {
     public bool ShowDebugInfo = false;
     public int ForceDepth = -1;
@@ -16,10 +16,11 @@ public class Ai8 : MonoBehaviour, AiInterface
     private V14GameState ownGameState;
     private double averageUsefulDepth = 0.0;
     private int moveCount = 0;
+
     public Task<Move> GetMove(GameStateInterface referenceGameState, TimeSpan remainingTime, TimeSpan increment)
     {
         cancellationToken = new CancellationTokenSource();
-        var timeManagement = new Ai8TimeManagement(remainingTime, increment, cancellationToken.Token, ForceDepth);
+        var timeManagement = new Ai12TimeManagement(remainingTime, increment, cancellationToken.Token, ForceDepth);
 
         if (ownGameState == null)
         {
@@ -40,29 +41,34 @@ public class Ai8 : MonoBehaviour, AiInterface
         {
             if (ShowDebugInfo)
             {
-                Debug.Log($"Ai8 One legal move");
+                Debug.Log($"Ai12 One legal move");
             }
             return Task.FromResult(legalMoves[0]);
         }
 
         var depth = 1;
-        var bestIndicesEver = Enumerable.Range(0, legalMoves.Count).ToList();
-        var bestValueEver = gameState.boardState.WhiteTurn ? double.MinValue : double.MaxValue;
+        var bestIndexEver = 0;
+        var rootAlpha = new Ai12SearchResult(gameState.boardState.WhiteTurn ? double.MaxValue : double.MinValue, false, 0);
+        var rootBeta = new Ai12SearchResult(gameState.boardState.WhiteTurn ? double.MinValue : double.MaxValue, false, 0);
+        var bestResultEver = rootBeta;
         int lastCurrentMoveIndex = 0;
         var nodesVisited = 1L;
+        var rootMoveOrder = Enumerable.Range(0, legalMoves.Count).OrderBy(_moveIndex => random.Next()).ToList();
 
         while (true)
         {
-            var bestIndices = new List<int> { };
-            var bestValue = gameState.boardState.WhiteTurn ? double.MinValue : double.MaxValue;
+            var bestIndex = 0;
+            var bestSearchResult = rootBeta;
             var allTerminalLeaves = true;
 
             if (timeManagement.ShouldStop(depth)) break;
 
             for (lastCurrentMoveIndex = 0; lastCurrentMoveIndex < legalMoves.Count; ++lastCurrentMoveIndex)
             {
-                gameState.PlayMove(legalMoves[lastCurrentMoveIndex]);
-                var searchResult = Ai8Search.Search(gameState, depth, timeManagement);
+                var moveIndex = rootMoveOrder[lastCurrentMoveIndex];
+
+                gameState.PlayMove(legalMoves[moveIndex]);
+                var searchResult = Ai12Search.Search(gameState, depth, bestSearchResult, rootAlpha, timeManagement);
                 nodesVisited += searchResult.nodeCount;
                 gameState.UndoMove();
 
@@ -70,45 +76,37 @@ public class Ai8 : MonoBehaviour, AiInterface
 
                 allTerminalLeaves = allTerminalLeaves && searchResult.terminalLeaf;
 
-                if (searchResult.value == bestValue)
+                if (searchResult.IsBetterThan(bestSearchResult, gameState))
                 {
-                    bestIndices.Add(lastCurrentMoveIndex);
-                }
-                else if (searchResult.value > bestValue && gameState.boardState.WhiteTurn || searchResult.value < bestValue && !gameState.boardState.WhiteTurn)
-                {
-                    bestIndices = new List<int> { lastCurrentMoveIndex };
-                    bestValue = searchResult.value;
+                    bestIndex = moveIndex;
+                    bestSearchResult = searchResult;
+
+                    if (searchResult.IsBestTerminal(gameState))
+                    {
+                        lastCurrentMoveIndex = legalMoves.Count;
+                        break;
+                    }
                 }
             }
 
+            // Time management stopped the current iteration, don't register the partial results.
             if (lastCurrentMoveIndex < legalMoves.Count) break;
 
-            bestIndicesEver = bestIndices;
-            bestValueEver = bestValue;
+            bestIndexEver = bestIndex;
+            bestResultEver = bestSearchResult;
             ++depth;
             lastCurrentMoveIndex = 0;
 
             // Don't go deeper if check mate can be delivered at searched depth
-            if (bestValue == double.MaxValue && gameState.boardState.WhiteTurn || bestValue == double.MinValue && !gameState.boardState.WhiteTurn)
-            {
-                break;
-            }
+            if (bestSearchResult.IsBestTerminal(gameState)) break;
 
             // Don't go deeper if the tree has reached only terminal leaves.
-            if (allTerminalLeaves)
-            {
-                break;
-            }
+            if (allTerminalLeaves) break;
         }
 
         if (ShowDebugInfo)
         {
-            Debug.Log($"Ai8 Depth: {depth}, ratio: {lastCurrentMoveIndex}/{legalMoves.Count}, Nodes: {nodesVisited}, Time: {timeManagement.GetElapsed().TotalSeconds:0.000}/{remainingTime.TotalSeconds:0.000}, Best moves: {bestIndicesEver.Count}, Evaluation: {bestValueEver}");
-        }
-
-        if (bestIndicesEver.Count == 0)
-        {
-            throw new Exception("Cannot set legal move index to play");
+            Debug.Log($"Ai12 Depth: {depth}, ratio: {lastCurrentMoveIndex}/{legalMoves.Count}, Nodes: {nodesVisited}, Time: {timeManagement.GetElapsed().TotalSeconds:0.000}/{remainingTime.TotalSeconds:0.000}, {bestResultEver}");
         }
 
         averageUsefulDepth = (averageUsefulDepth * moveCount + (depth - 1)) / (moveCount + 1);
@@ -116,7 +114,7 @@ public class Ai8 : MonoBehaviour, AiInterface
 
         cancellationToken = null;
 
-        return Task.FromResult(legalMoves[bestIndicesEver[random.Next(0, bestIndicesEver.Count)]]);
+        return Task.FromResult(legalMoves[bestIndexEver]);
     }
 
     public void ResetAi()

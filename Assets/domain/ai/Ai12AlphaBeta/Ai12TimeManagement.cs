@@ -3,15 +3,16 @@ using System.Threading;
 
 public class Ai12TimeManagement
 {
-  private readonly TimeSpan remainingTime;
+  private readonly TimeSpan startOfTurnRemainingTime;
   private readonly TimeSpan increment;
   private readonly CancellationToken cancellationToken;
   private readonly DateTime startTime;
   private readonly int forcedDepth;
+  private int maxDepthSeen = 0;
 
   public Ai12TimeManagement(TimeSpan remainingTime, TimeSpan increment, CancellationToken cancellationToken, int forcedDepth)
   {
-    this.remainingTime = remainingTime;
+    this.startOfTurnRemainingTime = remainingTime;
     this.increment = increment;
     this.cancellationToken = cancellationToken;
     startTime = DateTime.UtcNow;
@@ -22,21 +23,23 @@ public class Ai12TimeManagement
   {
     if (depth <= 1) return false;
     if (cancellationToken.IsCancellationRequested) return true;
-    if (forcedDepth != -1)
+    if (forcedDepth != -1) return depth > forcedDepth;
+    if (startOfTurnRemainingTime < MINIMUM) return true;
+    var elapsedTime = GetElapsed();
+    var currentRemainingTime = startOfTurnRemainingTime - elapsedTime - MINIMUM;
+    if (currentRemainingTime < TimeSpan.Zero) return true;
+
+    var bank = startOfTurnRemainingTime - increment - MINIMUM;
+    var positiveBank = bank < TimeSpan.Zero ? TimeSpan.Zero : bank;
+    var allotedTime = positiveBank / 40 + increment;
+
+    if (depth > this.maxDepthSeen)
     {
-      return depth > forcedDepth;
+      // New depth, don't start it if alloted time is < 2x elapsed time
+      this.maxDepthSeen = depth;
+      return elapsedTime * 2 >= allotedTime;
     }
 
-    if (remainingTime < MINIMUM) return true;
-
-    var safeRemainingTime = remainingTime - MINIMUM;
-    var elapsedTime = GetElapsed();
-
-    if (safeRemainingTime < increment * 2) return elapsedTime >= safeRemainingTime / 2;
-
-    var bank = safeRemainingTime - increment;
-    var relativeBank = TimeSpan.FromMilliseconds(Math.Ceiling(bank.TotalMilliseconds / 40.0));
-    var allotedTime = increment + relativeBank;
     return elapsedTime >= allotedTime;
   }
 

@@ -1,20 +1,20 @@
 public static class Ai12Evaluate
 {
-  public static Ai12SearchResult Evaluate(V14GameState gameState, int previousLegalCount, int previousSecondLegalCount)
+  public static Ai12SearchResult Evaluate(V14GameState gameState)
   {
-    var endGameState = gameState.GetGameEndStateWithoutGameStateCheck();
+    var endGameState = gameState.GetGameEndState();
 
     if (endGameState == GameEndState.WhiteWin)
     {
-      return new Ai12SearchResult(double.MaxValue, true, 1, double.MaxValue, gameState.history.Count, 1);
+      return new Ai12SearchResult(double.MaxValue, true, 1);
     }
     else if (endGameState == GameEndState.BlackWin)
     {
-      return new Ai12SearchResult(double.MinValue, true, 1, double.MinValue, gameState.history.Count, 1);
+      return new Ai12SearchResult(double.MinValue, true, 1);
     }
     else if (endGameState == GameEndState.Draw)
     {
-      return Ai12SearchResult.FromDraw(gameState.history.Count);
+      return new Ai12SearchResult(0, true, 1);
     }
 
     var value = gameState.boardState.bitBoards[V14BoardState.WhitePawn].bitCount() * 1
@@ -28,14 +28,9 @@ public static class Ai12Evaluate
       + gameState.boardState.bitBoards[V14BoardState.WhiteQueen].bitCount() * 9
       + gameState.boardState.bitBoards[V14BoardState.BlackQueen].bitCount() * -9;
 
-    var legalDiff = (gameState.boardState.whiteTurn ? -0.001 : 0.001) * (previousLegalCount - previousSecondLegalCount);
-
     return new Ai12SearchResult(
-      value + legalDiff,
-      false,
-      1,
       value,
-      gameState.history.Count,
+      false,
       1
     );
   }
