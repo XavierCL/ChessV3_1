@@ -9,6 +9,7 @@ public class Ai8 : MonoBehaviour, AiInterface
 {
     public bool ShowDebugInfo = false;
     public int ForceDepth = -1;
+    public bool SearchExtensions = true;
 
     private readonly System.Random random = new System.Random();
 
@@ -19,7 +20,6 @@ public class Ai8 : MonoBehaviour, AiInterface
     public Task<Move> GetMove(GameStateInterface referenceGameState, TimeSpan remainingTime, TimeSpan increment)
     {
         cancellationToken = new CancellationTokenSource();
-        var timeManagement = new Ai8TimeManagement(remainingTime, increment, cancellationToken.Token, ForceDepth);
 
         if (ownGameState == null)
         {
@@ -46,15 +46,18 @@ public class Ai8 : MonoBehaviour, AiInterface
         }
 
         var depth = 1;
+        var timeManagement = new Ai8TimeManagement(remainingTime, increment, cancellationToken.Token, ForceDepth);
+        var hyperParameters = new Ai8SearchResult.Hyperparameters(timeManagement, SearchExtensions);
         var bestIndicesEver = Enumerable.Range(0, legalMoves.Count).ToList();
-        var bestValueEver = gameState.boardState.WhiteTurn ? double.MinValue : double.MaxValue;
+        var lowestResult = new Ai8SearchResult(gameState.boardState.WhiteTurn ? double.MinValue : double.MaxValue, false, 0);
+        var bestResultEver = lowestResult;
         int lastCurrentMoveIndex = 0;
         var nodesVisited = 1L;
 
         while (true)
         {
             var bestIndices = new List<int> { };
-            var bestValue = gameState.boardState.WhiteTurn ? double.MinValue : double.MaxValue;
+            var bestSearchResult = lowestResult;
             var allTerminalLeaves = true;
 
             if (timeManagement.ShouldStop(depth)) break;
@@ -62,7 +65,7 @@ public class Ai8 : MonoBehaviour, AiInterface
             for (lastCurrentMoveIndex = 0; lastCurrentMoveIndex < legalMoves.Count; ++lastCurrentMoveIndex)
             {
                 gameState.PlayMove(legalMoves[lastCurrentMoveIndex]);
-                var searchResult = Ai8Search.Search(gameState, depth, timeManagement);
+                var searchResult = Ai8Search.Search(gameState, depth, hyperParameters);
                 nodesVisited += searchResult.nodeCount;
                 gameState.UndoMove();
 
@@ -70,26 +73,32 @@ public class Ai8 : MonoBehaviour, AiInterface
 
                 allTerminalLeaves = allTerminalLeaves && searchResult.terminalLeaf;
 
-                if (searchResult.value == bestValue)
-                {
-                    bestIndices.Add(lastCurrentMoveIndex);
-                }
-                else if (searchResult.value > bestValue && gameState.boardState.WhiteTurn || searchResult.value < bestValue && !gameState.boardState.WhiteTurn)
+                if (searchResult.IsBetterThan(bestSearchResult, gameState))
                 {
                     bestIndices = new List<int> { lastCurrentMoveIndex };
-                    bestValue = searchResult.value;
+                    bestSearchResult = searchResult;
+
+                    if (searchResult.IsBestTerminal(gameState))
+                    {
+                        lastCurrentMoveIndex = legalMoves.Count;
+                        break;
+                    }
+                }
+                else if (searchResult.IsTheSameAs(bestSearchResult))
+                {
+                    bestIndices.Add(lastCurrentMoveIndex);
                 }
             }
 
             if (lastCurrentMoveIndex < legalMoves.Count) break;
 
             bestIndicesEver = bestIndices;
-            bestValueEver = bestValue;
+            bestResultEver = bestSearchResult;
             ++depth;
             lastCurrentMoveIndex = 0;
 
             // Don't go deeper if check mate can be delivered at searched depth
-            if (bestValue == double.MaxValue && gameState.boardState.WhiteTurn || bestValue == double.MinValue && !gameState.boardState.WhiteTurn)
+            if (bestSearchResult.IsBestTerminal(gameState))
             {
                 break;
             }
@@ -103,7 +112,7 @@ public class Ai8 : MonoBehaviour, AiInterface
 
         if (ShowDebugInfo)
         {
-            Debug.Log($"Ai8 Depth: {depth}, ratio: {lastCurrentMoveIndex}/{legalMoves.Count}, Nodes: {nodesVisited}, Time: {timeManagement.GetElapsed().TotalSeconds:0.000}/{remainingTime.TotalSeconds:0.000}, Best moves: {bestIndicesEver.Count}, Evaluation: {bestValueEver}");
+            Debug.Log($"Ai8 Depth: {depth}, ratio: {lastCurrentMoveIndex}/{legalMoves.Count}, Nodes: {nodesVisited}, Time: {timeManagement.GetElapsed().TotalSeconds:0.000}/{remainingTime.TotalSeconds:0.000}, Best moves: {bestIndicesEver.Count}, Evaluation: {bestResultEver.value}");
         }
 
         if (bestIndicesEver.Count == 0)

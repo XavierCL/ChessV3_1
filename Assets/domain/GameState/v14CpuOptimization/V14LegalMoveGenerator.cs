@@ -100,10 +100,10 @@ public static class V14LegalMoveGenerator
         if (pieceMoves.Length > 0) return new CacheEntry(pieceMoves, CacheEntryType.HasMove);
       }
 
-      var rookPositions = boardState.boardState.bitBoards[boardState.boardState.whiteTurn ? V14BoardState.WhiteRook : V14BoardState.BlackRook].extractIndices();
-      for (var index = 0; index < rookPositions.Length; ++index)
+      var bishopPositions = boardState.boardState.bitBoards[boardState.boardState.whiteTurn ? V14BoardState.WhiteBishop : V14BoardState.BlackBishop].extractIndices();
+      for (var index = 0; index < bishopPositions.Length; ++index)
       {
-        var pieceMoves = GetPseudoLegalRookMoves(checkInfoBoardState, rookPositions[index], entryType);
+        var pieceMoves = GetPseudoLegalBishopMoves(checkInfoBoardState, bishopPositions[index], entryType);
         if (pieceMoves.Length > 0) return new CacheEntry(pieceMoves, CacheEntryType.HasMove);
       }
 
@@ -114,10 +114,10 @@ public static class V14LegalMoveGenerator
         if (pieceMoves.Length > 0) return new CacheEntry(pieceMoves, CacheEntryType.HasMove);
       }
 
-      var bishopPositions = boardState.boardState.bitBoards[boardState.boardState.whiteTurn ? V14BoardState.WhiteBishop : V14BoardState.BlackBishop].extractIndices();
-      for (var index = 0; index < bishopPositions.Length; ++index)
+      var rookPositions = boardState.boardState.bitBoards[boardState.boardState.whiteTurn ? V14BoardState.WhiteRook : V14BoardState.BlackRook].extractIndices();
+      for (var index = 0; index < rookPositions.Length; ++index)
       {
-        var pieceMoves = GetPseudoLegalBishopMoves(checkInfoBoardState, bishopPositions[index], entryType);
+        var pieceMoves = GetPseudoLegalRookMoves(checkInfoBoardState, rookPositions[index], entryType);
         if (pieceMoves.Length > 0) return new CacheEntry(pieceMoves, CacheEntryType.HasMove);
       }
 
@@ -155,9 +155,9 @@ public static class V14LegalMoveGenerator
         legalMoveCount += pieceMoves.Length;
       }
 
-      for (var index = 0; index < rookPositions.Length; ++index)
+      for (var index = 0; index < bishopPositions.Length; ++index)
       {
-        var pieceMoves = GetPseudoLegalRookMoves(checkInfoBoardState, rookPositions[index], entryType);
+        var pieceMoves = GetPseudoLegalBishopMoves(checkInfoBoardState, bishopPositions[index], entryType);
         Array.Copy(pieceMoves, 0, legalMoves, legalMoveCount, pieceMoves.Length);
         legalMoveCount += pieceMoves.Length;
       }
@@ -169,9 +169,9 @@ public static class V14LegalMoveGenerator
         legalMoveCount += pieceMoves.Length;
       }
 
-      for (var index = 0; index < bishopPositions.Length; ++index)
+      for (var index = 0; index < rookPositions.Length; ++index)
       {
-        var pieceMoves = GetPseudoLegalBishopMoves(checkInfoBoardState, bishopPositions[index], entryType);
+        var pieceMoves = GetPseudoLegalRookMoves(checkInfoBoardState, rookPositions[index], entryType);
         Array.Copy(pieceMoves, 0, legalMoves, legalMoveCount, pieceMoves.Length);
         legalMoveCount += pieceMoves.Length;
       }
@@ -350,20 +350,6 @@ public static class V14LegalMoveGenerator
 
     var targetBitBoard = 0ul;
 
-
-    // One up
-    var oneUpBitBoard = bitBoardPosition.shiftRow(increment) & ~boardState.allBitBoard;
-    targetBitBoard |= oneUpBitBoard;
-
-    // Two up
-    if (oneUpBitBoard != 0 && ownRow == ownPawnStartingY)
-    {
-      targetBitBoard |= oneUpBitBoard.shiftRow(increment) & ~boardState.allBitBoard;
-    }
-
-    // Captures
-    targetBitBoard |= boardState.boardState.whiteTurn ? V14Precomputed.whitePawnCaptureBitBoards[position] & boardState.blackBitBoard : V14Precomputed.blackPawnCaptureBitBoards[position] & boardState.whiteBitBoard;
-
     // En passant
     if (ownRow == enemyFourthRow && boardState.boardState.enPassantColumn != -1)
     {
@@ -389,6 +375,19 @@ public static class V14LegalMoveGenerator
       }
     }
 
+    // Captures
+    targetBitBoard |= boardState.boardState.whiteTurn ? V14Precomputed.whitePawnCaptureBitBoards[position] & boardState.blackBitBoard : V14Precomputed.blackPawnCaptureBitBoards[position] & boardState.whiteBitBoard;
+
+    // One up
+    var oneUpBitBoard = bitBoardPosition.shiftRow(increment) & ~boardState.allBitBoard;
+    targetBitBoard |= oneUpBitBoard;
+
+    // Two up
+    if (oneUpBitBoard != 0 && ownRow == ownPawnStartingY)
+    {
+      targetBitBoard |= oneUpBitBoard.shiftRow(increment) & ~boardState.allBitBoard;
+    }
+
     // Kill attacker or block ray
     if (boardState.middleRay != 0)
     {
@@ -409,9 +408,7 @@ public static class V14LegalMoveGenerator
     var extractedTargets = targetBitBoard.extractIndices();
     var sourceBoardPosition = position.toBoardPosition();
     var promotionMoves = new Move[extractedTargets.Length * 4];
-    var promotions = boardState.boardState.whiteTurn
-        ? new PieceType[] { PieceType.WhiteRook, PieceType.WhiteKnight, PieceType.WhiteBishop, PieceType.WhiteQueen }
-        : new PieceType[] { PieceType.BlackRook, PieceType.BlackKnight, PieceType.BlackBishop, PieceType.BlackQueen };
+    var promotions = boardState.boardState.whiteTurn ? whitePawnPromotions : blackPawnPromotions;
 
     // Multiply moves by promotions
     for (var moveIndex = 0; moveIndex < extractedTargets.Length; ++moveIndex)
@@ -664,12 +661,6 @@ public static class V14LegalMoveGenerator
     public AugmentedBoardState(V14BoardState boardState)
     {
       this.boardState = boardState;
-      allBitBoard = 0ul;
-
-      for (var bitBoardIndex = 0; bitBoardIndex < 12; ++bitBoardIndex)
-      {
-        allBitBoard |= boardState.bitBoards[bitBoardIndex];
-      }
 
       whiteBitBoard = boardState.bitBoards[V14BoardState.WhitePawn]
         | boardState.bitBoards[V14BoardState.WhiteRook]
@@ -684,6 +675,8 @@ public static class V14LegalMoveGenerator
         | boardState.bitBoards[V14BoardState.BlackBishop]
         | boardState.bitBoards[V14BoardState.BlackQueen]
         | boardState.bitBoards[V14BoardState.BlackKing];
+
+      allBitBoard = whiteBitBoard | blackBitBoard;
     }
   }
 
@@ -751,4 +744,7 @@ public static class V14LegalMoveGenerator
       this.type = type;
     }
   }
+
+  private static PieceType[] whitePawnPromotions = new PieceType[] { PieceType.WhiteQueen, PieceType.WhiteRook, PieceType.WhiteKnight, PieceType.WhiteBishop };
+  private static PieceType[] blackPawnPromotions = new PieceType[] { PieceType.BlackQueen, PieceType.BlackRook, PieceType.BlackKnight, PieceType.BlackBishop };
 }

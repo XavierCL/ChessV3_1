@@ -103,6 +103,7 @@ public class GameStateChecker : MonoBehaviour
     private List<GameStateInterface> StartingPositions()
     {
         return new List<GameStateInterface> {
+            new V14GameStateFactory().FromFen("r3k2r/p1ppqpb1/Bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPB1PPP/R3K2R b KQkq -"),
             new V14GameStateFactory().StartingPosition(),
             new V14GameStateFactory().FromFen("rnbqkb1r/pppp1p1p/5np1/4p3/2B1P3/2N2N2/PPPP1PPP/R1BQK2R b KQkq"),
             new V14GameStateFactory().FromFen("2kr1b2/1bp4r/p1nq1p2/3pp3/P3n1P1/3P4/1PP1QP1p/RNB1K1R1 w -"),

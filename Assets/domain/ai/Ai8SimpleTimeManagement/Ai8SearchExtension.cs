@@ -1,16 +1,30 @@
 public static class Ai8SearchExtension
 {
-  public static Ai8SearchResult Search(V14GameState gameState, Ai8TimeManagement timeManagement)
+  public static Ai8SearchResult Search(V14GameState gameState, Ai8SearchResult.Hyperparameters hyperparameters)
   {
     var lastMove = gameState.history[^1];
-    if (lastMove.killed == null) return Ai8Evaluate.Evaluate(gameState);
+    if (lastMove.killed == null || !hyperparameters.searchExtensions) return Ai8Evaluate.Evaluate(gameState);
 
     var legalMoves = gameState.getLegalMoves();
-    var idleEvaluation = Ai8Evaluate.Evaluate(gameState);
-    if (idleEvaluation.terminalLeaf) return idleEvaluation;
 
+    if (legalMoves.Count == 0)
+    {
+      var endGameState = gameState.GetGameEndState();
+
+      if (endGameState == GameEndState.WhiteWin)
+      {
+        return new Ai8SearchResult(double.MaxValue, true, 1);
+      }
+      else if (endGameState == GameEndState.BlackWin)
+      {
+        return new Ai8SearchResult(double.MinValue, true, 1);
+      }
+
+      return new Ai8SearchResult(0, true, 1);
+    }
+
+    var bestSearchResult = Ai8Evaluate.Evaluate(gameState);
     var allowedTarget = lastMove.killed.position.index;
-    var bestValue = idleEvaluation.value;
     var nodeCount = 1L;
 
     for (var legalMoveIndex = 0; legalMoveIndex < legalMoves.Count; ++legalMoveIndex)
@@ -19,24 +33,24 @@ public static class Ai8SearchExtension
       if (legalMove.target.index != allowedTarget) continue;
 
       gameState.PlayMove(legalMoves[legalMoveIndex]);
-      var searchResult = Search(gameState, timeManagement);
+      var searchResult = Search(gameState, hyperparameters);
       nodeCount += searchResult.nodeCount;
       gameState.UndoMove();
 
-      if (timeManagement.ShouldStop(1)) break;
+      if (hyperparameters.timeManagement.ShouldStop(1)) break;
 
-      if (searchResult.value > bestValue && gameState.boardState.WhiteTurn || searchResult.value < bestValue && !gameState.boardState.WhiteTurn)
+      if (searchResult.IsBetterThan(bestSearchResult, gameState))
       {
-        bestValue = searchResult.value;
-      }
+        // Return early if the best outcome can be achieved
+        if (searchResult.IsBestTerminal(gameState))
+        {
+          return searchResult.SetParentSearch(true, nodeCount);
+        }
 
-      // Return early if the best outcome can be achieved
-      if (bestValue == double.MaxValue && gameState.boardState.WhiteTurn || bestValue == double.MinValue && !gameState.boardState.WhiteTurn)
-      {
-        return new Ai8SearchResult(bestValue, true, nodeCount);
+        bestSearchResult = searchResult;
       }
     }
 
-    return new Ai8SearchResult(bestValue, false, nodeCount);
+    return bestSearchResult.SetParentSearch(false, nodeCount);
   }
 }

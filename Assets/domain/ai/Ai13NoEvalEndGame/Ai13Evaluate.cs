@@ -1,8 +1,8 @@
-public static class Ai8Evaluate
+public static class Ai13Evaluate
 {
-  public static Ai8SearchResult Evaluate(V14GameState gameState)
+  public static Ai13SearchResult Evaluate(V14GameState gameState)
   {
-    return new Ai8SearchResult(
+    return new Ai13SearchResult(
       gameState.boardState.bitBoards[V14BoardState.WhitePawn].bitCount() * 1
       + gameState.boardState.bitBoards[V14BoardState.BlackPawn].bitCount() * -1
       + gameState.boardState.bitBoards[V14BoardState.WhiteRook].bitCount() * 5
