@@ -5,16 +5,16 @@ using System.Linq;
 public static class V15LegalMoveGenerator
 {
   public static Move[] emptyMoveArray = new Move[0];
-  public static HashsetCache<V15BoardState, CacheEntry> legalCache;
+  public static MapCache<V15BoardState, CacheEntry> legalCache;
 
   private static void InitializeCache()
   {
-    if (legalCache == null) legalCache = new HashsetCache<V15BoardState, CacheEntry>(999_983);
+    if (legalCache == null) legalCache = new MapCache<V15BoardState, CacheEntry>(999_983);
   }
 
   public static bool IsGameStateDraw(this V15GameState gameState)
   {
-    if (gameState.StaleTurns >= 100) return true;
+    if (gameState.staleTurns >= 100) return true;
     if (gameState.snapshots.TryGetValue(gameState.boardState, out var snapshotCount) && snapshotCount >= 2) return true;
     return false;
   }
@@ -350,10 +350,23 @@ public static class V15LegalMoveGenerator
 
     var targetBitBoard = 0ul;
 
-    // En passant
-    if (ownRow == enemyFourthRow && boardState.boardState.EnPassantColumn != -1)
+    // One up
+    var oneUpBitBoard = bitBoardPosition.shiftRow(increment) & ~boardState.allBitBoard;
+    targetBitBoard |= oneUpBitBoard;
+
+    // Two up
+    if (oneUpBitBoard != 0 && ownRow == ownPawnStartingY)
     {
-      var enPassantColumnBitBoard = BitBoard.firstColumn << boardState.boardState.EnPassantColumn;
+      targetBitBoard |= oneUpBitBoard.shiftRow(increment) & ~boardState.allBitBoard;
+    }
+
+    // Captures
+    targetBitBoard |= boardState.boardState.whiteTurn ? V15Precomputed.whitePawnCaptureBitBoards[position] & boardState.blackBitBoard : V15Precomputed.blackPawnCaptureBitBoards[position] & boardState.whiteBitBoard;
+
+    // En passant
+    if (ownRow == enemyFourthRow && boardState.boardState.enPassantColumn != -1)
+    {
+      var enPassantColumnBitBoard = BitBoard.firstColumn << boardState.boardState.enPassantColumn;
       var enPassantBitBoard = (boardState.boardState.whiteTurn ? V15Precomputed.whitePawnCaptureBitBoards : V15Precomputed.blackPawnCaptureBitBoards)[position] & enPassantColumnBitBoard;
 
       // En passant is the only move that can remove two pins at once
@@ -373,19 +386,6 @@ public static class V15LegalMoveGenerator
           targetBitBoard |= enPassantBitBoard;
         }
       }
-    }
-
-    // Captures
-    targetBitBoard |= boardState.boardState.whiteTurn ? V15Precomputed.whitePawnCaptureBitBoards[position] & boardState.blackBitBoard : V15Precomputed.blackPawnCaptureBitBoards[position] & boardState.whiteBitBoard;
-
-    // One up
-    var oneUpBitBoard = bitBoardPosition.shiftRow(increment) & ~boardState.allBitBoard;
-    targetBitBoard |= oneUpBitBoard;
-
-    // Two up
-    if (oneUpBitBoard != 0 && ownRow == ownPawnStartingY)
-    {
-      targetBitBoard |= oneUpBitBoard.shiftRow(increment) & ~boardState.allBitBoard;
     }
 
     // Kill attacker or block ray
@@ -541,7 +541,7 @@ public static class V15LegalMoveGenerator
     {
       var castle = castles[castleIndex];
       if (boardState.boardState.whiteTurn != castle.castle.IsWhite()) continue;
-      if (!boardState.boardState.CastleFlags.HasFlag(castle.castle)) continue;
+      if (!boardState.boardState.castleFlags.HasFlag(castle.castle)) continue;
       if ((boardState.allBitBoard & castle.emptyPositions) != 0) continue;
 
       bool kingIsNeverInCheck = true;

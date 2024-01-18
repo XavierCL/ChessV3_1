@@ -2,7 +2,7 @@ public static class Ai10SearchExtension
 {
   public static Ai10SearchResult Search(V14GameState gameState, int previousLegalCount, int previousSecondLegalCount, Ai10TimeManagement timeManagement)
   {
-    var lastMove = gameState.history[^1];
+    var lastMove = gameState.History[^1];
     if (lastMove.killed == null) return Ai10Evaluate.Evaluate(gameState, previousLegalCount, previousSecondLegalCount);
 
     var legalMoves = gameState.getLegalMoves();

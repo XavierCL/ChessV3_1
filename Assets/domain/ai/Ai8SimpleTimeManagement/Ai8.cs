@@ -27,9 +27,9 @@ public class Ai8 : MonoBehaviour, AiInterface
         }
         else
         {
-            while (ownGameState.history.Count < referenceGameState.history.Count)
+            while (ownGameState.History.Count < referenceGameState.History.Count)
             {
-                ownGameState.PlayMove(new Move(referenceGameState.history[^(referenceGameState.history.Count - ownGameState.history.Count)]));
+                ownGameState.PlayMove(new Move(referenceGameState.History[^(referenceGameState.History.Count - ownGameState.History.Count)]));
             }
         }
 

@@ -2,7 +2,7 @@ using System;
 using System.Diagnostics;
 
 [DebuggerDisplay("{occupancy}/{capacity}")]
-public class HashsetCache<TKey, TValue> where TValue : class
+public class MapCache<TKey, TValue> where TValue : class
 {
   private readonly Entry[] entries;
   private readonly int capacity;
@@ -22,7 +22,7 @@ public class HashsetCache<TKey, TValue> where TValue : class
     }
   }
 
-  public HashsetCache(int maxCapacity)
+  public MapCache(int maxCapacity)
   {
     capacity = GetLargestPrimeUnder(maxCapacity);
     entries = new Entry[capacity];

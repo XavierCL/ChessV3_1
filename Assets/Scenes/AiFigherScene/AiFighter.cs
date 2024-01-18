@@ -253,9 +253,6 @@ public class AiFighter : MonoBehaviour
     private List<GameStateInterface> StartingPositions()
     {
         return new List<GameStateInterface> {
-            // White slightly winning middle game
-            new V14GameStateFactory().FromFen("r3k2r/p1ppqpb1/Bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPB1PPP/R3K2R b KQkq -"),
-
             // Mostly equal positions
             new V14GameStateFactory().StartingPosition(),
             new V14GameStateFactory().FromFen("1n2k2r/pp2bpp1/5n1p/8/P7/1P2PNPB/1pPPQP1P/R3K2R b KQ"),
@@ -270,6 +267,9 @@ public class AiFighter : MonoBehaviour
 
             // Black winning one move from mate
             new V14GameStateFactory().FromFen("1r6/4b3/p6P/k7/2p5/8/5r2/7K b -"),
+
+            // White slightly winning middle game
+            new V14GameStateFactory().FromFen("r3k2r/p1ppqpb1/Bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPB1PPP/R3K2R b KQkq -"),
         };
     }
 }

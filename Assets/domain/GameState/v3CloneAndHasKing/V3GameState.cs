@@ -7,14 +7,14 @@ public class V3GameState : GameStateInterface
     public override int StaleTurns { get => staleTurns; }
     public override BoardStateInterface BoardState { get => boardState; }
     public V3BoardState boardState { get; private set; }
-    public override List<ReversibleMove> history { get; }
+    public override List<ReversibleMove> History { get; }
     public override Dictionary<BoardStateInterface, ushort> Snapshots { get => snapshots.ToDictionary(tuple => (BoardStateInterface)tuple.Key, tuple => tuple.Value); }
     public Dictionary<V3BoardState, ushort> snapshots { get; }
 
     public V3GameState()
     {
         staleTurns = 0;
-        history = new List<ReversibleMove>();
+        History = new List<ReversibleMove>();
         boardState = new V3BoardState();
         snapshots = new Dictionary<V3BoardState, ushort>();
     }
@@ -22,7 +22,7 @@ public class V3GameState : GameStateInterface
     public V3GameState(GameStateInterface gameState)
     {
         staleTurns = gameState.StaleTurns;
-        history = new List<ReversibleMove>(gameState.history);
+        History = new List<ReversibleMove>(gameState.History);
         boardState = new V3BoardState(gameState.BoardState);
         snapshots = gameState.Snapshots.ToDictionary(tuple => new V3BoardState(tuple.Key), tuple => tuple.Value);
     }
@@ -30,7 +30,7 @@ public class V3GameState : GameStateInterface
     public V3GameState(List<PiecePosition> piecePositions, bool whiteStarts, CastleFlags castling)
     {
         staleTurns = 0;
-        history = new List<ReversibleMove>();
+        History = new List<ReversibleMove>();
         boardState = new V3BoardState(
             whiteStarts,
             piecePositions,
@@ -64,7 +64,7 @@ public class V3GameState : GameStateInterface
             nextBoardPlay.killedPiece
         );
 
-        history.Add(reversibleMove);
+        History.Add(reversibleMove);
 
         staleTurns = nextBoardPlay.sourcePiece.pieceType.IsPawn() || nextBoardPlay.killedPiece != null ? 0 : StaleTurns + 1;
         return reversibleMove;
@@ -72,8 +72,8 @@ public class V3GameState : GameStateInterface
 
     public override void UndoMove()
     {
-        var reversibleMove = history[^1];
-        history.RemoveAt(history.Count - 1);
+        var reversibleMove = History[^1];
+        History.RemoveAt(History.Count - 1);
         boardState = boardState.UndoMove(reversibleMove);
         if (!snapshots.ContainsKey(boardState))
         {

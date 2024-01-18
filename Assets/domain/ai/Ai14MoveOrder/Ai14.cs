@@ -15,7 +15,7 @@ public class Ai14 : MonoBehaviour, AiInterface
     private readonly System.Random random = new System.Random();
 
     private CancellationTokenSource cancellationToken;
-    private V14GameState ownGameState;
+    private V16GameState ownGameState;
     private double averageUsefulDepth = 0.0;
     private int moveCount = 0;
 
@@ -25,13 +25,13 @@ public class Ai14 : MonoBehaviour, AiInterface
 
         if (ownGameState == null)
         {
-            ownGameState = new V14GameState(referenceGameState);
+            ownGameState = new V16GameState(referenceGameState);
         }
         else
         {
-            while (ownGameState.history.Count < referenceGameState.history.Count)
+            while (ownGameState.History.Count < referenceGameState.History.Count)
             {
-                ownGameState.PlayMove(new Move(referenceGameState.history[^(referenceGameState.history.Count - ownGameState.history.Count)]));
+                ownGameState.PlayMove(new Move(referenceGameState.History[^(referenceGameState.History.Count - ownGameState.History.Count)]));
             }
         }
 

@@ -27,8 +27,8 @@ public class HistoryHandler : MonoBehaviour
         if (!ShowsHistory)
         {
             premoveHandler.Clear();
-            if (gameController.gameState.history.Count == 0) return;
-            historyIndex = gameController.gameState.history.Count;
+            if (gameController.gameState.History.Count == 0) return;
+            historyIndex = gameController.gameState.History.Count;
         }
 
         // Can't go more backward, do nothing
@@ -37,19 +37,19 @@ public class HistoryHandler : MonoBehaviour
         historyIndex -= 1;
 
         gameController.gameVisual.HistoryBack();
-        var reversibleMove = gameController.gameState.history[historyIndex];
+        var reversibleMove = gameController.gameState.History[historyIndex];
         boardController.AnimateUndoMove(reversibleMove);
     }
 
     public void Forward()
     {
         if (!ShowsHistory) return;
-        var reversibleMove = gameController.gameState.history[historyIndex];
+        var reversibleMove = gameController.gameState.History[historyIndex];
         var move = new Move(reversibleMove);
         boardController.AnimateMove(move, false, true);
         ++historyIndex;
 
-        if (historyIndex == gameController.gameState.history.Count)
+        if (historyIndex == gameController.gameState.History.Count)
         {
             historyIndex = -1;
         }
@@ -67,7 +67,7 @@ public class HistoryHandler : MonoBehaviour
         var historyGame = gameController.gameStateFactory.FromGameState(gameController.gameState);
         if (!ShowsHistory) return historyGame;
 
-        for (var moveIndex = historyGame.history.Count; moveIndex > historyIndex; --moveIndex)
+        for (var moveIndex = historyGame.History.Count; moveIndex > historyIndex; --moveIndex)
         {
             historyGame.UndoMove();
         }

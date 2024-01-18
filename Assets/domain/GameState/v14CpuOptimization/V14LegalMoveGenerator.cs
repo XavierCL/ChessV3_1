@@ -5,11 +5,11 @@ using System.Linq;
 public static class V14LegalMoveGenerator
 {
   public static Move[] emptyMoveArray = new Move[0];
-  public static HashsetCache<V14BoardState, CacheEntry> legalCache;
+  public static MapCache<V14BoardState, CacheEntry> legalCache;
 
   private static void InitializeCache()
   {
-    if (legalCache == null) legalCache = new HashsetCache<V14BoardState, CacheEntry>(999_983);
+    if (legalCache == null) legalCache = new MapCache<V14BoardState, CacheEntry>(999_983);
   }
 
   public static bool IsGameStateDraw(this V14GameState gameState)

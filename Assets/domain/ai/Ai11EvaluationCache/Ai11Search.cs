@@ -1,17 +1,17 @@
 public static class Ai11Search
 {
   // Depths are decreasing. A depth of 1 means evaluation
-  public static Ai11SearchResult Search(V14GameState gameState, int depth, int previousLegalCount, int previousSecondLegalCount, HashsetCache<V14BoardState, Ai11SearchResult> evaluationCache, Ai11TimeManagement timeManagement)
+  public static Ai11SearchResult Search(V14GameState gameState, int depth, int previousLegalCount, int previousSecondLegalCount, MapCache<V14BoardState, Ai11SearchResult> evaluationCache, Ai11TimeManagement timeManagement)
   {
     if (depth <= 1) return Ai11SearchExtension.Search(gameState, previousLegalCount, previousSecondLegalCount, evaluationCache, timeManagement);
 
-    if (gameState.IsGameStateDraw()) return Ai11SearchResult.FromDraw(gameState.history.Count);
+    if (gameState.IsGameStateDraw()) return Ai11SearchResult.FromDraw(gameState.History.Count);
 
     var cacheEntry = evaluationCache.Get(gameState.boardState);
-    if (cacheEntry != null && (cacheEntry.terminalLeaf || cacheEntry.depth >= depth && cacheEntry.depth >= 2)) return cacheEntry.ResetGameTurn(gameState.history.Count);
+    if (cacheEntry != null && (cacheEntry.terminalLeaf || cacheEntry.depth >= depth && cacheEntry.depth >= 2)) return cacheEntry.ResetGameTurn(gameState.History.Count);
 
     var legalMoves = gameState.getLegalMovesWithoutGameStateCheck();
-    var idleEvaluation = cacheEntry != null ? cacheEntry.ResetGameTurn(gameState.history.Count) : Ai11Evaluate.Evaluate(gameState, previousLegalCount, previousSecondLegalCount);
+    var idleEvaluation = cacheEntry != null ? cacheEntry.ResetGameTurn(gameState.History.Count) : Ai11Evaluate.Evaluate(gameState, previousLegalCount, previousSecondLegalCount);
 
     if (idleEvaluation.terminalLeaf) return idleEvaluation;
 

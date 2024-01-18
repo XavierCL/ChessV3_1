@@ -21,7 +21,7 @@ public class Ai11 : MonoBehaviour, AiInterface
     private double averageUsefulDepth = 0.0;
     private double averageAcceptableMoves = 0.0;
     private int moveCount = 0;
-    private HashsetCache<V14BoardState, Ai11SearchResult> evaluationCache;
+    private MapCache<V14BoardState, Ai11SearchResult> evaluationCache;
 
     public Task<Move> GetMove(GameStateInterface referenceGameState, TimeSpan remainingTime, TimeSpan increment)
     {
@@ -32,13 +32,13 @@ public class Ai11 : MonoBehaviour, AiInterface
         if (ownGameState == null)
         {
             ownGameState = new V14GameState(referenceGameState);
-            evaluationCache = new HashsetCache<V14BoardState, Ai11SearchResult>(999_983);
+            evaluationCache = new MapCache<V14BoardState, Ai11SearchResult>(999_983);
         }
         else
         {
-            while (ownGameState.history.Count < referenceGameState.history.Count)
+            while (ownGameState.History.Count < referenceGameState.History.Count)
             {
-                ownGameState.PlayMove(new Move(referenceGameState.history[^(referenceGameState.history.Count - ownGameState.history.Count)]));
+                ownGameState.PlayMove(new Move(referenceGameState.History[^(referenceGameState.History.Count - ownGameState.History.Count)]));
             }
         }
 
@@ -88,10 +88,10 @@ public class Ai11 : MonoBehaviour, AiInterface
 
             var allTerminal = allSearchResultsEver.All(searchResult => searchResult.terminalLeaf);
             var cacheEntry = evaluationCache.Get(gameState.boardState);
-            var idleEvaluation = cacheEntry != null ? cacheEntry.ResetGameTurn(gameState.history.Count) : Ai11Evaluate.Evaluate(gameState, 0, 0);
+            var idleEvaluation = cacheEntry != null ? cacheEntry.ResetGameTurn(gameState.History.Count) : Ai11Evaluate.Evaluate(gameState, 0, 0);
             orderedMoveIndices = Enumerable.Range(0, allSearchResultsEver.Count).ToList();
             orderedMoveIndices.Sort((a, b) => allSearchResultsEver[a].IsBetterThan(allSearchResultsEver[b], gameState) ? -1 : 1);
-            evaluationCache.Set(gameState.boardState, new Ai11SearchResult(idleEvaluation, allSearchResultsEver[orderedMoveIndices[0]], allTerminal, gameState.history.Count, depth));
+            evaluationCache.Set(gameState.boardState, new Ai11SearchResult(idleEvaluation, allSearchResultsEver[orderedMoveIndices[0]], allTerminal, gameState.History.Count, depth));
 
             // Don't go deeper if check mate can be delivered at searched depth
             if (allSearchResultsEver[^1].IsBestTerminal(gameState)) break;

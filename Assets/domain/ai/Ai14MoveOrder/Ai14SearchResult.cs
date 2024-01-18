@@ -20,7 +20,7 @@ public class Ai14SearchResult
     return new Ai14SearchResult(value, allTerminal, nodeCount);
   }
 
-  public bool IsBetterThan(Ai14SearchResult other, V14GameState gameState)
+  public bool IsBetterThan(Ai14SearchResult other, V16GameState gameState)
   {
     if (gameState.boardState.whiteTurn)
     {
@@ -37,7 +37,7 @@ public class Ai14SearchResult
     return value == other.value;
   }
 
-  public bool IsBestTerminal(V14GameState gameState)
+  public bool IsBestTerminal(V16GameState gameState)
   {
     return value == double.MaxValue && gameState.boardState.WhiteTurn || value == double.MinValue && !gameState.boardState.WhiteTurn;
   }
@@ -49,9 +49,9 @@ public class Ai14SearchResult
 
   public class Comparer : IComparer<Ai14SearchResult>
   {
-    private readonly V14GameState gameState;
+    private readonly V16GameState gameState;
 
-    public Comparer(V14GameState gameState)
+    public Comparer(V16GameState gameState)
     {
       this.gameState = gameState;
     }

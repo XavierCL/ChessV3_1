@@ -5,14 +5,14 @@ using UnityEngine;
 
 public static class V11LegalMoveGenerator
 {
-  public static HashsetCache<V11BoardState, List<Move>> legalCache;
+  public static MapCache<V11BoardState, List<Move>> legalCache;
 
   public static List<Move> GenerateLegalMoves(this V11GameState gameState)
   {
     if (gameState.StaleTurns >= 100) return new List<Move>();
     if (gameState.snapshots.GetValueOrDefault(gameState.boardState) >= 2) return new List<Move>();
 
-    if (legalCache == null) legalCache = new HashsetCache<V11BoardState, List<Move>>(999_983);
+    if (legalCache == null) legalCache = new MapCache<V11BoardState, List<Move>>(999_983);
 
     var cacheEntry = legalCache.Get(gameState.boardState);
     if (cacheEntry != null) return cacheEntry;

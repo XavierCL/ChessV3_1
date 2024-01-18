@@ -2,7 +2,7 @@ public static class Ai12SearchExtension
 {
   public static Ai12SearchResult Search(V14GameState gameState, Ai12SearchResult alpha, Ai12SearchResult beta, Ai12TimeManagement timeManagement)
   {
-    var lastMove = gameState.history[^1];
+    var lastMove = gameState.History[^1];
     if (lastMove.killed == null) return Ai12Evaluate.Evaluate(gameState);
 
     var legalMoves = gameState.getLegalMoves();

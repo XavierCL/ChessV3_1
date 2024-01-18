@@ -2,7 +2,7 @@ public static class Ai9SearchExtension
 {
   public static Ai9SearchResult Search(V14GameState gameState, Ai9TimeManagement timeManagement)
   {
-    var lastMove = gameState.history[^1];
+    var lastMove = gameState.History[^1];
     if (lastMove.killed == null) return Ai9Evaluate.Evaluate(gameState);
 
     var legalMoves = gameState.getLegalMoves();

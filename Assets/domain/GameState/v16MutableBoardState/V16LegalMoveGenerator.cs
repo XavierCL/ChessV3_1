@@ -5,16 +5,16 @@ using System.Linq;
 public static class V16LegalMoveGenerator
 {
   public static Move[] emptyMoveArray = new Move[0];
-  public static HashsetCache<V16BoardState.Hashable, CacheEntry> legalCache;
+  public static MapCache<V16BoardState.Hashable, CacheEntry> legalCache;
 
   private static void InitializeCache()
   {
-    if (legalCache == null) legalCache = new HashsetCache<V16BoardState.Hashable, CacheEntry>(999_983);
+    if (legalCache == null) legalCache = new MapCache<V16BoardState.Hashable, CacheEntry>(999_983);
   }
 
   public static bool IsGameStateDraw(this V16GameState gameState)
   {
-    if (gameState.StaleTurns >= 100) return true;
+    if (gameState.staleTurns >= 100) return true;
     if (gameState.snapshots.TryGetValue(gameState.boardState.GetHashable(), out var snapshotCount) && snapshotCount >= 2) return true;
     return false;
   }
@@ -192,7 +192,7 @@ public static class V16LegalMoveGenerator
 
   public static bool CanOwnKingDie(V16GameState gameState)
   {
-    return CanKingDie(new AugmentedBoardState(gameState.boardState), gameState.BoardState.WhiteTurn);
+    return CanKingDie(new AugmentedBoardState(gameState.boardState), gameState.boardState.WhiteTurn);
   }
 
   private static bool CanKingDie(AugmentedBoardState boardState, bool whiteKing)
@@ -364,9 +364,9 @@ public static class V16LegalMoveGenerator
     targetBitBoard |= boardState.boardState.whiteTurn ? V16Precomputed.whitePawnCaptureBitBoards[position] & boardState.blackBitBoard : V16Precomputed.blackPawnCaptureBitBoards[position] & boardState.whiteBitBoard;
 
     // En passant
-    if (ownRow == enemyFourthRow && boardState.boardState.EnPassantColumn != -1)
+    if (ownRow == enemyFourthRow && boardState.boardState.enPassantColumn != -1)
     {
-      var enPassantColumnBitBoard = BitBoard.firstColumn << boardState.boardState.EnPassantColumn;
+      var enPassantColumnBitBoard = BitBoard.firstColumn << boardState.boardState.enPassantColumn;
       var enPassantBitBoard = (boardState.boardState.whiteTurn ? V16Precomputed.whitePawnCaptureBitBoards : V16Precomputed.blackPawnCaptureBitBoards)[position] & enPassantColumnBitBoard;
 
       // En passant is the only move that can remove two pins at once
@@ -537,7 +537,7 @@ public static class V16LegalMoveGenerator
     {
       var castle = castles[castleIndex];
       if (boardState.boardState.whiteTurn != castle.castle.IsWhite()) continue;
-      if (!boardState.boardState.CastleFlags.HasFlag(castle.castle)) continue;
+      if (!boardState.boardState.castleFlags.HasFlag(castle.castle)) continue;
       if ((boardState.boardState.allPiecesBitBoard & castle.emptyPositions) != 0) continue;
 
       bool kingIsNeverInCheck = true;

@@ -6,14 +6,14 @@ public static class V13LegalMoveGenerator
 {
   private static List<Move> emptyMoves = new List<Move>();
   private static Move[] emptyMoveArray = new Move[0];
-  public static HashsetCache<V13BoardState, List<Move>> legalCache;
+  public static MapCache<V13BoardState, List<Move>> legalCache;
 
   public static List<Move> GenerateLegalMoves(this V13GameState gameState)
   {
     if (gameState.StaleTurns >= 100) return emptyMoves;
     if (gameState.snapshots.GetValueOrDefault(gameState.boardState) >= 2) return emptyMoves;
 
-    if (legalCache == null) legalCache = new HashsetCache<V13BoardState, List<Move>>(999_983);
+    if (legalCache == null) legalCache = new MapCache<V13BoardState, List<Move>>(999_983);
 
     var cacheEntry = legalCache.Get(gameState.boardState);
     if (cacheEntry != null) return cacheEntry;

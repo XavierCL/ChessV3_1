@@ -4,13 +4,14 @@ using System.Linq;
 // This game state drops support for piece position id. Don't use this in the UI.
 public class V16GameState : GameStateInterface
 {
-    private int staleTurns;
+    public int staleTurns;
     public override int StaleTurns { get => staleTurns; }
     public override BoardStateInterface BoardState { get => boardState; }
     public readonly V16BoardState boardState;
-    public override List<ReversibleMove> history { get; }
+    public override List<ReversibleMove> History { get => history; }
+    public List<ReversibleMove> history;
     public override Dictionary<BoardStateInterface, ushort> Snapshots { get => snapshots.ToDictionary(tuple => (BoardStateInterface)tuple.Key, tuple => tuple.Value); }
-    public Dictionary<V16BoardState.Hashable, ushort> snapshots { get; }
+    public Dictionary<V16BoardState.Hashable, ushort> snapshots;
     private IReadOnlyList<Move> legalMoves = null;
     private GameEndState endState = GameEndState.Nothing;
 
@@ -25,7 +26,7 @@ public class V16GameState : GameStateInterface
     public V16GameState(GameStateInterface gameState)
     {
         staleTurns = gameState.StaleTurns;
-        history = new List<ReversibleMove>(gameState.history);
+        history = new List<ReversibleMove>(gameState.History);
         boardState = new V16BoardState(gameState.BoardState);
         snapshots = gameState.Snapshots.ToDictionary(tuple => new V16BoardState.Hashable(new V16BoardState(tuple.Key)), tuple => tuple.Value);
     }
@@ -60,18 +61,19 @@ public class V16GameState : GameStateInterface
     public override ReversibleMove PlayMove(Move move)
     {
         var oldBoardHashable = boardState.GetHashable();
-        var oldCastleFlags = boardState.CastleFlags;
-        var oldEnPassant = boardState.EnPassantColumn;
+        var oldCastleFlags = boardState.castleFlags;
+        var oldEnPassant = boardState.enPassantColumn;
         var boardPlay = boardState.PlayMove(move);
 
-        snapshots[oldBoardHashable] = (ushort)(snapshots.GetValueOrDefault(oldBoardHashable) + 1);
+        snapshots.TryGetValue(oldBoardHashable, out var oldSnapshotCount);
+        snapshots[oldBoardHashable] = (ushort)(oldSnapshotCount + 1);
 
-        var lostCastleRights = oldCastleFlags & ~boardState.CastleFlags;
+        var lostCastleRights = oldCastleFlags & ~boardState.castleFlags;
 
         var reversibleMove = new ReversibleMove(
             move.source,
             move.target,
-            StaleTurns,
+            staleTurns,
             move.promotion,
             lostCastleRights,
             oldEnPassant,

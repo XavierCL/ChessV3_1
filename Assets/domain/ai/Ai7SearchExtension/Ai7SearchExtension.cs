@@ -6,7 +6,7 @@ public static class Ai7SearchExtension
     var idleEvaluation = Ai7Evaluate.Evaluate(gameState);
 
     if (idleEvaluation.terminalLeaf) return idleEvaluation;
-    var lastMove = gameState.history[^1];
+    var lastMove = gameState.History[^1];
 
     if (lastMove.killed == null) return idleEvaluation;
 

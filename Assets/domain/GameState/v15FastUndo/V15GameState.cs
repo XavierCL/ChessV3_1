@@ -4,11 +4,12 @@ using System.Linq;
 // This game state drops support for piece position id. Don't use this in the UI.
 public class V15GameState : GameStateInterface
 {
-    private int staleTurns;
+    public int staleTurns;
     public override int StaleTurns { get => staleTurns; }
     public override BoardStateInterface BoardState { get => boardState; }
     public V15BoardState boardState;
-    public override List<ReversibleMove> history { get; }
+    public override List<ReversibleMove> History { get => history; }
+    public List<ReversibleMove> history;
     public readonly List<V15BoardState> boardHistory;
     public override Dictionary<BoardStateInterface, ushort> Snapshots { get => snapshots.ToDictionary(tuple => (BoardStateInterface)tuple.Key, tuple => tuple.Value); }
     public Dictionary<V15BoardState, ushort> snapshots { get; }
@@ -27,7 +28,7 @@ public class V15GameState : GameStateInterface
     public V15GameState(GameStateInterface gameState)
     {
         staleTurns = gameState.StaleTurns;
-        history = new List<ReversibleMove>(gameState.history);
+        history = new List<ReversibleMove>(gameState.History);
         boardState = new V15BoardState(gameState.BoardState);
         snapshots = gameState.Snapshots.ToDictionary(tuple => new V15BoardState(tuple.Key), tuple => tuple.Value);
 
@@ -75,25 +76,26 @@ public class V15GameState : GameStateInterface
         var oldBoardState = boardState;
         var nextBoardPlay = oldBoardState.PlayMove(move);
 
-        snapshots[oldBoardState] = (ushort)(snapshots.GetValueOrDefault(oldBoardState) + 1);
+        snapshots.TryGetValue(oldBoardState, out var oldSnapshotCount);
+        snapshots[oldBoardState] = (ushort)(oldSnapshotCount + 1);
         boardState = nextBoardPlay.boardState;
 
-        var lostCastleRights = oldBoardState.CastleFlags & ~nextBoardPlay.boardState.CastleFlags;
+        var lostCastleRights = oldBoardState.castleFlags & ~nextBoardPlay.boardState.castleFlags;
 
         var reversibleMove = new ReversibleMove(
             move.source,
             move.target,
-            StaleTurns,
+            staleTurns,
             move.promotion,
             lostCastleRights,
-            oldBoardState.EnPassantColumn,
+            oldBoardState.enPassantColumn,
             nextBoardPlay.killedPiece
         );
 
         history.Add(reversibleMove);
         boardHistory.Add(oldBoardState);
 
-        staleTurns = nextBoardPlay.sourcePiece.pieceType.IsPawn() || nextBoardPlay.killedPiece != null ? 0 : StaleTurns + 1;
+        staleTurns = nextBoardPlay.sourcePiece.pieceType.IsPawn() || nextBoardPlay.killedPiece != null ? 0 : staleTurns + 1;
         legalMoves = null;
         endState = GameEndState.Nothing;
         return reversibleMove;

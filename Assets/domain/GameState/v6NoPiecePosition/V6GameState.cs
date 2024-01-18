@@ -8,7 +8,7 @@ public class V6GameState : GameStateInterface
     public override int StaleTurns { get => staleTurns; }
     public override BoardStateInterface BoardState { get => boardState; }
     public V6BoardState boardState { get; private set; }
-    public override List<ReversibleMove> history { get; }
+    public override List<ReversibleMove> History { get; }
     public override Dictionary<BoardStateInterface, ushort> Snapshots { get => snapshots.ToDictionary(tuple => (BoardStateInterface)tuple.Key, tuple => tuple.Value); }
     public Dictionary<V6BoardState, ushort> snapshots { get; }
     private List<Move> legalMoves { get; set; } = null;
@@ -16,7 +16,7 @@ public class V6GameState : GameStateInterface
     public V6GameState()
     {
         staleTurns = 0;
-        history = new List<ReversibleMove>();
+        History = new List<ReversibleMove>();
         boardState = new V6BoardState();
         snapshots = new Dictionary<V6BoardState, ushort>();
     }
@@ -24,7 +24,7 @@ public class V6GameState : GameStateInterface
     public V6GameState(GameStateInterface gameState)
     {
         staleTurns = gameState.StaleTurns;
-        history = new List<ReversibleMove>(gameState.history);
+        History = new List<ReversibleMove>(gameState.History);
         boardState = new V6BoardState(gameState.BoardState);
         snapshots = gameState.Snapshots.ToDictionary(tuple => new V6BoardState(tuple.Key), tuple => tuple.Value);
     }
@@ -32,7 +32,7 @@ public class V6GameState : GameStateInterface
     public V6GameState(List<PiecePosition> piecePositions, bool whiteStarts, CastleFlags castling)
     {
         staleTurns = 0;
-        history = new List<ReversibleMove>();
+        History = new List<ReversibleMove>();
         boardState = new V6BoardState(
             whiteStarts,
             piecePositions,
@@ -68,7 +68,7 @@ public class V6GameState : GameStateInterface
             nextBoardPlay.killedPiece
         );
 
-        history.Add(reversibleMove);
+        History.Add(reversibleMove);
 
         staleTurns = nextBoardPlay.sourcePiece.pieceType.IsPawn() || nextBoardPlay.killedPiece != null ? 0 : StaleTurns + 1;
         legalMoves = null;
@@ -77,8 +77,8 @@ public class V6GameState : GameStateInterface
 
     public override void UndoMove()
     {
-        var reversibleMove = history[^1];
-        history.RemoveAt(history.Count - 1);
+        var reversibleMove = History[^1];
+        History.RemoveAt(History.Count - 1);
         boardState = boardState.UndoMove(reversibleMove);
         if (!snapshots.ContainsKey(boardState))
         {

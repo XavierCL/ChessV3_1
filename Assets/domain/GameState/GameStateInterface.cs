@@ -4,10 +4,9 @@ using System.Collections.Generic;
 public abstract class GameStateInterface
 {
     public abstract int StaleTurns { get; }
-    public abstract List<ReversibleMove> history { get; }
+    public abstract List<ReversibleMove> History { get; }
     public abstract BoardStateInterface BoardState { get; }
     public abstract Dictionary<BoardStateInterface, ushort> Snapshots { get; }
-
     public abstract IReadOnlyList<Move> getLegalMoves();
     public abstract ReversibleMove PlayMove(Move move);
     public abstract GameEndState GetGameEndState();

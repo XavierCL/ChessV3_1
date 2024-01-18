@@ -3302,6 +3302,7 @@ MonoBehaviour:
   ForceDepth: -1
   DontStartNextDepthAfterHalfTime: 1
   InitialRandomOrder: 1
+  SearchExtensions: 1
 --- !u!1 &628009634
 GameObject:
   m_ObjectHideFlags: 0
@@ -5681,8 +5682,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 21b34f503707d0d429a252881538fdaa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  initialTime: 1:00
-  increment: 2
+  initialTime: 5:00
+  increment: 5
   InitialGrayColor: {r: 1, g: 1, b: 1, a: 1}
   TickingDownGreenColor: {r: 0.003921569, g: 0.7647059, b: 0, a: 1}
   NoMoreTimeColor: {r: 1, g: 0.27058825, b: 0.27058825, a: 1}
@@ -7279,6 +7280,7 @@ MonoBehaviour:
   ForceDepth: -1
   DontStartNextDepthAfterHalfTime: 1
   InitialRandomOrder: 1
+  searchExtensions: 1
 --- !u!1 &1312554370
 GameObject:
   m_ObjectHideFlags: 0

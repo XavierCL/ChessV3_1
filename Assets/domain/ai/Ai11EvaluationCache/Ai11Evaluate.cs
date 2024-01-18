@@ -6,15 +6,15 @@ public static class Ai11Evaluate
 
     if (endGameState == GameEndState.WhiteWin)
     {
-      return new Ai11SearchResult(double.MaxValue, true, 1, double.MaxValue, gameState.history.Count, 1);
+      return new Ai11SearchResult(double.MaxValue, true, 1, double.MaxValue, gameState.History.Count, 1);
     }
     else if (endGameState == GameEndState.BlackWin)
     {
-      return new Ai11SearchResult(double.MinValue, true, 1, double.MinValue, gameState.history.Count, 1);
+      return new Ai11SearchResult(double.MinValue, true, 1, double.MinValue, gameState.History.Count, 1);
     }
     else if (endGameState == GameEndState.Draw)
     {
-      return Ai11SearchResult.FromDraw(gameState.history.Count);
+      return Ai11SearchResult.FromDraw(gameState.History.Count);
     }
 
     var value = gameState.boardState.bitBoards[V14BoardState.WhitePawn].bitCount() * 1
@@ -35,7 +35,7 @@ public static class Ai11Evaluate
       false,
       1,
       value,
-      gameState.history.Count,
+      gameState.History.Count,
       1
     );
   }

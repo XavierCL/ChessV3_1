@@ -3,14 +3,14 @@ using System.Collections.Generic;
 public static class V12LegalMoveGenerator
 {
   private static List<Move> emptyMoves = new List<Move>();
-  public static HashsetCache<V12BoardState, List<Move>> legalCache;
+  public static MapCache<V12BoardState, List<Move>> legalCache;
 
   public static List<Move> GenerateLegalMoves(this V12GameState gameState)
   {
     if (gameState.StaleTurns >= 100) return emptyMoves;
     if (gameState.snapshots.GetValueOrDefault(gameState.boardState) >= 2) return emptyMoves;
 
-    if (legalCache == null) legalCache = new HashsetCache<V12BoardState, List<Move>>(999_983);
+    if (legalCache == null) legalCache = new MapCache<V12BoardState, List<Move>>(999_983);
 
     var cacheEntry = legalCache.Get(gameState.boardState);
     if (cacheEntry != null) return cacheEntry;

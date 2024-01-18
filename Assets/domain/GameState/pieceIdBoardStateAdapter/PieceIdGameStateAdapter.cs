@@ -6,28 +6,28 @@ public class PieceIdGameStateAdapter : GameStateInterface
   private readonly GameStateInterface underlying;
   public override BoardStateInterface BoardState { get => boardState; }
   public PieceIdBoardStateAdapter boardState;
-  public override List<ReversibleMove> history { get; }
+  public override List<ReversibleMove> History { get; }
   public override int StaleTurns { get => underlying.StaleTurns; }
   public override Dictionary<BoardStateInterface, ushort> Snapshots => underlying.Snapshots;
 
   public PieceIdGameStateAdapter(GameStateFactoryInterface gameStateFactory)
   {
     underlying = gameStateFactory.StartingPosition();
-    history = new List<ReversibleMove>();
+    History = new List<ReversibleMove>();
     boardState = PieceIdBoardStateAdapter.FromStartingPosition(underlying);
   }
 
   public PieceIdGameStateAdapter(GameStateFactoryInterface gameStateFactory, GameStateInterface gameState)
   {
     underlying = gameStateFactory.FromGameState(gameState);
-    history = new List<ReversibleMove>(gameState.history);
+    History = new List<ReversibleMove>(gameState.History);
     boardState = PieceIdBoardStateAdapter.FromMiddlegame(underlying);
   }
 
   public PieceIdGameStateAdapter(GameStateFactoryInterface gameStateFactory, string fen)
   {
     underlying = gameStateFactory.FromFen(fen);
-    history = new List<ReversibleMove>(underlying.history);
+    History = new List<ReversibleMove>(underlying.History);
     boardState = PieceIdBoardStateAdapter.FromMiddlegame(underlying);
   }
 
@@ -52,15 +52,15 @@ public class PieceIdGameStateAdapter : GameStateInterface
       boardPlay.killedPiece
     );
 
-    history.Add(reversibleWithId);
+    History.Add(reversibleWithId);
     return reversibleWithId;
   }
 
   public override void UndoMove()
   {
     underlying.UndoMove();
-    var reversibleMove = history[^1];
-    history.RemoveAt(history.Count - 1);
+    var reversibleMove = History[^1];
+    History.RemoveAt(History.Count - 1);
     boardState = boardState.UndoMove(reversibleMove);
   }
 

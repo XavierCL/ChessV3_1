@@ -1,8 +1,8 @@
 public static class Ai14SearchExtension
 {
-  public static Ai14SearchResult Search(V14GameState gameState, Ai14SearchResult alpha, Ai14SearchResult beta, Ai14SearchResult.HyperParameters hyperParameters)
+  public static Ai14SearchResult Search(V16GameState gameState, Ai14SearchResult alpha, Ai14SearchResult beta, Ai14SearchResult.HyperParameters hyperParameters)
   {
-    var lastMove = gameState.history[^1];
+    var lastMove = gameState.History[^1];
     if (lastMove.killed == null || !hyperParameters.searchExtensions) return Ai14Evaluate.Evaluate(gameState);
 
     var legalMoves = gameState.getLegalMoves();

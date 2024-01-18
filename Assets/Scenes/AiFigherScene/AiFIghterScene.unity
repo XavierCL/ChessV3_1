@@ -167,11 +167,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31e43ecd840b7864e9bec540ef73c589, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ShowDebugInfo: 1
-  ForceDepth: 4
+  ShowDebugInfo: 0
+  ForceDepth: -1
   DontStartNextDepthAfterHalfTime: 1
   InitialRandomOrder: 1
-  searchExtensions: 0
+  searchExtensions: 1
 --- !u!1 &292345930
 GameObject:
   m_ObjectHideFlags: 0
@@ -249,11 +249,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 65aad90ea68d86a408d5cf1a8bf7d850, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  initialTime: 0.01
-  increment: 0.01
+  initialTime: 0.1
+  increment: 0.1
   OnlyFirstPosition: 1
   ReversePositions: 1
-  SingleMove: 1
+  SingleMove: 0
   GamePerHyperParameter: 1
   MultipleFrames: 0
 --- !u!4 &328839930
@@ -315,8 +315,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e932cde4acb2344094bb05cb8846d0f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ShowDebugInfo: 1
-  ForceDepth: 4
+  ShowDebugInfo: 0
+  ForceDepth: -1
   DontStartNextDepthAfterHalfTime: 1
   InitialRandomOrder: 1
-  SearchExtensions: 0
+  SearchExtensions: 1

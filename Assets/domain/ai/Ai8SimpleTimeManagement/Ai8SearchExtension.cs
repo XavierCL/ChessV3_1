@@ -2,7 +2,7 @@ public static class Ai8SearchExtension
 {
   public static Ai8SearchResult Search(V14GameState gameState, Ai8SearchResult.Hyperparameters hyperparameters)
   {
-    var lastMove = gameState.history[^1];
+    var lastMove = gameState.History[^1];
     if (lastMove.killed == null || !hyperparameters.searchExtensions) return Ai8Evaluate.Evaluate(gameState);
 
     var legalMoves = gameState.getLegalMoves();
