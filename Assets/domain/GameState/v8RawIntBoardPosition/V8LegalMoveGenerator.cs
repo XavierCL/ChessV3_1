@@ -181,7 +181,7 @@ public static class V8LegalMoveGenerator
         var captureLeftPosition = new BoardPosition(piecePosition.position.col - 1, piecePosition.position.row + increment);
         var neighbourLeftPosition = BoardPosition.fromColRow(piecePosition.position.col - 1, piecePosition.position.row);
         var neighbourLeft = boardState.GetPieceTypeAtPosition(neighbourLeftPosition);
-        if (boardState.enPassantColumn == neighbourLeftPosition.getCol() && neighbourLeft.IsWhite() != piecePosition.pieceType.IsWhite() && neighbourLeft.IsPawn())
+        if (boardState.EnPassantColumn == neighbourLeftPosition.getCol() && neighbourLeft.IsWhite() != piecePosition.pieceType.IsWhite() && neighbourLeft.IsPawn())
         {
           moves.Add(new Move(piecePosition.position, captureLeftPosition, PieceType.Nothing));
         }
@@ -192,7 +192,7 @@ public static class V8LegalMoveGenerator
         var captureRightPosition = new BoardPosition(piecePosition.position.col + 1, piecePosition.position.row + increment);
         var neighbourRightPosition = BoardPosition.fromColRow(piecePosition.position.col + 1, piecePosition.position.row);
         var neighbourRight = boardState.GetPieceTypeAtPosition(neighbourRightPosition);
-        if (boardState.enPassantColumn == neighbourRightPosition.getCol() && neighbourRight.IsWhite() != piecePosition.pieceType.IsWhite() && neighbourRight.IsPawn())
+        if (boardState.EnPassantColumn == neighbourRightPosition.getCol() && neighbourRight.IsWhite() != piecePosition.pieceType.IsWhite() && neighbourRight.IsPawn())
         {
           moves.Add(new Move(piecePosition.position, captureRightPosition, PieceType.Nothing));
         }
@@ -299,7 +299,7 @@ public static class V8LegalMoveGenerator
 
     var rockMoves = castles.Where(rock =>
     {
-      if (!boardState.castleFlags.HasFlag(rock.castle)) return false;
+      if (!boardState.CastleFlags.HasFlag(rock.castle)) return false;
       if (piecePosition.pieceType.IsWhite() != rock.castle.IsWhite()) return false;
 
       foreach (var emptyPosition in rock.emptyPositions)

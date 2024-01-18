@@ -44,16 +44,16 @@ public class V10BoardState : BoardStateInterface
 
   public readonly ulong allBitBoard;
   public readonly PieceType[] boardPieces;
-  public CastleFlags castleFlags { get; }
-  public int enPassantColumn { get; }
+  public CastleFlags CastleFlags { get; }
+  public int EnPassantColumn { get; }
   public readonly int whiteKingPosition;
   public readonly int blackKingPosition;
 
   public V10BoardState()
   {
     WhiteTurn = true;
-    castleFlags = CastleFlags.All;
-    enPassantColumn = -1;
+    CastleFlags = CastleFlags.All;
+    EnPassantColumn = -1;
     allBitBoard = 0;
 
     var piecePositions = new List<PiecePosition> {
@@ -114,8 +114,8 @@ public class V10BoardState : BoardStateInterface
   public V10BoardState(BoardStateInterface other)
   {
     WhiteTurn = other.WhiteTurn;
-    castleFlags = other.castleFlags;
-    enPassantColumn = other.enPassantColumn;
+    CastleFlags = other.CastleFlags;
+    EnPassantColumn = other.EnPassantColumn;
     allBitBoard = 0;
 
     boardPieces = new PieceType[64];
@@ -142,8 +142,8 @@ public class V10BoardState : BoardStateInterface
     this.WhiteTurn = whiteTurn;
     this.boardPieces = boardPieces;
     this.allBitBoard = allBitBoard;
-    this.castleFlags = castleFlags;
-    this.enPassantColumn = enPassantColumn;
+    this.CastleFlags = castleFlags;
+    this.EnPassantColumn = enPassantColumn;
     this.whiteKingPosition = whiteKingPosition;
     this.blackKingPosition = blackKingPosition;
   }
@@ -151,8 +151,8 @@ public class V10BoardState : BoardStateInterface
   public V10BoardState(bool whiteTurn, List<PiecePosition> piecePositions, CastleFlags castleFlags)
   {
     this.WhiteTurn = whiteTurn;
-    this.castleFlags = castleFlags;
-    enPassantColumn = -1;
+    this.CastleFlags = castleFlags;
+    EnPassantColumn = -1;
     allBitBoard = 0;
 
     boardPieces = new PieceType[64];
@@ -237,7 +237,7 @@ public class V10BoardState : BoardStateInterface
     if (sourcePiece.pieceType == PieceType.BlackKing || move.source.index == blackKingRookPosition || move.target.index == blackKingRookPosition) lostCastleRights |= CastleFlags.BlackKing;
     if (sourcePiece.pieceType == PieceType.BlackKing || move.source.index == blackQueenRookPosition || move.target.index == blackQueenRookPosition) lostCastleRights |= CastleFlags.BlackQueen;
 
-    var castleFlags = this.castleFlags & ~lostCastleRights;
+    var castleFlags = this.CastleFlags & ~lostCastleRights;
 
     // Castling
     if (sourcePieceType.IsKing() && Math.Abs(move.target.col - move.source.col) == 2)
@@ -325,7 +325,7 @@ public class V10BoardState : BoardStateInterface
       newAllBitBoard ^= 1ul << reversibleMove.killed.position.index;
     }
 
-    var castleFlags = this.castleFlags | reversibleMove.lostCastleRights;
+    var castleFlags = this.CastleFlags | reversibleMove.lostCastleRights;
 
     // Castling
     if (sourcePieceType.IsKing() && Math.Abs(reversibleMove.target.col - reversibleMove.source.col) == 2)
@@ -395,8 +395,8 @@ public class V10BoardState : BoardStateInterface
   public override bool Equals(object obj)
   {
     var other = (V10BoardState)obj;
-    if (castleFlags != other.castleFlags
-    || enPassantColumn != other.enPassantColumn
+    if (CastleFlags != other.CastleFlags
+    || EnPassantColumn != other.EnPassantColumn
     || allBitBoard != other.allBitBoard
     || WhiteTurn != other.WhiteTurn) return false;
 
@@ -415,8 +415,8 @@ public class V10BoardState : BoardStateInterface
   {
     unchecked
     {
-      var hashCode = enPassantColumn + 2;
-      hashCode = hashCode * 17 + (int)castleFlags + 1;
+      var hashCode = EnPassantColumn + 2;
+      hashCode = hashCode * 17 + (int)CastleFlags + 1;
       hashCode = hashCode * 2 + (WhiteTurn ? 1 : 0);
 
       for (var index = 0; index < pieceIndices.Length; ++index)

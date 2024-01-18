@@ -9,14 +9,14 @@ public class V1BoardState : BoardStateInterface
 {
   public bool WhiteTurn { get; }
   public List<PiecePosition> piecePositions { get; }
-  public CastleFlags castleFlags { get; }
-  public int enPassantColumn { get; }
+  public CastleFlags CastleFlags { get; }
+  public int EnPassantColumn { get; }
 
   public V1BoardState()
   {
     WhiteTurn = true;
-    castleFlags = CastleFlags.All;
-    enPassantColumn = -1;
+    CastleFlags = CastleFlags.All;
+    EnPassantColumn = -1;
 
     piecePositions = new List<PiecePosition> {
             new PiecePosition("a1", PieceType.WhiteRook, new BoardPosition(0, 0)),
@@ -59,16 +59,16 @@ public class V1BoardState : BoardStateInterface
   {
     WhiteTurn = other.WhiteTurn;
     piecePositions = new List<PiecePosition>(other.piecePositions);
-    castleFlags = other.castleFlags;
-    enPassantColumn = other.enPassantColumn;
+    CastleFlags = other.CastleFlags;
+    EnPassantColumn = other.EnPassantColumn;
   }
 
   public V1BoardState(List<PiecePosition> piecePositions, bool whiteTurn, CastleFlags castleFlags, int enPassantColumn)
   {
     this.WhiteTurn = whiteTurn;
     this.piecePositions = piecePositions;
-    this.castleFlags = castleFlags;
-    this.enPassantColumn = enPassantColumn;
+    this.CastleFlags = castleFlags;
+    this.EnPassantColumn = enPassantColumn;
   }
 
   public class BoardStatePlay
@@ -121,7 +121,7 @@ public class V1BoardState : BoardStateInterface
     if (sourcePiece.pieceType == PieceType.BlackKing || sourcePiece.position.Equals(new BoardPosition(7, 7))) lostCastleRights |= CastleFlags.BlackKing;
     if (sourcePiece.pieceType == PieceType.BlackKing || sourcePiece.position.Equals(new BoardPosition(0, 7))) lostCastleRights |= CastleFlags.BlackQueen;
 
-    var castleFlags = this.castleFlags & ~lostCastleRights;
+    var castleFlags = this.CastleFlags & ~lostCastleRights;
 
     // Castling
     if (sourcePiece.pieceType.IsKing() && Math.Abs(move.target.col - move.source.col) == 2)
@@ -200,7 +200,7 @@ public class V1BoardState : BoardStateInterface
       newPiecePositions.Add(reversibleMove.killed);
     }
 
-    var castleFlags = this.castleFlags | reversibleMove.lostCastleRights;
+    var castleFlags = this.CastleFlags | reversibleMove.lostCastleRights;
 
     // Castling
     if (sourcePiece.pieceType.IsKing() && Math.Abs(reversibleMove.target.col - reversibleMove.source.col) == 2)
@@ -262,8 +262,8 @@ public class V1BoardState : BoardStateInterface
   public override bool Equals(object obj)
   {
     var other = (V1BoardState)obj;
-    if (castleFlags != other.castleFlags
-    || enPassantColumn != other.enPassantColumn
+    if (CastleFlags != other.CastleFlags
+    || EnPassantColumn != other.EnPassantColumn
     || WhiteTurn != other.WhiteTurn) return false;
 
     if (!new HashSet<PiecePosition>(piecePositions).SetEquals(other.piecePositions)) return false;
@@ -275,8 +275,8 @@ public class V1BoardState : BoardStateInterface
   {
     unchecked
     {
-      var hashCode = enPassantColumn + 2;
-      hashCode = hashCode * 17 + (int)castleFlags + 1;
+      var hashCode = EnPassantColumn + 2;
+      hashCode = hashCode * 17 + (int)CastleFlags + 1;
       hashCode = hashCode * 2 + (WhiteTurn ? 1 : 0);
       hashCode *= 0x1971987;
       hashCode = piecePositions.Select(piece => piece.GetHashCode()).Aggregate(hashCode, (cum, cur) => cum + cur);

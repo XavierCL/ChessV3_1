@@ -55,7 +55,7 @@ public class V5GameState : GameStateInterface
         snapshots[oldBoardState] = (ushort)(snapshots.GetValueOrDefault(oldBoardState) + 1);
         boardState = nextBoardPlay.boardState;
 
-        var lostCastleRights = oldBoardState.castleFlags & ~nextBoardPlay.boardState.castleFlags;
+        var lostCastleRights = oldBoardState.CastleFlags & ~nextBoardPlay.boardState.CastleFlags;
 
         var reversibleMove = new ReversibleMove(
             move.source,
@@ -63,7 +63,7 @@ public class V5GameState : GameStateInterface
             StaleTurns,
             move.promotion,
             lostCastleRights,
-            oldBoardState.enPassantColumn,
+            oldBoardState.EnPassantColumn,
             nextBoardPlay.killedPiece
         );
 

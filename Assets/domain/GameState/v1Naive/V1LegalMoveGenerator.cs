@@ -117,13 +117,13 @@ public static class V1LegalMoveGenerator
 
     // En passant
     var neighbourLeftPosition = new BoardPosition(piecePosition.position.col - 1, piecePosition.position.row);
-    if (piecePosition.position.col != 0 && boardState.enPassantColumn == neighbourLeftPosition.col && !canKillKingOnly && boardState.piecePositions.Any(piece => piece.pieceType.IsWhite() != piecePosition.pieceType.IsWhite() && piece.pieceType.IsPawn() && piece.position.Equals(neighbourLeftPosition)))
+    if (piecePosition.position.col != 0 && boardState.EnPassantColumn == neighbourLeftPosition.col && !canKillKingOnly && boardState.piecePositions.Any(piece => piece.pieceType.IsWhite() != piecePosition.pieceType.IsWhite() && piece.pieceType.IsPawn() && piece.position.Equals(neighbourLeftPosition)))
     {
       moves.Add(new Move(piecePosition.position, captureLeftPosition, PieceType.Nothing));
     }
 
     var neighbourRightPosition = new BoardPosition(piecePosition.position.col + 1, piecePosition.position.row);
-    if (piecePosition.position.col != 7 && boardState.enPassantColumn == neighbourRightPosition.col && !canKillKingOnly && boardState.piecePositions.Any(piece => piece.pieceType.IsWhite() != piecePosition.pieceType.IsWhite() && piece.pieceType.IsPawn() && piece.position.Equals(neighbourRightPosition)))
+    if (piecePosition.position.col != 7 && boardState.EnPassantColumn == neighbourRightPosition.col && !canKillKingOnly && boardState.piecePositions.Any(piece => piece.pieceType.IsWhite() != piecePosition.pieceType.IsWhite() && piece.pieceType.IsPawn() && piece.position.Equals(neighbourRightPosition)))
     {
       moves.Add(new Move(piecePosition.position, captureRightPosition, PieceType.Nothing));
     }
@@ -231,7 +231,7 @@ public static class V1LegalMoveGenerator
 
     var rockMoves = castles.Where(rock =>
     {
-      if (!boardState.castleFlags.HasFlag(rock.castle)) return false;
+      if (!boardState.CastleFlags.HasFlag(rock.castle)) return false;
       if (piecePosition.pieceType.IsWhite() != rock.castle.IsWhite()) return false;
 
       foreach (var emptyPosition in rock.emptyPositions)

@@ -5,6 +5,6 @@ public interface BoardStateInterface
 {
   public bool WhiteTurn { get; }
   public List<PiecePosition> piecePositions { get; }
-  public CastleFlags castleFlags { get; }
-  public int enPassantColumn { get; }
+  public CastleFlags CastleFlags { get; }
+  public int EnPassantColumn { get; }
 }

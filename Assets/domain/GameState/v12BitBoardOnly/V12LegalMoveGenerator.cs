@@ -243,9 +243,9 @@ public static class V12LegalMoveGenerator
     targetBitBoard |= boardState.boardState.whiteTurn ? V12Precomputed.whitePawnCaptureBitBoards[position] & boardState.blackBitBoard : V12Precomputed.blackPawnCaptureBitBoards[position] & boardState.whiteBitBoard;
 
     // En passant
-    if (ownRow == enemyFourthRow && boardState.boardState.enPassantColumn != -1)
+    if (ownRow == enemyFourthRow && boardState.boardState.EnPassantColumn != -1)
     {
-      targetBitBoard |= (boardState.boardState.whiteTurn ? V12Precomputed.whitePawnCaptureBitBoards : V12Precomputed.blackPawnCaptureBitBoards)[position] & (BitBoard.firstColumn << boardState.boardState.enPassantColumn);
+      targetBitBoard |= (boardState.boardState.whiteTurn ? V12Precomputed.whitePawnCaptureBitBoards : V12Precomputed.blackPawnCaptureBitBoards)[position] & (BitBoard.firstColumn << boardState.boardState.EnPassantColumn);
     }
 
     if (ownRow + increment != stopCondition)
@@ -322,7 +322,7 @@ public static class V12LegalMoveGenerator
     for (var castleIndex = 0; castleIndex < castles.Length; ++castleIndex)
     {
       var castle = castles[castleIndex];
-      if (!boardState.boardState.castleFlags.HasFlag(castle.castle)) continue;
+      if (!boardState.boardState.CastleFlags.HasFlag(castle.castle)) continue;
       if (boardState.boardState.whiteTurn != castle.castle.IsWhite()) continue;
       if ((boardState.allBitBoard & castle.emptyPositions) != 0) continue;
 

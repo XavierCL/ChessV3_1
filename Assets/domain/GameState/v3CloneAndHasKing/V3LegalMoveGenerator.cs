@@ -121,14 +121,14 @@ public static class V3LegalMoveGenerator
     {
       var neighbourLeftPosition = new BoardPosition(piecePosition.position.col - 1, piecePosition.position.row);
       var neighbourLeft = boardState.GetPieceTypeAtPosition(neighbourLeftPosition);
-      if (piecePosition.position.col != 0 && boardState.enPassantColumn == neighbourLeftPosition.col && !canKillKingOnly && neighbourLeft.IsWhite() != piecePosition.pieceType.IsWhite() && neighbourLeft.IsPawn())
+      if (piecePosition.position.col != 0 && boardState.EnPassantColumn == neighbourLeftPosition.col && !canKillKingOnly && neighbourLeft.IsWhite() != piecePosition.pieceType.IsWhite() && neighbourLeft.IsPawn())
       {
         moves.Add(new Move(piecePosition.position, captureLeftPosition, PieceType.Nothing));
       }
 
       var neighbourRightPosition = new BoardPosition(piecePosition.position.col + 1, piecePosition.position.row);
       var neighbourRight = boardState.GetPieceTypeAtPosition(neighbourRightPosition);
-      if (piecePosition.position.col != 7 && boardState.enPassantColumn == neighbourRightPosition.col && !canKillKingOnly && neighbourRight.IsWhite() != piecePosition.pieceType.IsWhite() && neighbourRight.IsPawn())
+      if (piecePosition.position.col != 7 && boardState.EnPassantColumn == neighbourRightPosition.col && !canKillKingOnly && neighbourRight.IsWhite() != piecePosition.pieceType.IsWhite() && neighbourRight.IsPawn())
       {
         moves.Add(new Move(piecePosition.position, captureRightPosition, PieceType.Nothing));
       }
@@ -237,7 +237,7 @@ public static class V3LegalMoveGenerator
 
     var rockMoves = castles.Where(rock =>
     {
-      if (!boardState.castleFlags.HasFlag(rock.castle)) return false;
+      if (!boardState.CastleFlags.HasFlag(rock.castle)) return false;
       if (piecePosition.pieceType.IsWhite() != rock.castle.IsWhite()) return false;
 
       foreach (var emptyPosition in rock.emptyPositions)

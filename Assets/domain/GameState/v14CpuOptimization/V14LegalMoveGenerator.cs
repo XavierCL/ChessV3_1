@@ -351,9 +351,9 @@ public static class V14LegalMoveGenerator
     var targetBitBoard = 0ul;
 
     // En passant
-    if (ownRow == enemyFourthRow && boardState.boardState.enPassantColumn != -1)
+    if (ownRow == enemyFourthRow && boardState.boardState.EnPassantColumn != -1)
     {
-      var enPassantColumnBitBoard = BitBoard.firstColumn << boardState.boardState.enPassantColumn;
+      var enPassantColumnBitBoard = BitBoard.firstColumn << boardState.boardState.EnPassantColumn;
       var enPassantBitBoard = (boardState.boardState.whiteTurn ? V14Precomputed.whitePawnCaptureBitBoards : V14Precomputed.blackPawnCaptureBitBoards)[position] & enPassantColumnBitBoard;
 
       // En passant is the only move that can remove two pins at once
@@ -541,7 +541,7 @@ public static class V14LegalMoveGenerator
     {
       var castle = castles[castleIndex];
       if (boardState.boardState.whiteTurn != castle.castle.IsWhite()) continue;
-      if (!boardState.boardState.castleFlags.HasFlag(castle.castle)) continue;
+      if (!boardState.boardState.CastleFlags.HasFlag(castle.castle)) continue;
       if ((boardState.allBitBoard & castle.emptyPositions) != 0) continue;
 
       bool kingIsNeverInCheck = true;

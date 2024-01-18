@@ -69,9 +69,9 @@ public class PieceIdBoardStateAdapter : BoardStateInterface
 
   public bool WhiteTurn => underlying.BoardState.WhiteTurn;
 
-  public CastleFlags castleFlags => underlying.BoardState.castleFlags;
+  public CastleFlags CastleFlags => underlying.BoardState.CastleFlags;
 
-  public int enPassantColumn => underlying.BoardState.enPassantColumn;
+  public int EnPassantColumn => underlying.BoardState.EnPassantColumn;
 
   public class BoardStatePlay
   {

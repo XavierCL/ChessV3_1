@@ -192,7 +192,7 @@ public static class V9LegalMoveGenerator
         var captureLeftPosition = new BoardPosition(position.col - 1, position.row + increment);
         var neighbourLeftPosition = BoardPosition.fromColRow(position.col - 1, position.row);
         var neighbourLeft = boardState.GetPieceTypeAtPosition(neighbourLeftPosition);
-        if (boardState.enPassantColumn == neighbourLeftPosition.getCol() && neighbourLeft.IsWhite() != pieceType.IsWhite() && neighbourLeft.IsPawn())
+        if (boardState.EnPassantColumn == neighbourLeftPosition.getCol() && neighbourLeft.IsWhite() != pieceType.IsWhite() && neighbourLeft.IsPawn())
         {
           moves.Add(new Move(position, captureLeftPosition, PieceType.Nothing));
         }
@@ -203,7 +203,7 @@ public static class V9LegalMoveGenerator
         var captureRightPosition = new BoardPosition(position.col + 1, position.row + increment);
         var neighbourRightPosition = BoardPosition.fromColRow(position.col + 1, position.row);
         var neighbourRight = boardState.GetPieceTypeAtPosition(neighbourRightPosition);
-        if (boardState.enPassantColumn == neighbourRightPosition.getCol() && neighbourRight.IsWhite() != pieceType.IsWhite() && neighbourRight.IsPawn())
+        if (boardState.EnPassantColumn == neighbourRightPosition.getCol() && neighbourRight.IsWhite() != pieceType.IsWhite() && neighbourRight.IsPawn())
         {
           moves.Add(new Move(position, captureRightPosition, PieceType.Nothing));
         }
@@ -311,7 +311,7 @@ public static class V9LegalMoveGenerator
     for (var castleIndex = 0; castleIndex < castles.Length; ++castleIndex)
     {
       var castle = castles[castleIndex];
-      if (!boardState.castleFlags.HasFlag(castle.castle)) continue;
+      if (!boardState.CastleFlags.HasFlag(castle.castle)) continue;
       if (pieceType.IsWhite() != castle.castle.IsWhite()) continue;
 
       bool positionsAreEmpty = true;

@@ -60,13 +60,13 @@ public class V16GameState : GameStateInterface
     public override ReversibleMove PlayMove(Move move)
     {
         var oldBoardHashable = boardState.GetHashable();
-        var oldCastleFlags = boardState.castleFlags;
-        var oldEnPassant = boardState.enPassantColumn;
+        var oldCastleFlags = boardState.CastleFlags;
+        var oldEnPassant = boardState.EnPassantColumn;
         var boardPlay = boardState.PlayMove(move);
 
         snapshots[oldBoardHashable] = (ushort)(snapshots.GetValueOrDefault(oldBoardHashable) + 1);
 
-        var lostCastleRights = oldCastleFlags & ~boardState.castleFlags;
+        var lostCastleRights = oldCastleFlags & ~boardState.CastleFlags;
 
         var reversibleMove = new ReversibleMove(
             move.source,
