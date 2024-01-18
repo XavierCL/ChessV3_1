@@ -21,7 +21,7 @@ public static class V16LegalMoveGenerator
 
   private static bool DrawByInsufficientMaterial(AugmentedBoardState boardState)
   {
-    var pieceCount = boardState.allBitBoard.bitCountLimit(5);
+    var pieceCount = boardState.boardState.allPiecesBitBoard.bitCountLimit(5);
 
     // Two kings
     if (pieceCount <= 2) return true;
@@ -210,10 +210,10 @@ public static class V16LegalMoveGenerator
 
     // Linear rays
     var linearRayBitBoard = 0ul;
-    var rayPiece1 = GetFirstPiecePositionAtRay(-1, 0, boardState.allBitBoard, kingPosition);
-    var rayPiece2 = GetFirstPiecePositionAtRay(1, 0, boardState.allBitBoard, kingPosition);
-    var rayPiece3 = GetFirstPiecePositionAtRay(0, -1, boardState.allBitBoard, kingPosition);
-    var rayPiece4 = GetFirstPiecePositionAtRay(0, 1, boardState.allBitBoard, kingPosition);
+    var rayPiece1 = GetFirstPiecePositionAtRay(-1, 0, boardState.boardState.allPiecesBitBoard, kingPosition);
+    var rayPiece2 = GetFirstPiecePositionAtRay(1, 0, boardState.boardState.allPiecesBitBoard, kingPosition);
+    var rayPiece3 = GetFirstPiecePositionAtRay(0, -1, boardState.boardState.allPiecesBitBoard, kingPosition);
+    var rayPiece4 = GetFirstPiecePositionAtRay(0, 1, boardState.boardState.allPiecesBitBoard, kingPosition);
 
     if (rayPiece1 != -1) linearRayBitBoard |= rayPiece1.toBitBoard();
     if (rayPiece2 != -1) linearRayBitBoard |= rayPiece2.toBitBoard();
@@ -228,10 +228,10 @@ public static class V16LegalMoveGenerator
 
     // Diagonal rays
     var diagonalRayBitBoard = 0ul;
-    var rayPiece5 = GetFirstPiecePositionAtRay(-1, -1, boardState.allBitBoard, kingPosition);
-    var rayPiece6 = GetFirstPiecePositionAtRay(-1, 1, boardState.allBitBoard, kingPosition);
-    var rayPiece7 = GetFirstPiecePositionAtRay(1, -1, boardState.allBitBoard, kingPosition);
-    var rayPiece8 = GetFirstPiecePositionAtRay(1, 1, boardState.allBitBoard, kingPosition);
+    var rayPiece5 = GetFirstPiecePositionAtRay(-1, -1, boardState.boardState.allPiecesBitBoard, kingPosition);
+    var rayPiece6 = GetFirstPiecePositionAtRay(-1, 1, boardState.boardState.allPiecesBitBoard, kingPosition);
+    var rayPiece7 = GetFirstPiecePositionAtRay(1, -1, boardState.boardState.allPiecesBitBoard, kingPosition);
+    var rayPiece8 = GetFirstPiecePositionAtRay(1, 1, boardState.boardState.allPiecesBitBoard, kingPosition);
 
     if (rayPiece5 != -1) diagonalRayBitBoard |= rayPiece5.toBitBoard();
     if (rayPiece6 != -1) diagonalRayBitBoard |= rayPiece6.toBitBoard();
@@ -287,19 +287,19 @@ public static class V16LegalMoveGenerator
       ? boardState.boardState.bitBoards[V16BoardState.BlackQueen] | boardState.boardState.bitBoards[V16BoardState.BlackRook]
       : boardState.boardState.bitBoards[V16BoardState.WhiteQueen] | boardState.boardState.bitBoards[V16BoardState.WhiteRook];
 
-    var middleRay1 = GetEnemyMiddleRay(-1, 0, linearEnemyBitBoard, boardState.allBitBoard, kingPosition);
+    var middleRay1 = GetEnemyMiddleRay(-1, 0, linearEnemyBitBoard, boardState.boardState.allPiecesBitBoard, kingPosition);
     attackers |= middleRay1.attacker;
     middleRay |= middleRay1.ray;
 
-    var middleRay2 = GetEnemyMiddleRay(1, 0, linearEnemyBitBoard, boardState.allBitBoard, kingPosition);
+    var middleRay2 = GetEnemyMiddleRay(1, 0, linearEnemyBitBoard, boardState.boardState.allPiecesBitBoard, kingPosition);
     attackers |= middleRay2.attacker;
     middleRay |= middleRay2.ray;
 
-    var middleRay3 = GetEnemyMiddleRay(0, -1, linearEnemyBitBoard, boardState.allBitBoard, kingPosition);
+    var middleRay3 = GetEnemyMiddleRay(0, -1, linearEnemyBitBoard, boardState.boardState.allPiecesBitBoard, kingPosition);
     attackers |= middleRay3.attacker;
     middleRay |= middleRay3.ray;
 
-    var middleRay4 = GetEnemyMiddleRay(0, 1, linearEnemyBitBoard, boardState.allBitBoard, kingPosition);
+    var middleRay4 = GetEnemyMiddleRay(0, 1, linearEnemyBitBoard, boardState.boardState.allPiecesBitBoard, kingPosition);
     attackers |= middleRay4.attacker;
     middleRay |= middleRay4.ray;
 
@@ -308,19 +308,19 @@ public static class V16LegalMoveGenerator
       ? boardState.boardState.bitBoards[V16BoardState.BlackQueen] | boardState.boardState.bitBoards[V16BoardState.BlackBishop]
       : boardState.boardState.bitBoards[V16BoardState.WhiteQueen] | boardState.boardState.bitBoards[V16BoardState.WhiteBishop];
 
-    var middleRay5 = GetEnemyMiddleRay(-1, -1, diagonalEnemyBitBoard, boardState.allBitBoard, kingPosition);
+    var middleRay5 = GetEnemyMiddleRay(-1, -1, diagonalEnemyBitBoard, boardState.boardState.allPiecesBitBoard, kingPosition);
     attackers |= middleRay5.attacker;
     middleRay |= middleRay5.ray;
 
-    var middleRay6 = GetEnemyMiddleRay(-1, 1, diagonalEnemyBitBoard, boardState.allBitBoard, kingPosition);
+    var middleRay6 = GetEnemyMiddleRay(-1, 1, diagonalEnemyBitBoard, boardState.boardState.allPiecesBitBoard, kingPosition);
     attackers |= middleRay6.attacker;
     middleRay |= middleRay6.ray;
 
-    var middleRay7 = GetEnemyMiddleRay(1, 1, diagonalEnemyBitBoard, boardState.allBitBoard, kingPosition);
+    var middleRay7 = GetEnemyMiddleRay(1, 1, diagonalEnemyBitBoard, boardState.boardState.allPiecesBitBoard, kingPosition);
     attackers |= middleRay7.attacker;
     middleRay |= middleRay7.ray;
 
-    var middleRay8 = GetEnemyMiddleRay(1, -1, diagonalEnemyBitBoard, boardState.allBitBoard, kingPosition);
+    var middleRay8 = GetEnemyMiddleRay(1, -1, diagonalEnemyBitBoard, boardState.boardState.allPiecesBitBoard, kingPosition);
     attackers |= middleRay8.attacker;
     middleRay |= middleRay8.ray;
 
@@ -350,6 +350,19 @@ public static class V16LegalMoveGenerator
 
     var targetBitBoard = 0ul;
 
+    // One up
+    var oneUpBitBoard = bitBoardPosition.shiftRow(increment) & ~boardState.boardState.allPiecesBitBoard;
+    targetBitBoard |= oneUpBitBoard;
+
+    // Two up
+    if (oneUpBitBoard != 0 && ownRow == ownPawnStartingY)
+    {
+      targetBitBoard |= oneUpBitBoard.shiftRow(increment) & ~boardState.boardState.allPiecesBitBoard;
+    }
+
+    // Captures
+    targetBitBoard |= boardState.boardState.whiteTurn ? V16Precomputed.whitePawnCaptureBitBoards[position] & boardState.blackBitBoard : V16Precomputed.blackPawnCaptureBitBoards[position] & boardState.whiteBitBoard;
+
     // En passant
     if (ownRow == enemyFourthRow && boardState.boardState.enPassantColumn != -1)
     {
@@ -359,7 +372,7 @@ public static class V16LegalMoveGenerator
       // En passant is the only move that can remove two pins at once
       if (enPassantBitBoard != 0)
       {
-        var ignoredPawnsBitBoard = boardState.allBitBoard & ~(enPassantColumnBitBoard | bitBoardPosition);
+        var ignoredPawnsBitBoard = boardState.boardState.allPiecesBitBoard & ~(enPassantColumnBitBoard | bitBoardPosition);
         var firstLeftPiecePosition = GetFirstPiecePositionAtRay(-1, 0, ignoredPawnsBitBoard, position);
         var firstRightPiecePosition = GetFirstPiecePositionAtRay(1, 0, ignoredPawnsBitBoard, position);
 
@@ -373,19 +386,6 @@ public static class V16LegalMoveGenerator
           targetBitBoard |= enPassantBitBoard;
         }
       }
-    }
-
-    // Captures
-    targetBitBoard |= boardState.boardState.whiteTurn ? V16Precomputed.whitePawnCaptureBitBoards[position] & boardState.blackBitBoard : V16Precomputed.blackPawnCaptureBitBoards[position] & boardState.whiteBitBoard;
-
-    // One up
-    var oneUpBitBoard = bitBoardPosition.shiftRow(increment) & ~boardState.allBitBoard;
-    targetBitBoard |= oneUpBitBoard;
-
-    // Two up
-    if (oneUpBitBoard != 0 && ownRow == ownPawnStartingY)
-    {
-      targetBitBoard |= oneUpBitBoard.shiftRow(increment) & ~boardState.allBitBoard;
     }
 
     // Kill attacker or block ray
@@ -425,10 +425,10 @@ public static class V16LegalMoveGenerator
   private static Move[] GetPseudoLegalRookMoves(CheckInfoBoardState boardState, int position, CacheEntryType entryType)
   {
     var ownBitBoard = boardState.boardState.whiteTurn ? boardState.whiteBitBoard : boardState.blackBitBoard;
-    var targetBitBoard = GetTargetRay(1, 0, ownBitBoard, boardState.allBitBoard, position)
-      | GetTargetRay(-1, 0, ownBitBoard, boardState.allBitBoard, position)
-      | GetTargetRay(0, 1, ownBitBoard, boardState.allBitBoard, position)
-      | GetTargetRay(0, -1, ownBitBoard, boardState.allBitBoard, position);
+    var targetBitBoard = GetTargetRay(1, 0, ownBitBoard, boardState.boardState.allPiecesBitBoard, position)
+      | GetTargetRay(-1, 0, ownBitBoard, boardState.boardState.allPiecesBitBoard, position)
+      | GetTargetRay(0, 1, ownBitBoard, boardState.boardState.allPiecesBitBoard, position)
+      | GetTargetRay(0, -1, ownBitBoard, boardState.boardState.allPiecesBitBoard, position);
 
     // Kill attacker or block ray
     if (boardState.middleRay != 0)
@@ -464,10 +464,10 @@ public static class V16LegalMoveGenerator
   private static Move[] GetPseudoLegalBishopMoves(CheckInfoBoardState boardState, int position, CacheEntryType entryType)
   {
     var ownBitBoard = boardState.boardState.whiteTurn ? boardState.whiteBitBoard : boardState.blackBitBoard;
-    var targetBitBoard = GetTargetRay(-1, -1, ownBitBoard, boardState.allBitBoard, position)
-      | GetTargetRay(-1, 1, ownBitBoard, boardState.allBitBoard, position)
-      | GetTargetRay(1, -1, ownBitBoard, boardState.allBitBoard, position)
-      | GetTargetRay(1, 1, ownBitBoard, boardState.allBitBoard, position);
+    var targetBitBoard = GetTargetRay(-1, -1, ownBitBoard, boardState.boardState.allPiecesBitBoard, position)
+      | GetTargetRay(-1, 1, ownBitBoard, boardState.boardState.allPiecesBitBoard, position)
+      | GetTargetRay(1, -1, ownBitBoard, boardState.boardState.allPiecesBitBoard, position)
+      | GetTargetRay(1, 1, ownBitBoard, boardState.boardState.allPiecesBitBoard, position);
 
     // Kill attacker or block ray
     if (boardState.middleRay != 0)
@@ -487,14 +487,14 @@ public static class V16LegalMoveGenerator
   private static Move[] GetPseudoLegalQueenMoves(CheckInfoBoardState boardState, int position, CacheEntryType entryType)
   {
     var ownBitBoard = boardState.boardState.whiteTurn ? boardState.whiteBitBoard : boardState.blackBitBoard;
-    var targetBitBoard = GetTargetRay(1, 0, ownBitBoard, boardState.allBitBoard, position)
-      | GetTargetRay(-1, 0, ownBitBoard, boardState.allBitBoard, position)
-      | GetTargetRay(0, 1, ownBitBoard, boardState.allBitBoard, position)
-      | GetTargetRay(0, -1, ownBitBoard, boardState.allBitBoard, position)
-      | GetTargetRay(-1, -1, ownBitBoard, boardState.allBitBoard, position)
-      | GetTargetRay(-1, 1, ownBitBoard, boardState.allBitBoard, position)
-      | GetTargetRay(1, -1, ownBitBoard, boardState.allBitBoard, position)
-      | GetTargetRay(1, 1, ownBitBoard, boardState.allBitBoard, position);
+    var targetBitBoard = GetTargetRay(1, 0, ownBitBoard, boardState.boardState.allPiecesBitBoard, position)
+      | GetTargetRay(-1, 0, ownBitBoard, boardState.boardState.allPiecesBitBoard, position)
+      | GetTargetRay(0, 1, ownBitBoard, boardState.boardState.allPiecesBitBoard, position)
+      | GetTargetRay(0, -1, ownBitBoard, boardState.boardState.allPiecesBitBoard, position)
+      | GetTargetRay(-1, -1, ownBitBoard, boardState.boardState.allPiecesBitBoard, position)
+      | GetTargetRay(-1, 1, ownBitBoard, boardState.boardState.allPiecesBitBoard, position)
+      | GetTargetRay(1, -1, ownBitBoard, boardState.boardState.allPiecesBitBoard, position)
+      | GetTargetRay(1, 1, ownBitBoard, boardState.boardState.allPiecesBitBoard, position);
 
     // Kill attacker or block ray
     if (boardState.middleRay != 0)
@@ -516,18 +516,15 @@ public static class V16LegalMoveGenerator
     var normalMoveTargetBitBoard = V16Precomputed.kingBitBoards[position] & ~(boardState.boardState.whiteTurn ? boardState.whiteBitBoard : boardState.blackBitBoard);
     var normalMovesNotSteppingInMiddleRay = normalMoveTargetBitBoard & (~boardState.middleRay | boardState.attackers);
     var pseudoLegalTargetPositions = normalMovesNotSteppingInMiddleRay.extractIndices();
-    var ownBitBoard = position.toBitBoard();
-    var ownKingBitBoardIndex = boardState.boardState.whiteTurn ? V16BoardState.WhiteKing : V16BoardState.BlackKing;
     var targetBitBoard = 0ul;
 
     for (var targetPositionIndex = 0; targetPositionIndex < pseudoLegalTargetPositions.Length; ++targetPositionIndex)
     {
       var targetPosition = pseudoLegalTargetPositions[targetPositionIndex];
       var singleTargetBitBoard = targetPosition.toBitBoard();
-      var xorMove = singleTargetBitBoard | ownBitBoard;
-      boardState.boardState.bitBoards[ownKingBitBoardIndex] ^= xorMove;
+      var killedPiece = boardState.boardState.FastPlayKing(boardState.boardState.whiteTurn, position, targetPosition, PieceType.Nothing);
       var canKingDie = CanKingDie(new AugmentedBoardState(boardState.boardState), boardState.boardState.whiteTurn);
-      boardState.boardState.bitBoards[ownKingBitBoardIndex] ^= xorMove;
+      boardState.boardState.FastPlayKing(boardState.boardState.whiteTurn, targetPosition, position, killedPiece);
       if (canKingDie) continue;
       if (entryType == CacheEntryType.HasMove) return TargetBitBoardToMoves(position, singleTargetBitBoard);
       targetBitBoard |= singleTargetBitBoard;
@@ -541,16 +538,15 @@ public static class V16LegalMoveGenerator
       var castle = castles[castleIndex];
       if (boardState.boardState.whiteTurn != castle.castle.IsWhite()) continue;
       if (!boardState.boardState.castleFlags.HasFlag(castle.castle)) continue;
-      if ((boardState.allBitBoard & castle.emptyPositions) != 0) continue;
+      if ((boardState.boardState.allPiecesBitBoard & castle.emptyPositions) != 0) continue;
 
       bool kingIsNeverInCheck = true;
       for (var noCheckIndex = 0; noCheckIndex < castle.noCheckPositions.Length; ++noCheckIndex)
       {
         var noCheckPosition = castle.noCheckPositions[noCheckIndex];
-        var xorMove = noCheckPosition | ownBitBoard;
-        boardState.boardState.bitBoards[ownKingBitBoardIndex] ^= xorMove;
+        var killedPiece = boardState.boardState.FastPlayKing(boardState.boardState.whiteTurn, position, noCheckPosition, PieceType.Nothing);
         var canKingDie = CanKingDie(new AugmentedBoardState(boardState.boardState), boardState.boardState.whiteTurn);
-        boardState.boardState.bitBoards[ownKingBitBoardIndex] ^= xorMove;
+        boardState.boardState.FastPlayKing(boardState.boardState.whiteTurn, noCheckPosition, position, killedPiece);
         if (canKingDie)
         {
           kingIsNeverInCheck = false;
@@ -560,7 +556,7 @@ public static class V16LegalMoveGenerator
 
       if (!kingIsNeverInCheck) continue;
 
-      targetBitBoard |= castle.noCheckPositions[^1];
+      targetBitBoard |= castle.finalPosition;
     }
 
     return TargetBitBoardToMoves(position, targetBitBoard);
@@ -580,7 +576,7 @@ public static class V16LegalMoveGenerator
     if (piecesOnRay == 0) return rayBitBoard;
     if (rowIncrement < 0 || rowIncrement == 0 && colIncrement < 0)
     {
-      var firstOfRay = piecesOnRay.msb();
+      var firstOfRay = piecesOnRay.msbUnchecked();
       var ignoredBits = firstOfRay + (((ownPieces & firstOfRay.toBitBoard()) != 0) ? 1 : 0);
       return (rayBitBoard >> ignoredBits) << ignoredBits;
     }
@@ -612,7 +608,7 @@ public static class V16LegalMoveGenerator
     if (piecesOnRay == 0) return EnemyMiddleRay.empty;
     if (rowIncrement < 0 || rowIncrement == 0 && colIncrement < 0)
     {
-      var firstOfRay = piecesOnRay.msb();
+      var firstOfRay = piecesOnRay.msbUnchecked();
       var firstOfRayBitBoard = firstOfRay.toBitBoard();
       if ((firstOfRay.toBitBoard() & enemyAttackers) == 0) return EnemyMiddleRay.empty;
       return new EnemyMiddleRay((rayBitBoard >> firstOfRay) << firstOfRay, firstOfRayBitBoard);
@@ -653,7 +649,6 @@ public static class V16LegalMoveGenerator
 
   private class AugmentedBoardState
   {
-    public readonly ulong allBitBoard;
     public readonly ulong whiteBitBoard;
     public readonly ulong blackBitBoard;
     public readonly V16BoardState boardState;
@@ -674,14 +669,11 @@ public static class V16LegalMoveGenerator
         | boardState.bitBoards[V16BoardState.BlackBishop]
         | boardState.bitBoards[V16BoardState.BlackQueen]
         | boardState.bitBoards[V16BoardState.BlackKing];
-
-      allBitBoard = whiteBitBoard | blackBitBoard;
     }
   }
 
   private class CheckInfoBoardState
   {
-    public readonly ulong allBitBoard;
     public readonly ulong whiteBitBoard;
     public readonly ulong blackBitBoard;
     public readonly ulong attackers;
@@ -691,7 +683,6 @@ public static class V16LegalMoveGenerator
     public readonly V16BoardState boardState;
     public CheckInfoBoardState(AugmentedBoardState boardState)
     {
-      this.allBitBoard = boardState.allBitBoard;
       this.whiteBitBoard = boardState.whiteBitBoard;
       this.blackBitBoard = boardState.blackBitBoard;
       this.boardState = boardState.boardState;
@@ -707,13 +698,15 @@ public static class V16LegalMoveGenerator
   private class CastleMove
   {
     public readonly CastleFlags castle;
-    public readonly ulong[] noCheckPositions;
+    public readonly ulong finalPosition;
+    public readonly int[] noCheckPositions;
     public readonly ulong emptyPositions;
 
     public CastleMove(CastleFlags castle, int[] noCheckPositions, int[] emptyPositions)
     {
       this.castle = castle;
-      this.noCheckPositions = noCheckPositions.Select(x => x.toBitBoard()).ToArray();
+      this.noCheckPositions = noCheckPositions;
+      this.finalPosition = noCheckPositions[^1].toBitBoard();
       this.emptyPositions = emptyPositions.Aggregate(0ul, (acc, cur) => acc | cur.toBitBoard());
     }
   }

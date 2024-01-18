@@ -1,12 +1,12 @@
 public class ReversibleMove
 {
-    public BoardPosition source { get; }
-    public BoardPosition target { get; }
-    public int oldStaleTurns { get; }
-    public PieceType promotion { get; }
-    public CastleFlags lostCastleRights { get; }
-    public int oldEnPassantColumn { get; }
-    public PiecePosition killed { get; }
+    public readonly BoardPosition source;
+    public readonly BoardPosition target;
+    public readonly int oldStaleTurns;
+    public readonly PieceType promotion;
+    public readonly CastleFlags lostCastleRights;
+    public readonly int oldEnPassantColumn;
+    public readonly PiecePosition killed;
 
     public ReversibleMove(
         BoardPosition source,

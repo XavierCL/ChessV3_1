@@ -45,7 +45,7 @@ public static class V12LegalMoveGenerator
       if (pieceCount == 4
         && rawBoardState.bitBoards[V12BoardState.WhiteBishop].bitCount() == 1
         && rawBoardState.bitBoards[V12BoardState.BlackBishop].bitCount() == 1
-        && rawBoardState.bitBoards[V12BoardState.WhiteBishop].lsb().IsWhiteSquare() == rawBoardState.bitBoards[V12BoardState.BlackBishop].lsb().IsWhiteSquare())
+        && rawBoardState.bitBoards[V12BoardState.WhiteBishop].lsbUnchecked().IsWhiteSquare() == rawBoardState.bitBoards[V12BoardState.BlackBishop].lsbUnchecked().IsWhiteSquare())
       {
         return emptyMoves;
       }
@@ -79,7 +79,7 @@ public static class V12LegalMoveGenerator
 
   private static bool CanKingDie(AugmentedBoardState boardState, bool whiteKing)
   {
-    var kingPosition = (whiteKing ? boardState.boardState.bitBoards[V12BoardState.WhiteKing] : boardState.boardState.bitBoards[V12BoardState.BlackKing]).lsb();
+    var kingPosition = (whiteKing ? boardState.boardState.bitBoards[V12BoardState.WhiteKing] : boardState.boardState.bitBoards[V12BoardState.BlackKing]).lsbUnchecked();
 
     // Enemy king
     if ((V12Precomputed.kingBitBoards[kingPosition] & (whiteKing ? boardState.boardState.bitBoards[V12BoardState.BlackKing] : boardState.boardState.bitBoards[V12BoardState.WhiteKing])) != 0) return true;
@@ -366,13 +366,13 @@ public static class V12LegalMoveGenerator
     if (piecesOnRay == 0) return rayBitBoard;
     if (rowIncrement < 0 || rowIncrement == 0 && colIncrement < 0)
     {
-      var firstOfRay = piecesOnRay.msb();
+      var firstOfRay = piecesOnRay.lsbUnchecked();
       var ignoredBits = firstOfRay + (((ownPieces & firstOfRay.toBitBoard()) != 0) ? 1 : 0);
       return (rayBitBoard >> ignoredBits) << ignoredBits;
     }
     else
     {
-      var firstOfRay = piecesOnRay.lsb();
+      var firstOfRay = piecesOnRay.lsbUnchecked();
       var ignoredBits = 63 - firstOfRay + (((ownPieces & firstOfRay.toBitBoard()) != 0) ? 1 : 0);
       return (rayBitBoard << ignoredBits) >> ignoredBits;
     }

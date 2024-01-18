@@ -26,16 +26,16 @@ public class GameStateChecker : MonoBehaviour
             startingPositions = new List<GameStateInterface> { startingPositions[0] };
         }
 
-        foreach (var startingPosition in startingPositions)
+        for (var startingPositionIndex = 0; startingPositionIndex < startingPositions.Count; ++startingPositionIndex)
         {
             var startTime = DateTime.UtcNow;
-            version1Counts.Add(CountLegalMoves(factory1.FromGameState(startingPosition), Ply, showFirstPly));
+            version1Counts.Add(CountLegalMoves(factory1.FromGameState(startingPositions[startingPositionIndex]), Ply, showFirstPly));
             version1Time += (DateTime.UtcNow - startTime).TotalMilliseconds;
 
             if (!OnlyFirstGameState)
             {
                 startTime = DateTime.UtcNow;
-                version2Counts.Add(CountLegalMoves(factory2.FromGameState(startingPosition), Ply, showFirstPly));
+                version2Counts.Add(CountLegalMoves(factory2.FromGameState(startingPositions[startingPositionIndex]), Ply, showFirstPly));
                 version2Time += (DateTime.UtcNow - startTime).TotalMilliseconds;
             }
         }
@@ -111,9 +111,9 @@ public class GameStateChecker : MonoBehaviour
     private List<GameStateInterface> StartingPositions()
     {
         return new List<GameStateInterface> {
+            new V14GameStateFactory().FromFen("rnbqkb1r/pppp1p1p/5np1/4p3/2B1P3/2N2N2/PPPP1PPP/R1BQK2R b KQkq"),
             new V14GameStateFactory().StartingPosition(),
             new V14GameStateFactory().FromFen("r3k2r/p1ppqpb1/Bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPB1PPP/R3K2R b KQkq -"),
-            new V14GameStateFactory().FromFen("rnbqkb1r/pppp1p1p/5np1/4p3/2B1P3/2N2N2/PPPP1PPP/R1BQK2R b KQkq"),
             new V14GameStateFactory().FromFen("2kr1b2/1bp4r/p1nq1p2/3pp3/P3n1P1/3P4/1PP1QP1p/RNB1K1R1 w -"),
             new V14GameStateFactory().FromFen("1r6/4b3/p6P/k7/2p5/8/5r2/7K b -"),
             new V14GameStateFactory().FromFen("4b2k/3p1p1p/3P1P1P/8/8/p1p1p3/P1P1P3/K2B4 w -"),

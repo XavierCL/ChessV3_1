@@ -80,7 +80,7 @@ public class V16GameState : GameStateInterface
 
         history.Add(reversibleMove);
 
-        staleTurns = boardPlay.sourcePiece.pieceType.IsPawn() || boardPlay.killedPiece != null ? 0 : staleTurns + 1;
+        staleTurns = boardPlay.sourcePieceType.IsPawn() || boardPlay.killedPiece != null ? 0 : staleTurns + 1;
         legalMoves = null;
         endState = GameEndState.Nothing;
         return reversibleMove;

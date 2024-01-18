@@ -167,7 +167,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8067cf7852119cc458ce013d1b89592e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Ply: 3
+  Ply: 4
   showFirstPly: 0
   OnlyFirstPosition: 0
   OnlyFirstGameState: 0

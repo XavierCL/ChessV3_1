@@ -581,7 +581,7 @@ public static class V15LegalMoveGenerator
     if (piecesOnRay == 0) return rayBitBoard;
     if (rowIncrement < 0 || rowIncrement == 0 && colIncrement < 0)
     {
-      var firstOfRay = piecesOnRay.msb();
+      var firstOfRay = piecesOnRay.msbUnchecked();
       var ignoredBits = firstOfRay + (((ownPieces & firstOfRay.toBitBoard()) != 0) ? 1 : 0);
       return (rayBitBoard >> ignoredBits) << ignoredBits;
     }
@@ -613,7 +613,7 @@ public static class V15LegalMoveGenerator
     if (piecesOnRay == 0) return EnemyMiddleRay.empty;
     if (rowIncrement < 0 || rowIncrement == 0 && colIncrement < 0)
     {
-      var firstOfRay = piecesOnRay.msb();
+      var firstOfRay = piecesOnRay.msbUnchecked();
       var firstOfRayBitBoard = firstOfRay.toBitBoard();
       if ((firstOfRay.toBitBoard() & enemyAttackers) == 0) return EnemyMiddleRay.empty;
       return new EnemyMiddleRay((rayBitBoard >> firstOfRay) << firstOfRay, firstOfRayBitBoard);

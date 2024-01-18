@@ -164,19 +164,17 @@ public class V15BoardState : BoardStateInterface
     }
 
     var sourceOrTarget = sourceBitBoard | targetBitBoard;
-
-    var lostCastleRights = CastleFlags.Nothing;
-    if (sourcePieceType == PieceType.WhiteKing || (sourceOrTarget & whiteKingRookPosition) != 0) lostCastleRights |= CastleFlags.WhiteKing;
-    if (sourcePieceType == PieceType.WhiteKing || (sourceOrTarget & whiteQueenRookPosition) != 0) lostCastleRights |= CastleFlags.WhiteQueen;
-    if (sourcePieceType == PieceType.BlackKing || (sourceOrTarget & blackKingRookPosition) != 0) lostCastleRights |= CastleFlags.BlackKing;
-    if (sourcePieceType == PieceType.BlackKing || (sourceOrTarget & blackQueenRookPosition) != 0) lostCastleRights |= CastleFlags.BlackQueen;
+    var lostCastleRights = (((sourceOrTarget & whiteKingRookPosition) != 0) ? CastleFlags.WhiteKing : CastleFlags.Nothing)
+      | (((sourceOrTarget & whiteQueenRookPosition) != 0) ? CastleFlags.WhiteQueen : CastleFlags.Nothing)
+      | (((sourceOrTarget & blackKingRookPosition) != 0) ? CastleFlags.BlackKing : CastleFlags.Nothing)
+      | (((sourceOrTarget & blackQueenRookPosition) != 0) ? CastleFlags.BlackQueen : CastleFlags.Nothing);
 
     var castleFlags = this.castleFlags & ~lostCastleRights;
 
     // Castling
     if (sourcePieceType.IsKing() && Math.Abs(move.target.col - move.source.col) == 2)
     {
-      newBitBoards[sourcePieceType.IsWhite() ? WhiteRook : BlackRook] ^= GetRokSwapBitBoard(move.target.index);
+      newBitBoards[sourcePieceType.IsWhite() ? WhiteRook : BlackRook] ^= GetRookSwapBitBoard(move.target.index);
     }
 
     var enPassantColumn = -1;
@@ -247,7 +245,7 @@ public class V15BoardState : BoardStateInterface
     // Castling
     if (sourcePieceType.IsKing() && Math.Abs(reversibleMove.target.col - reversibleMove.source.col) == 2)
     {
-      newBitBoards[sourcePieceType.IsWhite() ? WhiteRook : BlackRook] ^= GetRokSwapBitBoard(reversibleMove.target.index);
+      newBitBoards[sourcePieceType.IsWhite() ? WhiteRook : BlackRook] ^= GetRookSwapBitBoard(reversibleMove.target.index);
     }
 
     return new V15BoardState(
@@ -323,46 +321,31 @@ public class V15BoardState : BoardStateInterface
   }
 
 
-  private readonly static ulong whiteKingRookPosition = BoardPosition.fromColRow(7, 0).toBitBoard();
-  private readonly static ulong whiteQueenRookPosition = BoardPosition.fromColRow(0, 0).toBitBoard();
-  private readonly static ulong blackKingRookPosition = BoardPosition.fromColRow(7, 7).toBitBoard();
-  private readonly static ulong blackQueenRookPosition = BoardPosition.fromColRow(0, 7).toBitBoard();
-  private readonly static int whiteKingCastleDestination = BoardPosition.fromColRow(6, 0);
-  private readonly static int whiteQueenCastleDestination = BoardPosition.fromColRow(2, 0);
-  private readonly static int blackKingCastleDestination = BoardPosition.fromColRow(6, 7);
-  private readonly static ulong whiteKingCastleRookSwap = BoardPosition.fromColRow(7, 0).toBitBoard() | BoardPosition.fromColRow(5, 0).toBitBoard();
-  private readonly static ulong whiteQueenCastleRookSwap = BoardPosition.fromColRow(0, 0).toBitBoard() | BoardPosition.fromColRow(3, 0).toBitBoard();
-  private readonly static ulong blackKingCastleRookSwap = BoardPosition.fromColRow(7, 7).toBitBoard() | BoardPosition.fromColRow(5, 7).toBitBoard();
-  private readonly static ulong blackQueenCastleRookSwap = BoardPosition.fromColRow(0, 7).toBitBoard() | BoardPosition.fromColRow(3, 7).toBitBoard();
+  private readonly static ulong whiteKingRookPosition = BoardPosition.fromColRow(7, 0).toBitBoard() | BoardPosition.fromColRow(4, 0).toBitBoard();
+  private readonly static ulong whiteQueenRookPosition = BoardPosition.fromColRow(0, 0).toBitBoard() | BoardPosition.fromColRow(4, 0).toBitBoard();
+  private readonly static ulong blackKingRookPosition = BoardPosition.fromColRow(7, 7).toBitBoard() | BoardPosition.fromColRow(4, 7).toBitBoard();
+  private readonly static ulong blackQueenRookPosition = BoardPosition.fromColRow(0, 7).toBitBoard() | BoardPosition.fromColRow(4, 7).toBitBoard();
+  private readonly static ulong[] rookSwapInfo = new ulong[] {
+    BoardPosition.fromColRow(0, 0).toBitBoard() | BoardPosition.fromColRow(3, 0).toBitBoard(),
+    BoardPosition.fromColRow(7, 0).toBitBoard() | BoardPosition.fromColRow(5, 0).toBitBoard(),
+    BoardPosition.fromColRow(0, 7).toBitBoard() | BoardPosition.fromColRow(3, 7).toBitBoard(),
+    BoardPosition.fromColRow(7, 7).toBitBoard() | BoardPosition.fromColRow(5, 7).toBitBoard(),
+  };
 
-  private static ulong GetRokSwapBitBoard(int kingTargetIndex)
+  [MethodImpl(MethodImplOptions.AggressiveInlining)]
+  private static ulong GetRookSwapBitBoard(int kingTargetIndex)
   {
-    if (kingTargetIndex == whiteKingCastleDestination)
-    {
-      return whiteKingCastleRookSwap;
-    }
-    else if (kingTargetIndex == whiteQueenCastleDestination)
-    {
-      return whiteQueenCastleRookSwap;
-    }
-    else if (kingTargetIndex == blackKingCastleDestination)
-    {
-      return blackKingCastleRookSwap;
-    }
-    else
-    {
-      return blackQueenCastleRookSwap;
-    }
+    return rookSwapInfo[(kingTargetIndex - 2) % 8 % 3 + 2 * (kingTargetIndex / 54)];
   }
 
   public static int WhitePawn = 0;
   public static int BlackPawn = 1;
   public static int WhiteRook = 2;
   public static int BlackRook = 3;
-  public static int WhiteBishop = 4;
-  public static int BlackBishop = 5;
-  public static int WhiteKnight = 6;
-  public static int BlackKnight = 7;
+  public static int WhiteKnight = 4;
+  public static int BlackKnight = 5;
+  public static int WhiteBishop = 6;
+  public static int BlackBishop = 7;
   public static int WhiteQueen = 8;
   public static int BlackQueen = 9;
   public static int WhiteKing = 10;
@@ -373,46 +356,19 @@ public class V15BoardState : BoardStateInterface
     PieceType.BlackPawn,
     PieceType.WhiteRook,
     PieceType.BlackRook,
-    PieceType.WhiteBishop,
-    PieceType.BlackBishop,
     PieceType.WhiteKnight,
     PieceType.BlackKnight,
+    PieceType.WhiteBishop,
+    PieceType.BlackBishop,
     PieceType.WhiteQueen,
     PieceType.BlackQueen,
     PieceType.WhiteKing,
     PieceType.BlackKing,
   };
 
+  [MethodImpl(MethodImplOptions.AggressiveInlining)]
   public static int PieceTypeToBitBoardIndex(PieceType pieceType)
   {
-    switch (pieceType)
-    {
-      case PieceType.WhitePawn:
-        return WhitePawn;
-      case PieceType.BlackPawn:
-        return BlackPawn;
-      case PieceType.WhiteRook:
-        return WhiteRook;
-      case PieceType.BlackRook:
-        return BlackRook;
-      case PieceType.WhiteBishop:
-        return WhiteBishop;
-      case PieceType.BlackBishop:
-        return BlackBishop;
-      case PieceType.WhiteKnight:
-        return WhiteKnight;
-      case PieceType.BlackKnight:
-        return BlackKnight;
-      case PieceType.WhiteQueen:
-        return WhiteQueen;
-      case PieceType.BlackQueen:
-        return BlackQueen;
-      case PieceType.WhiteKing:
-        return WhiteKing;
-      case PieceType.BlackKing:
-        return BlackKing;
-      default:
-        throw new Exception("Invalid piece type");
-    }
+    return 2 * ((ulong)pieceType).lsbUnchecked() + (((int)pieceType >> 6) - 1);
   }
 }

@@ -92,6 +92,21 @@ public static class BitBoard
   }
 
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
+  public static int msbUnchecked(this ulong bitBoard)
+  {
+    unchecked
+    {
+      bitBoard |= bitBoard >> 1;
+      bitBoard |= bitBoard >> 2;
+      bitBoard |= bitBoard >> 4;
+      bitBoard |= bitBoard >> 8;
+      bitBoard |= bitBoard >> 16;
+      bitBoard |= bitBoard >> 32;
+      return msb_64_table[(bitBoard * 0x03f79d71b4cb0a89ul) >> 58];
+    }
+  }
+
+  [MethodImpl(MethodImplOptions.AggressiveInlining)]
   public static ulong shiftColumn(this ulong bitBoard, int shift)
   {
     unchecked
@@ -140,7 +155,7 @@ public static class BitBoard
     var indices = new int[bitCount];
     for (var index = 0; index < bitCount; ++index)
     {
-      var nextPiece = bitBoard.lsb();
+      var nextPiece = bitBoard.lsbUnchecked();
       bitBoard ^= 1ul << nextPiece;
       indices[index] = nextPiece;
     }

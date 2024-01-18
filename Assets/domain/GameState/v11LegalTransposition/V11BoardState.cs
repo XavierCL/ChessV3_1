@@ -33,7 +33,7 @@ public class V11BoardState : BoardStateInterface
       var currentBitBoard = allBitBoard;
       for (var index = 0; index < bitCount; ++index)
       {
-        var nextPiece = currentBitBoard.lsb();
+        var nextPiece = currentBitBoard.lsbUnchecked();
         currentBitBoard ^= 1ul << nextPiece;
         _pieceIndices[index] = nextPiece;
       }

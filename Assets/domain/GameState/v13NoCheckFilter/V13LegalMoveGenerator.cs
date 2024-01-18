@@ -39,7 +39,7 @@ public static class V13LegalMoveGenerator
 
   private static bool CanKingDie(AugmentedBoardState boardState, bool whiteKing)
   {
-    var kingPosition = (whiteKing ? boardState.boardState.bitBoards[V13BoardState.WhiteKing] : boardState.boardState.bitBoards[V13BoardState.BlackKing]).lsb();
+    var kingPosition = (whiteKing ? boardState.boardState.bitBoards[V13BoardState.WhiteKing] : boardState.boardState.bitBoards[V13BoardState.BlackKing]).lsbUnchecked();
 
     // Enemy king
     if ((V13Precomputed.kingBitBoards[kingPosition] & (whiteKing ? boardState.boardState.bitBoards[V13BoardState.BlackKing] : boardState.boardState.bitBoards[V13BoardState.WhiteKing])) != 0) return true;
@@ -104,7 +104,7 @@ public static class V13LegalMoveGenerator
 
   private static KingCheckInfo GetKingCheckInfo(AugmentedBoardState boardState, bool whiteKing)
   {
-    var kingPosition = (whiteKing ? boardState.boardState.bitBoards[V13BoardState.WhiteKing] : boardState.boardState.bitBoards[V13BoardState.BlackKing]).lsb();
+    var kingPosition = (whiteKing ? boardState.boardState.bitBoards[V13BoardState.WhiteKing] : boardState.boardState.bitBoards[V13BoardState.BlackKing]).lsbUnchecked();
     var attackers = 0ul;
     var middleRay = 0ul;
     var pins = 0ul;
@@ -205,7 +205,7 @@ public static class V13LegalMoveGenerator
     // Different color same square bishops: draw
     if (boardState.boardState.bitBoards[V13BoardState.WhiteBishop].bitCount() == 1
       && boardState.boardState.bitBoards[V13BoardState.BlackBishop].bitCount() == 1
-      && boardState.boardState.bitBoards[V13BoardState.WhiteBishop].lsb().IsWhiteSquare() == boardState.boardState.bitBoards[V13BoardState.BlackBishop].lsb().IsWhiteSquare())
+      && boardState.boardState.bitBoards[V13BoardState.WhiteBishop].lsbUnchecked().IsWhiteSquare() == boardState.boardState.bitBoards[V13BoardState.BlackBishop].lsbUnchecked().IsWhiteSquare())
     {
       return true;
     }
@@ -217,7 +217,7 @@ public static class V13LegalMoveGenerator
   {
     var checkInfoBoardState = new CheckInfoBoardState(boardState);
 
-    var kingPosition = boardState.boardState.bitBoards[boardState.boardState.whiteTurn ? V13BoardState.WhiteKing : V13BoardState.BlackKing].lsb();
+    var kingPosition = boardState.boardState.bitBoards[boardState.boardState.whiteTurn ? V13BoardState.WhiteKing : V13BoardState.BlackKing].lsbUnchecked();
 
     // Two attackers or more, king has to move normally
     if (checkInfoBoardState.attackers.bitCount() > 1)
@@ -506,13 +506,13 @@ public static class V13LegalMoveGenerator
     if (piecesOnRay == 0) return rayBitBoard;
     if (rowIncrement < 0 || rowIncrement == 0 && colIncrement < 0)
     {
-      var firstOfRay = piecesOnRay.msb();
+      var firstOfRay = piecesOnRay.msbUnchecked();
       var ignoredBits = firstOfRay + (((ownPieces & firstOfRay.toBitBoard()) != 0) ? 1 : 0);
       return (rayBitBoard >> ignoredBits) << ignoredBits;
     }
     else
     {
-      var firstOfRay = piecesOnRay.lsb();
+      var firstOfRay = piecesOnRay.lsbUnchecked();
       var ignoredBits = 63 - firstOfRay + (((ownPieces & firstOfRay.toBitBoard()) != 0) ? 1 : 0);
       return (rayBitBoard << ignoredBits) >> ignoredBits;
     }
@@ -538,14 +538,14 @@ public static class V13LegalMoveGenerator
     if (piecesOnRay == 0) return EnemyMiddleRay.empty;
     if (rowIncrement < 0 || rowIncrement == 0 && colIncrement < 0)
     {
-      var firstOfRay = piecesOnRay.msb();
+      var firstOfRay = piecesOnRay.msbUnchecked();
       var firstOfRayBitBoard = firstOfRay.toBitBoard();
       if ((firstOfRay.toBitBoard() & enemyAttackers) == 0) return EnemyMiddleRay.empty;
       return new EnemyMiddleRay((rayBitBoard >> firstOfRay) << firstOfRay, firstOfRayBitBoard);
     }
     else
     {
-      var firstOfRay = piecesOnRay.lsb();
+      var firstOfRay = piecesOnRay.lsbUnchecked();
       var firstOfRayBitBoard = firstOfRay.toBitBoard();
       if ((firstOfRayBitBoard & enemyAttackers) == 0) return EnemyMiddleRay.empty;
       var ignoredBits = 63 - firstOfRay;
@@ -629,7 +629,7 @@ public static class V13LegalMoveGenerator
       this.attackers = checkInfo.attackers;
       this.middleRay = checkInfo.middleRay;
       this.pins = checkInfo.pins;
-      this.preservingKingPosition = boardState.boardState.bitBoards[boardState.boardState.whiteTurn ? V13BoardState.WhiteKing : V13BoardState.BlackKing].lsb();
+      this.preservingKingPosition = boardState.boardState.bitBoards[boardState.boardState.whiteTurn ? V13BoardState.WhiteKing : V13BoardState.BlackKing].lsbUnchecked();
     }
   }
 
