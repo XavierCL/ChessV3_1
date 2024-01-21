@@ -40,6 +40,16 @@ public class AiFighter : MonoBehaviour
         var hyperParameterAi1Stats = new List<string>();
         var hyperParameterAi2Stats = new List<string>();
         var hyperParameterValues = new List<double> { 0.001 };
+        var movePlayedAi1White = 0;
+        var movePlayedAi2White = 0;
+
+        var gameStateFactory = new V14GameStateFactory();
+        var startingPositions = StartingPositions();
+
+        if (OnlyFirstPosition)
+        {
+            startingPositions = new List<GameStateInterface> { startingPositions.First() };
+        }
 
         foreach (var hyperParameterValue in hyperParameterValues)
         {
@@ -58,14 +68,7 @@ public class AiFighter : MonoBehaviour
             var increment = SingleClock.stringToTimeSpan(this.increment);
             var ai1Time = TimeSpan.Zero;
             var ai2Time = TimeSpan.Zero;
-            var startingPositions = StartingPositions();
             var movePlayed = 0;
-            var gameStateFactory = new V14GameStateFactory();
-
-            if (OnlyFirstPosition)
-            {
-                startingPositions = new List<GameStateInterface> { startingPositions.First() };
-            }
 
             for (var iterationIndex = 0; iterationIndex < startingPositions.Count * GamePerHyperParameter; ++iterationIndex)
             {
@@ -96,6 +99,7 @@ public class AiFighter : MonoBehaviour
 
                     var elapsed = DateTime.UtcNow - startTime;
                     ++movePlayed;
+                    ++movePlayedAi1White;
                     if (ai1WhiteGameState.BoardState.WhiteTurn)
                     {
                         ai1Time += elapsed;
@@ -166,6 +170,7 @@ public class AiFighter : MonoBehaviour
 
                     var elapsed = DateTime.UtcNow - startTime;
                     ++movePlayed;
+                    ++movePlayedAi2White;
                     if (ai2WhiteGameState.BoardState.WhiteTurn)
                     {
                         ai2Time += elapsed;
@@ -240,6 +245,8 @@ public class AiFighter : MonoBehaviour
             }
         }
 
+        Debug.Log("Move played Ai1 white: " + movePlayedAi1White / (double)(startingPositions.Count * GamePerHyperParameter));
+        Debug.Log("Move played Ai2 white: " + movePlayedAi2White / (double)(startingPositions.Count * GamePerHyperParameter));
         Debug.Log("Ai1 Stats: " + string.Join(", ", hyperParameterAi1Stats));
         Debug.Log("Ai2 Stats: " + string.Join(", ", hyperParameterAi2Stats));
 
@@ -261,15 +268,18 @@ public class AiFighter : MonoBehaviour
             new V14GameStateFactory().FromFen("rnbqkb1r/pppp1p1p/5np1/4p3/2B1P3/2N2N2/PPP2PPP/R1BQK2R b KQkq"),
             new V14GameStateFactory().FromFen("2k2bb1/7r/p1nq1p2/3pp3/P32P1/2PP3p/1P2QP2/RNB1K1R1 w -"),
             new V14GameStateFactory().FromFen("r1bqk1nr/1ppp1pbp/2n3p1/4p3/p3P3/5NP1/PPPP1PBP/RNBQK2R w KQkq"),
-            
-            // White winning one move from pawn promotion
-            new V14GameStateFactory().FromFen("8/1P6/8/8/8/2NK4/8/6k1 w -"),
 
             // Black winning one move from mate
-            new V14GameStateFactory().FromFen("1r6/4b3/p6P/k7/2p5/8/5r2/7K b -"),
+            // new V14GameStateFactory().FromFen("1r6/4b3/p6P/k7/2p5/8/5r2/7K b -"),
 
             // White slightly winning middle game
-            new V14GameStateFactory().FromFen("r3k2r/p1ppqpb1/Bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPB1PPP/R3K2R b KQkq -"),
+            // new V14GameStateFactory().FromFen("r3k2r/p1ppqpb1/Bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPB1PPP/R3K2R b KQkq -"),
+
+            // White winning two queen moves
+            // new V14GameStateFactory().FromFen("8/ppp4Q/8/8/8/6nq/PPP5/1K5k w -"),
+
+            // White winning one move from pawn promotion
+            // new V14GameStateFactory().FromFen("8/1P6/8/8/8/2NK4/8/6k1 w -"),
         };
     }
 }

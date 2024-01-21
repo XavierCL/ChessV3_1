@@ -8,9 +8,10 @@ public class Ai14 : MonoBehaviour, AiInterface
 {
     public bool ShowDebugInfo = false;
     public int ForceDepth = -1;
-    public bool DontStartNextDepthAfterHalfTime = true;
     public bool InitialRandomOrder = true;
+    public bool DontStartNextDepthAfterHalfTime = true;
     public bool searchExtensions = true;
+    public int sortFromDepth = 2;
 
     private readonly System.Random random = new System.Random();
 
@@ -49,7 +50,7 @@ public class Ai14 : MonoBehaviour, AiInterface
 
         var depth = 1;
         var timeManagement = new Ai14TimeManagement(remainingTime, increment, cancellationToken.Token, ForceDepth);
-        var hyperParameters = new Ai14SearchResult.HyperParameters(timeManagement, searchExtensions);
+        var hyperParameters = new Ai14SearchResult.HyperParameters(timeManagement, searchExtensions, sortFromDepth);
         var bestIndexEver = 0;
         var rootAlpha = new Ai14SearchResult(gameState.boardState.WhiteTurn ? double.MaxValue : double.MinValue, false, 0);
         var rootBeta = new Ai14SearchResult(gameState.boardState.WhiteTurn ? double.MinValue : double.MaxValue, false, 0);
@@ -62,15 +63,6 @@ public class Ai14 : MonoBehaviour, AiInterface
         {
             bestMoveOrder = bestMoveOrder.OrderBy(_moveIndex => random.Next()).ToArray();
         }
-
-        var allPieces = 0ul;
-
-        for (var bitBoardIndex = 0; bitBoardIndex < 12; ++bitBoardIndex)
-        {
-            allPieces |= gameState.boardState.bitBoards[bitBoardIndex];
-        }
-
-        bestMoveOrder = bestMoveOrder.OrderBy(moveIndex => gameState.boardState.whiteTurn ? -Ai14Evaluate.EvaluateMove(legalMoves[moveIndex], gameState, allPieces) : Ai14Evaluate.EvaluateMove(legalMoves[moveIndex], gameState, allPieces)).ToArray();
 
         while (true)
         {

@@ -23,35 +23,28 @@ public static class Ai14Evaluate
 
   public static IReadOnlyList<Move> SortMoves(IReadOnlyList<Move> legalMoves, V16GameState gameState)
   {
-    var allPieces = 0ul;
-
-    for (var bitBoardIndex = 0; bitBoardIndex < 12; ++bitBoardIndex)
-    {
-      allPieces |= gameState.boardState.bitBoards[bitBoardIndex];
-    }
-
-    var multiplier = gameState.boardState.whiteTurn ? 1 : -1;
-    return legalMoves.OrderBy(move => multiplier * EvaluateMove(move, gameState, allPieces)).ToArray();
+    var multiplier = gameState.boardState.whiteTurn ? -1 : 1;
+    return legalMoves.OrderBy(move => multiplier * EvaluateMove(move, gameState)).ToArray();
   }
 
-  public static double EvaluateMove(Move move, V16GameState gameState, ulong allPieces)
+  public static double EvaluateMove(Move move, V16GameState gameState)
   {
     var moveValue = 0.0;
 
     if (move.promotion != PieceType.Nothing)
     {
-      if (move.promotion == PieceType.WhiteRook) moveValue += 4;
-      else if (move.promotion == PieceType.WhiteKnight) moveValue += 2;
-      else if (move.promotion == PieceType.WhiteBishop) moveValue += 2;
-      else if (move.promotion == PieceType.WhiteQueen) moveValue += 8;
-      else if (move.promotion == PieceType.BlackRook) moveValue -= 4;
-      else if (move.promotion == PieceType.BlackKnight) moveValue -= 2;
-      else if (move.promotion == PieceType.BlackBishop) moveValue -= 2;
+      if (move.promotion == PieceType.WhiteQueen) moveValue += 8;
       else if (move.promotion == PieceType.BlackQueen) moveValue -= 8;
+      else if (move.promotion == PieceType.WhiteKnight) moveValue += 2;
+      else if (move.promotion == PieceType.BlackKnight) moveValue -= 2;
+      else if (move.promotion == PieceType.WhiteRook) moveValue += 4;
+      else if (move.promotion == PieceType.BlackRook) moveValue -= 4;
+      else if (move.promotion == PieceType.WhiteBishop) moveValue += 2;
+      else if (move.promotion == PieceType.BlackBishop) moveValue -= 2;
     }
 
     var targetBitBoard = move.target.index.toBitBoard();
-    if ((targetBitBoard & allPieces) != 0)
+    if ((targetBitBoard & gameState.boardState.allPiecesBitBoard) != 0)
     {
       if ((targetBitBoard & gameState.boardState.bitBoards[V16BoardState.WhitePawn]) != 0) moveValue -= 1;
       else if ((targetBitBoard & gameState.boardState.bitBoards[V16BoardState.BlackPawn]) != 0) moveValue += 1;

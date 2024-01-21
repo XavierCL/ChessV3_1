@@ -26,10 +26,11 @@ public static class Ai14Search
     var bestSearchResult = beta;
     var allTerminalLeaves = true;
     var nodeCount = 1L;
+    var sortedMoves = depth - 1 > hyperParameters.sortFromDepth ? Ai14Evaluate.SortMoves(legalMoves, gameState) : legalMoves;
 
-    for (var legalMoveIndex = 0; legalMoveIndex < legalMoves.Count; ++legalMoveIndex)
+    for (var legalMoveIndex = 0; legalMoveIndex < sortedMoves.Count; ++legalMoveIndex)
     {
-      gameState.PlayMove(legalMoves[legalMoveIndex]);
+      gameState.PlayMove(sortedMoves[legalMoveIndex]);
       var searchResult = Search(gameState, depth - 1, bestSearchResult, alpha, hyperParameters);
       nodeCount += searchResult.nodeCount;
       gameState.UndoMove();

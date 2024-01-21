@@ -16,7 +16,7 @@ public class Ai13SearchResult
     return new Ai13SearchResult(value, allTerminal, nodeCount);
   }
 
-  public bool IsBetterThan(Ai13SearchResult other, V14GameState gameState)
+  public bool IsBetterThan(Ai13SearchResult other, V16GameState gameState)
   {
     if (gameState.boardState.whiteTurn)
     {
@@ -33,7 +33,7 @@ public class Ai13SearchResult
     return value == other.value;
   }
 
-  public bool IsBestTerminal(V14GameState gameState)
+  public bool IsBestTerminal(V16GameState gameState)
   {
     return value == double.MaxValue && gameState.boardState.WhiteTurn || value == double.MinValue && !gameState.boardState.WhiteTurn;
   }

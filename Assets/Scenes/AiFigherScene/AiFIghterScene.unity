@@ -169,9 +169,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowDebugInfo: 0
   ForceDepth: -1
-  DontStartNextDepthAfterHalfTime: 1
   InitialRandomOrder: 1
+  DontStartNextDepthAfterHalfTime: 1
   searchExtensions: 1
+  sortFromDepth: 2
 --- !u!1 &292345930
 GameObject:
   m_ObjectHideFlags: 0
@@ -250,12 +251,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   initialTime: 0.1
-  increment: 0.1
-  OnlyFirstPosition: 1
+  increment: 0.01
+  OnlyFirstPosition: 0
   ReversePositions: 1
   SingleMove: 0
   GamePerHyperParameter: 1
-  MultipleFrames: 0
+  MultipleFrames: 1
 --- !u!4 &328839930
 Transform:
   m_ObjectHideFlags: 0

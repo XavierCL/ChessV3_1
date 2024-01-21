@@ -15,7 +15,7 @@ public class Ai13 : MonoBehaviour, AiInterface
     private readonly System.Random random = new System.Random();
 
     private CancellationTokenSource cancellationToken;
-    private V14GameState ownGameState;
+    private V16GameState ownGameState;
     private double averageUsefulDepth = 0.0;
     private int moveCount = 0;
 
@@ -25,7 +25,7 @@ public class Ai13 : MonoBehaviour, AiInterface
 
         if (ownGameState == null)
         {
-            ownGameState = new V14GameState(referenceGameState);
+            ownGameState = new V16GameState(referenceGameState);
         }
         else
         {

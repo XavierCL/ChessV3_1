@@ -66,11 +66,13 @@ public class Ai14SearchResult
   {
     public readonly Ai14TimeManagement timeManagement;
     public readonly bool searchExtensions;
+    public readonly int sortFromDepth;
 
-    public HyperParameters(Ai14TimeManagement timeManagement, bool searchExtensions)
+    public HyperParameters(Ai14TimeManagement timeManagement, bool searchExtensions, int sortFromDepth)
     {
       this.timeManagement = timeManagement;
       this.searchExtensions = searchExtensions;
+      this.sortFromDepth = sortFromDepth;
     }
   }
 }

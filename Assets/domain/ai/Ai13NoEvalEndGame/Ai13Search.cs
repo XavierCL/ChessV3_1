@@ -1,7 +1,7 @@
 public static class Ai13Search
 {
   // Depths are decreasing. A depth of 1 means evaluation
-  public static Ai13SearchResult Search(V14GameState gameState, int depth, Ai13SearchResult alpha, Ai13SearchResult beta, Ai13SearchResult.Hyperparameters hyperParameters)
+  public static Ai13SearchResult Search(V16GameState gameState, int depth, Ai13SearchResult alpha, Ai13SearchResult beta, Ai13SearchResult.Hyperparameters hyperParameters)
   {
     if (depth <= 1) return Ai13SearchExtension.Search(gameState, alpha, beta, hyperParameters);
 
