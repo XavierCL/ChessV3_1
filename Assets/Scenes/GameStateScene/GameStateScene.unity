@@ -171,4 +171,4 @@ MonoBehaviour:
   showFirstPly: 0
   OnlyFirstPosition: 0
   OnlyFirstGameState: 0
-  PlayMoveLast: 0
+  PlayMoveLast: 1
