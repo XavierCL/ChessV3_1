@@ -1,6 +1,6 @@
 public class PieceIdGameStateFactory : GameStateFactoryInterface
 {
-  private GameStateFactoryInterface underlying = new V14GameStateFactory();
+  private GameStateFactoryInterface underlying = new V17GameStateFactory();
 
   public override GameStateInterface StartingPosition()
   {

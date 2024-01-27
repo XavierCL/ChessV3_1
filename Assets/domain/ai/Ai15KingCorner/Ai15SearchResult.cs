@@ -2,25 +2,25 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-public class Ai14SearchResult
+public class Ai15SearchResult
 {
   public readonly double value;
   public readonly bool terminalLeaf;
   public readonly long nodeCount;
 
-  public Ai14SearchResult(double value, bool terminalLeaf, long nodeCount)
+  public Ai15SearchResult(double value, bool terminalLeaf, long nodeCount)
   {
     this.value = value;
     this.terminalLeaf = terminalLeaf;
     this.nodeCount = nodeCount;
   }
 
-  public Ai14SearchResult SetParentSearch(bool allTerminal, long nodeCount)
+  public Ai15SearchResult SetParentSearch(bool allTerminal, long nodeCount)
   {
-    return new Ai14SearchResult(value, allTerminal, nodeCount);
+    return new Ai15SearchResult(value, allTerminal, nodeCount);
   }
 
-  public bool IsBetterThan(Ai14SearchResult other, V17GameState gameState)
+  public bool IsBetterThan(Ai15SearchResult other, V17GameState gameState)
   {
     if (gameState.boardState.whiteTurn)
     {
@@ -32,7 +32,7 @@ public class Ai14SearchResult
     }
   }
 
-  public bool IsTheSameAs(Ai14SearchResult other)
+  public bool IsTheSameAs(Ai15SearchResult other)
   {
     return value == other.value;
   }
@@ -47,7 +47,7 @@ public class Ai14SearchResult
     return $"Evaluation: {value}";
   }
 
-  public class Comparer : IComparer<Ai14SearchResult>
+  public class Comparer : IComparer<Ai15SearchResult>
   {
     private readonly V17GameState gameState;
 
@@ -56,7 +56,7 @@ public class Ai14SearchResult
       this.gameState = gameState;
     }
 
-    public int Compare(Ai14SearchResult a, Ai14SearchResult b)
+    public int Compare(Ai15SearchResult a, Ai15SearchResult b)
     {
       return Math.Sign(gameState.boardState.whiteTurn ? b.value - a.value : a.value - b.value);
     }
@@ -64,15 +64,17 @@ public class Ai14SearchResult
 
   public class HyperParameters
   {
-    public readonly Ai14TimeManagement timeManagement;
+    public readonly Ai15TimeManagement timeManagement;
     public readonly bool searchExtensions;
     public readonly int sortFromDepth;
+    public readonly double middleKingEndGame;
 
-    public HyperParameters(Ai14TimeManagement timeManagement, bool searchExtensions, int sortFromDepth)
+    public HyperParameters(Ai15TimeManagement timeManagement, bool searchExtensions, int sortFromDepth, double middleKingEndGame)
     {
       this.timeManagement = timeManagement;
       this.searchExtensions = searchExtensions;
       this.sortFromDepth = sortFromDepth;
+      this.middleKingEndGame = middleKingEndGame;
     }
   }
 }

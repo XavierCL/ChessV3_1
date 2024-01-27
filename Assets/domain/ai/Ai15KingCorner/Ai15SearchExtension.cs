@@ -1,9 +1,9 @@
-public static class Ai14SearchExtension
+public static class Ai15SearchExtension
 {
-  public static Ai14SearchResult Search(V17GameState gameState, Ai14SearchResult alpha, Ai14SearchResult beta, Ai14SearchResult.HyperParameters hyperParameters)
+  public static Ai15SearchResult Search(V17GameState gameState, Ai15SearchResult alpha, Ai15SearchResult beta, Ai15SearchResult.HyperParameters hyperParameters)
   {
     var lastMove = gameState.History[^1];
-    if (lastMove.killed == null || !hyperParameters.searchExtensions) return Ai14Evaluate.Evaluate(gameState);
+    if (lastMove.killed == null || !hyperParameters.searchExtensions) return Ai15Evaluate.Evaluate(gameState, hyperParameters);
 
     var legalMoves = gameState.getLegalMoves();
 
@@ -13,17 +13,17 @@ public static class Ai14SearchExtension
 
       if (endGameState == GameEndState.WhiteWin)
       {
-        return new Ai14SearchResult(double.MaxValue, true, 1);
+        return new Ai15SearchResult(double.MaxValue, true, 1);
       }
       else if (endGameState == GameEndState.BlackWin)
       {
-        return new Ai14SearchResult(double.MinValue, true, 1);
+        return new Ai15SearchResult(double.MinValue, true, 1);
       }
 
-      return new Ai14SearchResult(0, true, 1);
+      return new Ai15SearchResult(0, true, 1);
     }
 
-    var idleEvaluation = Ai14Evaluate.Evaluate(gameState);
+    var idleEvaluation = Ai15Evaluate.Evaluate(gameState, hyperParameters);
 
     // If idle would be returned, it'd already be worst than the best parent move. Return early.
     if (!alpha.IsBetterThan(idleEvaluation, gameState)) return idleEvaluation;

@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
-public class Ai14 : MonoBehaviour, AiInterface
+public class Ai15 : MonoBehaviour, AiInterface
 {
     public bool ShowDebugInfo = false;
     public int ForceDepth = -1;
@@ -12,6 +12,7 @@ public class Ai14 : MonoBehaviour, AiInterface
     public bool DontStartNextDepthAfterHalfTime = true;
     public bool searchExtensions = true;
     public int sortFromDepth = 2;
+    public double middleKingEndGame = 0.01;
 
     private readonly System.Random random = new System.Random();
 
@@ -43,17 +44,17 @@ public class Ai14 : MonoBehaviour, AiInterface
         {
             if (ShowDebugInfo)
             {
-                Debug.Log($"Ai14 One legal move");
+                Debug.Log($"Ai15 One legal move");
             }
             return Task.FromResult(legalMoves[0]);
         }
 
         var depth = 1;
-        var timeManagement = new Ai14TimeManagement(remainingTime, increment, cancellationToken.Token, ForceDepth);
-        var hyperParameters = new Ai14SearchResult.HyperParameters(timeManagement, searchExtensions, sortFromDepth);
+        var timeManagement = new Ai15TimeManagement(remainingTime, increment, cancellationToken.Token, ForceDepth);
+        var hyperParameters = new Ai15SearchResult.HyperParameters(timeManagement, searchExtensions, sortFromDepth, middleKingEndGame);
         var bestIndexEver = 0;
-        var rootAlpha = new Ai14SearchResult(gameState.boardState.WhiteTurn ? double.MaxValue : double.MinValue, false, 0);
-        var rootBeta = new Ai14SearchResult(gameState.boardState.WhiteTurn ? double.MinValue : double.MaxValue, false, 0);
+        var rootAlpha = new Ai15SearchResult(gameState.boardState.WhiteTurn ? double.MaxValue : double.MinValue, false, 0);
+        var rootBeta = new Ai15SearchResult(gameState.boardState.WhiteTurn ? double.MinValue : double.MaxValue, false, 0);
         var bestResultEver = rootBeta;
         int lastCurrentMoveIndex = 0;
         var nodesVisited = 1L;
@@ -69,7 +70,7 @@ public class Ai14 : MonoBehaviour, AiInterface
             var bestIndex = 0;
             var bestSearchResult = rootBeta;
             var allTerminalLeaves = true;
-            var searchResults = new Ai14SearchResult[legalMoves.Count];
+            var searchResults = new Ai15SearchResult[legalMoves.Count];
 
             if (timeManagement.ShouldStop(depth, DontStartNextDepthAfterHalfTime)) break;
 
@@ -78,7 +79,7 @@ public class Ai14 : MonoBehaviour, AiInterface
                 var moveIndex = bestMoveOrder[lastCurrentMoveIndex];
 
                 gameState.PlayMove(legalMoves[moveIndex]);
-                var searchResult = Ai14Search.Search(gameState, depth, bestSearchResult, rootAlpha, hyperParameters);
+                var searchResult = Ai15Search.Search(gameState, depth, bestSearchResult, rootAlpha, hyperParameters);
                 nodesVisited += searchResult.nodeCount;
                 gameState.UndoMove();
 
@@ -115,12 +116,12 @@ public class Ai14 : MonoBehaviour, AiInterface
             if (allTerminalLeaves) break;
 
             // Refine next depth search order, so alpha beta works better
-            bestMoveOrder = bestMoveOrder.OrderBy(order => searchResults[order], new Ai14SearchResult.Comparer(gameState)).ToArray();
+            bestMoveOrder = bestMoveOrder.OrderBy(order => searchResults[order], new Ai15SearchResult.Comparer(gameState)).ToArray();
         }
 
         if (ShowDebugInfo)
         {
-            Debug.Log($"Ai14 Depth: {depth}, ratio: {lastCurrentMoveIndex}/{legalMoves.Count}, Nodes: {nodesVisited}, Time: {timeManagement.GetElapsed().TotalSeconds:0.000}/{remainingTime.TotalSeconds:0.000}, {bestResultEver}");
+            Debug.Log($"Ai15 Depth: {depth}, ratio: {lastCurrentMoveIndex}/{legalMoves.Count}, Nodes: {nodesVisited}, Time: {timeManagement.GetElapsed().TotalSeconds:0.000}/{remainingTime.TotalSeconds:0.000}, {bestResultEver}");
         }
 
         averageUsefulDepth = (averageUsefulDepth * moveCount + (depth - 1)) / (moveCount + 1);

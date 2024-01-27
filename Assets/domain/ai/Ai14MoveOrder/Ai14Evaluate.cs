@@ -3,31 +3,31 @@ using System.Linq;
 
 public static class Ai14Evaluate
 {
-  public static Ai14SearchResult Evaluate(V16GameState gameState)
+  public static Ai14SearchResult Evaluate(V17GameState gameState)
   {
     return new Ai14SearchResult(
-      gameState.boardState.bitBoards[V16BoardState.WhitePawn].bitCount() * 1
-      + gameState.boardState.bitBoards[V16BoardState.BlackPawn].bitCount() * -1
-      + gameState.boardState.bitBoards[V16BoardState.WhiteRook].bitCount() * 5
-      + gameState.boardState.bitBoards[V16BoardState.BlackRook].bitCount() * -5
-      + gameState.boardState.bitBoards[V16BoardState.WhiteKnight].bitCount() * 3
-      + gameState.boardState.bitBoards[V16BoardState.BlackKnight].bitCount() * -3
-      + gameState.boardState.bitBoards[V16BoardState.WhiteBishop].bitCount() * 3
-      + gameState.boardState.bitBoards[V16BoardState.BlackBishop].bitCount() * -3
-      + gameState.boardState.bitBoards[V16BoardState.WhiteQueen].bitCount() * 9
-      + gameState.boardState.bitBoards[V16BoardState.BlackQueen].bitCount() * -9,
+      gameState.boardState.bitBoards[V17BoardState.WhitePawn].bitCount() * 1
+      + gameState.boardState.bitBoards[V17BoardState.BlackPawn].bitCount() * -1
+      + gameState.boardState.bitBoards[V17BoardState.WhiteRook].bitCount() * 5
+      + gameState.boardState.bitBoards[V17BoardState.BlackRook].bitCount() * -5
+      + gameState.boardState.bitBoards[V17BoardState.WhiteKnight].bitCount() * 3
+      + gameState.boardState.bitBoards[V17BoardState.BlackKnight].bitCount() * -3
+      + gameState.boardState.bitBoards[V17BoardState.WhiteBishop].bitCount() * 3
+      + gameState.boardState.bitBoards[V17BoardState.BlackBishop].bitCount() * -3
+      + gameState.boardState.bitBoards[V17BoardState.WhiteQueen].bitCount() * 9
+      + gameState.boardState.bitBoards[V17BoardState.BlackQueen].bitCount() * -9,
       false,
       1
     );
   }
 
-  public static IReadOnlyList<Move> SortMoves(IReadOnlyList<Move> legalMoves, V16GameState gameState)
+  public static IReadOnlyList<Move> SortMoves(IReadOnlyList<Move> legalMoves, V17GameState gameState)
   {
     var multiplier = gameState.boardState.whiteTurn ? -1 : 1;
     return legalMoves.OrderBy(move => multiplier * EvaluateMove(move, gameState)).ToArray();
   }
 
-  public static double EvaluateMove(Move move, V16GameState gameState)
+  public static double EvaluateMove(Move move, V17GameState gameState)
   {
     var moveValue = 0.0;
 
@@ -46,16 +46,16 @@ public static class Ai14Evaluate
     var targetBitBoard = move.target.index.toBitBoard();
     if ((targetBitBoard & gameState.boardState.allPiecesBitBoard) != 0)
     {
-      if ((targetBitBoard & gameState.boardState.bitBoards[V16BoardState.WhitePawn]) != 0) moveValue -= 1;
-      else if ((targetBitBoard & gameState.boardState.bitBoards[V16BoardState.BlackPawn]) != 0) moveValue += 1;
-      else if ((targetBitBoard & gameState.boardState.bitBoards[V16BoardState.WhiteRook]) != 0) moveValue -= 5;
-      else if ((targetBitBoard & gameState.boardState.bitBoards[V16BoardState.BlackRook]) != 0) moveValue += 5;
-      else if ((targetBitBoard & gameState.boardState.bitBoards[V16BoardState.WhiteKnight]) != 0) moveValue -= 3;
-      else if ((targetBitBoard & gameState.boardState.bitBoards[V16BoardState.BlackKnight]) != 0) moveValue += 3;
-      else if ((targetBitBoard & gameState.boardState.bitBoards[V16BoardState.WhiteBishop]) != 0) moveValue -= 3;
-      else if ((targetBitBoard & gameState.boardState.bitBoards[V16BoardState.BlackBishop]) != 0) moveValue += 3;
-      else if ((targetBitBoard & gameState.boardState.bitBoards[V16BoardState.WhiteQueen]) != 0) moveValue -= 9;
-      else if ((targetBitBoard & gameState.boardState.bitBoards[V16BoardState.BlackQueen]) != 0) moveValue += 9;
+      if ((targetBitBoard & gameState.boardState.bitBoards[V17BoardState.WhitePawn]) != 0) moveValue -= 1;
+      else if ((targetBitBoard & gameState.boardState.bitBoards[V17BoardState.BlackPawn]) != 0) moveValue += 1;
+      else if ((targetBitBoard & gameState.boardState.bitBoards[V17BoardState.WhiteRook]) != 0) moveValue -= 5;
+      else if ((targetBitBoard & gameState.boardState.bitBoards[V17BoardState.BlackRook]) != 0) moveValue += 5;
+      else if ((targetBitBoard & gameState.boardState.bitBoards[V17BoardState.WhiteKnight]) != 0) moveValue -= 3;
+      else if ((targetBitBoard & gameState.boardState.bitBoards[V17BoardState.BlackKnight]) != 0) moveValue += 3;
+      else if ((targetBitBoard & gameState.boardState.bitBoards[V17BoardState.WhiteBishop]) != 0) moveValue -= 3;
+      else if ((targetBitBoard & gameState.boardState.bitBoards[V17BoardState.BlackBishop]) != 0) moveValue += 3;
+      else if ((targetBitBoard & gameState.boardState.bitBoards[V17BoardState.WhiteQueen]) != 0) moveValue -= 9;
+      else if ((targetBitBoard & gameState.boardState.bitBoards[V17BoardState.BlackQueen]) != 0) moveValue += 9;
     }
 
     return moveValue;
