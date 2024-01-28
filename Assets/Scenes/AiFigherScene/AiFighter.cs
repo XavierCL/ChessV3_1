@@ -39,7 +39,7 @@ public class AiFighter : MonoBehaviour
         var hyperParameterAi2Wins = new List<int>();
         var hyperParameterAi1Stats = new List<string>();
         var hyperParameterAi2Stats = new List<string>();
-        var hyperParameterValues = new List<double> { 0.001 };
+        var hyperParameterValues = new List<bool> { false, true };
         var movePlayedAi1White = 0;
         var movePlayedAi2White = 0;
 
@@ -53,11 +53,11 @@ public class AiFighter : MonoBehaviour
 
         foreach (var hyperParameterValue in hyperParameterValues)
         {
-            var ai1 = aiController.GetAi1() as Ai11;
+            var ai2 = aiController.GetAi2() as Ai17;
 
-            if (ai1 != null)
+            if (ai2 != null)
             {
-                // ai1.AcceptableDelta = hyperParameterValue;
+                ai2.DontStartNextDepthAfterHalfTime = hyperParameterValue;
             }
 
             var ai1Wins = 0;
