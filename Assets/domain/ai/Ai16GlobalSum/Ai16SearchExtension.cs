@@ -1,9 +1,9 @@
-public static class Ai15SearchExtension
+public static class Ai16SearchExtension
 {
-  public static Ai15SearchResult Search(V17GameState gameState, Ai15SearchResult alpha, Ai15SearchResult beta, Ai15SearchResult.HyperParameters hyperParameters)
+  public static Ai16SearchResult Search(V17GameState gameState, Ai16SearchResult alpha, Ai16SearchResult beta, Ai16SearchResult.HyperParameters hyperParameters)
   {
     var lastMove = gameState.History[^1];
-    if (lastMove.killed == null || !hyperParameters.searchExtensions) return Ai15Evaluate.Evaluate(gameState, hyperParameters);
+    if (lastMove.killed == null || !hyperParameters.searchExtensions) return Ai16Evaluate.Evaluate(gameState, hyperParameters);
 
     var legalMoves = gameState.getLegalMoves();
 
@@ -13,17 +13,17 @@ public static class Ai15SearchExtension
 
       if (endGameState == GameEndState.WhiteWin)
       {
-        return new Ai15SearchResult(double.MaxValue, true, 1);
+        return new Ai16SearchResult(double.MaxValue, Ai16Evaluate.MAX_EVALUATION, true, 1, false);
       }
       else if (endGameState == GameEndState.BlackWin)
       {
-        return new Ai15SearchResult(double.MinValue, true, 1);
+        return new Ai16SearchResult(double.MinValue, -Ai16Evaluate.MAX_EVALUATION, true, 1, false);
       }
 
-      return new Ai15SearchResult(0, true, 1);
+      return new Ai16SearchResult(0, 0, true, 1, false);
     }
 
-    var idleEvaluation = Ai15Evaluate.Evaluate(gameState, hyperParameters);
+    var idleEvaluation = Ai16Evaluate.Evaluate(gameState, hyperParameters);
 
     // If idle would be returned, it'd already be worst than the best parent move. Return early.
     if (!alpha.IsBetterThan(idleEvaluation, gameState)) return idleEvaluation;
@@ -33,6 +33,7 @@ public static class Ai15SearchExtension
 
     var allowedTarget = lastMove.killed.position.index;
     var nodeCount = 1L;
+    var sum = idleEvaluation.sum;
 
     for (var legalMoveIndex = 0; legalMoveIndex < legalMoves.Count; ++legalMoveIndex)
     {
@@ -51,13 +52,13 @@ public static class Ai15SearchExtension
         // Return early if the best outcome can be achieved
         if (searchResult.IsBestTerminal(gameState))
         {
-          return searchResult.SetParentSearch(true, nodeCount);
+          return searchResult.SetParentSearch(sum, true, nodeCount);
         }
 
         // If search result would be returned, it'd be worst than the previous move. Return early.
         if (!alpha.IsBetterThan(searchResult, gameState))
         {
-          return searchResult.SetParentSearch(false, nodeCount);
+          return searchResult.SetAlphaSkiped(sum, nodeCount);
         }
 
         bestSearchResult = searchResult;
@@ -67,6 +68,6 @@ public static class Ai15SearchExtension
       break;
     }
 
-    return bestSearchResult.SetParentSearch(false, nodeCount);
+    return bestSearchResult.SetParentSearch(sum, false, nodeCount);
   }
 }

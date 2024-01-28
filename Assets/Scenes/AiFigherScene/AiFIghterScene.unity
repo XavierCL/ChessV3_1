@@ -174,7 +174,6 @@ MonoBehaviour:
   searchExtensions: 1
   sortFromDepth: 2
   middleKingEndGame: 0.01
-  smallestRecapture: 1
 --- !u!1 &292345930
 GameObject:
   m_ObjectHideFlags: 0
@@ -257,7 +256,7 @@ MonoBehaviour:
   OnlyFirstPosition: 0
   ReversePositions: 1
   SingleMove: 0
-  GamePerHyperParameter: 3
+  GamePerHyperParameter: 1
   MultipleFrames: 1
 --- !u!4 &328839930
 Transform:
@@ -315,7 +314,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 578633564}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8134dfdcc9415cd45a0b8bc28f10ffa6, type: 3}
+  m_Script: {fileID: 11500000, guid: 9400beb3e159a784f93f44aa5f63bf46, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   ShowDebugInfo: 0
@@ -325,4 +324,3 @@ MonoBehaviour:
   searchExtensions: 1
   sortFromDepth: 2
   middleKingEndGame: 0.01
-  smallestRecapture: 0
