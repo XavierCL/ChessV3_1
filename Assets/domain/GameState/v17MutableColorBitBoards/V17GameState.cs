@@ -28,7 +28,7 @@ public class V17GameState : GameStateInterface
         staleTurns = gameState.StaleTurns;
         history = new List<ReversibleMove>(gameState.History);
         boardState = new V17BoardState(gameState.BoardState);
-        snapshots = gameState.Snapshots.ToDictionary(tuple => new V17BoardState.Hashable(new V17BoardState(tuple.Key)), tuple => tuple.Value);
+        snapshots = gameState.Snapshots.ToDictionary(tuple => tuple.Key as V17BoardState.Hashable ?? new V17BoardState.Hashable(new V17BoardState(tuple.Key)), tuple => tuple.Value);
     }
 
     public V17GameState(List<PiecePosition> piecePositions, bool whiteStarts, CastleFlags castling)

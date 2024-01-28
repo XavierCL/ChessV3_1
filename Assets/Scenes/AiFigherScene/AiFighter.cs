@@ -262,16 +262,16 @@ public class AiFighter : MonoBehaviour
         return new List<GameStateInterface> {
             // Mostly equal positions
             new V17GameStateFactory().StartingPosition(),
-            new V17GameStateFactory().FromFen("1n2k2r/pp2bpp1/5n1p/8/P7/1P2PNPB/1pPPQP1P/R3K2R b KQ"),
             new V17GameStateFactory().FromFen("2kr1b2/1bp4r/p13p2/3pp3/P3n1P1/3P4/1PP1QP2/RNB2KRr w -"),
             new V17GameStateFactory().FromFen("8/p1k2p2/1pr2p2/6p1/8/1P1R4/P1P3PP/K7 w -"),
-            new V17GameStateFactory().FromFen("rnbqkb1r/pppp1p1p/5np1/4p3/2B1P3/2N2N2/PPP2PPP/R1BQK2R b KQkq"),
             new V17GameStateFactory().FromFen("2k2bb1/7r/p1nq1p2/3pp3/P32P1/2PP3p/1P2QP2/RNB1K1R1 w -"),
             new V17GameStateFactory().FromFen("r1bqk1nr/1ppp1pbp/2n3p1/4p3/p3P3/5NP1/PPPP1PBP/RNBQK2R w KQkq"),
             new V17GameStateFactory().FromFen("8/1K3ppp/8/8/8/8/PPP3k1/8 w -"),
+            new V17GameStateFactory().FromFen("rnbqkb1r/pppp1p1p/5np1/4p3/2B1P3/2N2N2/PPP2PPP/R1BQK2R b KQkq"),
+            new V17GameStateFactory().FromFen("1n2k2r/pp2bpp1/5n1p/8/P7/1P2PNPB/1pPPQP1P/R3K2R b KQ"),
 
             // Black winning rook and king
-            new V17GameStateFactory().FromFen("8/8/8/3K4/8/8/8/6rk b -"),
+            // new V17GameStateFactory().FromFen("8/8/8/3K4/8/8/8/6rk b -"),
 
             // Black winning one move from mate
             // new V17GameStateFactory().FromFen("1r6/4b3/p6P/k7/2p5/8/5r2/7K b -"),

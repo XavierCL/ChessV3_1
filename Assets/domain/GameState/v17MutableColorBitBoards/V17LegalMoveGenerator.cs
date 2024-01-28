@@ -99,17 +99,17 @@ public static class V17LegalMoveGenerator
         if (pieceMoves.Length > 0) return new CacheEntry(pieceMoves, CacheEntryType.HasMove);
       }
 
-      var bishopPositions = boardState.bitBoards[boardState.whiteTurn ? V17BoardState.WhiteBishop : V17BoardState.BlackBishop].extractIndices();
-      for (var index = 0; index < bishopPositions.Length; ++index)
-      {
-        var pieceMoves = GetPseudoLegalBishopMoves(checkInfoBoardState, bishopPositions[index]);
-        if (pieceMoves.Length > 0) return new CacheEntry(pieceMoves, CacheEntryType.HasMove);
-      }
-
       var knightPositions = boardState.bitBoards[boardState.whiteTurn ? V17BoardState.WhiteKnight : V17BoardState.BlackKnight].extractIndices();
       for (var index = 0; index < knightPositions.Length; ++index)
       {
         var pieceMoves = GetPseudoLegalKnightMoves(checkInfoBoardState, knightPositions[index]);
+        if (pieceMoves.Length > 0) return new CacheEntry(pieceMoves, CacheEntryType.HasMove);
+      }
+
+      var bishopPositions = boardState.bitBoards[boardState.whiteTurn ? V17BoardState.WhiteBishop : V17BoardState.BlackBishop].extractIndices();
+      for (var index = 0; index < bishopPositions.Length; ++index)
+      {
+        var pieceMoves = GetPseudoLegalBishopMoves(checkInfoBoardState, bishopPositions[index]);
         if (pieceMoves.Length > 0) return new CacheEntry(pieceMoves, CacheEntryType.HasMove);
       }
 

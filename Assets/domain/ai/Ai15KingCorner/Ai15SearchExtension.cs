@@ -62,6 +62,9 @@ public static class Ai15SearchExtension
 
         bestSearchResult = searchResult;
       }
+
+      // Assuming the legal moves are preordered by smallest to largest capturer
+      break;
     }
 
     return bestSearchResult.SetParentSearch(false, nodeCount);

@@ -55,15 +55,15 @@ public class V17BoardState : BoardStateInterface
     bitBoards[BlackKnight] = BoardPosition.fromColRow(1, 7).toBitBoard() | BoardPosition.fromColRow(6, 7).toBitBoard();
     bitBoards[BlackPawn] = ((1ul << 8) - 1) << 48;
 
-    foreach (var piecePosition in piecePositions)
-    {
-      pieceBoard[piecePosition.position.index] = piecePosition.pieceType;
-    }
-
     allPiecesBitBoard = 0L;
     for (var bitBoardIndex = 0; bitBoardIndex < 12; ++bitBoardIndex)
     {
       allPiecesBitBoard |= bitBoards[bitBoardIndex];
+      var pieceIndices = bitBoards[bitBoardIndex].extractIndices();
+      for (var pieceIndex = 0; pieceIndex < pieceIndices.Length; ++pieceIndex)
+      {
+        pieceBoard[pieceIndices[pieceIndex]] = BitBoardIndexToPieceType(bitBoardIndex);
+      }
     }
 
     whiteBitBoard = bitBoards[V17BoardState.WhitePawn]
@@ -446,7 +446,13 @@ public class V17BoardState : BoardStateInterface
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
   public static int PieceTypeToBitBoardIndex(PieceType pieceType)
   {
-    return 2 * ((ulong)pieceType).lsbUnchecked() + (((int)pieceType >> 6) - 1);
+    return (((ulong)pieceType).lsbUnchecked() << 1) + (((int)pieceType >> 6) - 1);
+  }
+
+  [MethodImpl(MethodImplOptions.AggressiveInlining)]
+  public static PieceType BitBoardIndexToPieceType(int bitBoardIndex)
+  {
+    return (PieceType)(((bitBoardIndex % 2 + 1) << 6) | (1 << (bitBoardIndex >> 1)));
   }
 
   public Hashable GetHashable()
